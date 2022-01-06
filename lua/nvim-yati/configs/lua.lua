@@ -1,0 +1,33 @@
+return {
+  indent = {
+    "table",
+    "function",
+    "function_definition",
+    "expression",
+    "local_function",
+    "parameters",
+    "arguments",
+    "if_statement",
+    "else",
+    "elseif",
+    "do_statement",
+    "for_in_statement",
+    "while_statement",
+    "local_variable_declaration",
+    "variable_declaration",
+  },
+  indent_last = {
+    "else",
+    "elseif",
+    "local_variable_declaration",
+    "variable_declaration",
+    "return_statement",
+  },
+  skip_child = {
+    local_function = { literal = { "local" } },
+    if_statement = { literal = { "then" }, named = { "else", "elseif" } },
+    for_in_statement = { literal = { "do", "in" } },
+    while_statement = { literal = { "do" } },
+  },
+  ignore = { named = { "comment", "binary_operation" } },
+}
