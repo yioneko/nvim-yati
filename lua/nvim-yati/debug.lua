@@ -1,5 +1,5 @@
 local M = {
-  flag = true,
+  flag = false,
 }
 
 function M.log(...)

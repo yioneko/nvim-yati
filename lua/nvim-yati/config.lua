@@ -7,6 +7,7 @@ local M = {}
 ---@class YatiConfig
 ---@field indent string[]
 ---@field indent_last string[]
+---@field indent_last_new_line string[]
 ---@field indent_last_open string[] | boolean
 ---@field skip_child table<string, TSNodeList>
 ---@field ignore TSNodeList
@@ -15,6 +16,7 @@ local M = {}
 local default = {
   indent = {},
   indent_last = {},
+  indent_last_new_line = {},
   indent_last_open = false,
   skip_child = {},
   ignore = {},

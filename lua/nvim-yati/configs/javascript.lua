@@ -16,13 +16,9 @@ local config = {
     "switch_body",
     "member_expression",
     "template_string",
-    "jsx_self_closing_element",
   },
   indent_last = {
-    "arrow_function",
-    "assignment_expression",
     "expression_statement",
-    "call_expression",
     "variable_declarator",
     "lexical_declaration",
     "ternary_expression",
@@ -31,9 +27,13 @@ local config = {
     "if_statement",
     "else_clause",
     "while_statement",
+    "jsx_self_closing_element",
+  },
+  indent_last_new_line = {
+    "assignment_expression",
+    "call_expression",
   },
   skip_child = {
-    jsx_self_closing_element = { literal = { "/" } },
     if_statement = { named = { "statement_block", "else_clause" } },
     else_clause = { named = { "statement_block" } },
     while_statement = { named = { "statement_block" } },

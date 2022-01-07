@@ -33,7 +33,9 @@ end
 
 local function should_indent(node, spec)
   local type = node:type()
-  return vim.tbl_contains(spec.indent, type) or vim.tbl_contains(spec.indent_last, type)
+  return vim.tbl_contains(spec.indent, type)
+    or vim.tbl_contains(spec.indent_last, type)
+    or vim.tbl_contains(spec.indent_last_new_line, type)
 end
 
 local function find_indent_block_with_missing(root, start_line, spec)
@@ -120,8 +122,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   if not node then
     return -1
   end
-  -- The start line of the current containing node
-  local start_line = node:start()
+  local start_line, _, end_line, _ = node:range()
 
   if node:type() == "ERROR" then
     -- TODO: Better error handling
@@ -153,15 +154,19 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
         break
       end
 
-      -- Do not indent on the same line
-      if parent:start() ~= start_line then
+      -- Do not indent for the same line range
+      if parent:start() ~= start_line or parent:end_() ~= end_line then
         local parent_type = parent:type()
 
         if
           should_indent(parent, spec)
           and not match_type_spec(node, spec.skip_child[parent_type] or {})
           and node:prev_sibling() -- Skip the first node
-          and (node:next_sibling() ~= nil or vim.tbl_contains(spec.indent_last, parent_type)) -- Skip the last node
+          and (
+            node:next_sibling() ~= nil
+            or vim.tbl_contains(spec.indent_last, parent_type)
+            or (vim.tbl_contains(spec.indent_last_new_line, parent_type) and node:prev_sibling():end_() ~= start_line)
+          ) -- Skip the last node
         then
           indent = indent + shift
         end
@@ -173,6 +178,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     -- If the node is ignored, we should pass through it
     if node and not match_type_spec(node, ignore_spec) then
       start_line = node:start()
+      end_line = node:end_()
     end
   end
   debug.log("Traverse end")
