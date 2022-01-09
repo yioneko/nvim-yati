@@ -27,6 +27,8 @@ local config = {
     "if_statement",
     "else_clause",
     "while_statement",
+    "switch_case",
+    "switch_default",
     "jsx_self_closing_element",
   },
   indent_last_new_line = {
