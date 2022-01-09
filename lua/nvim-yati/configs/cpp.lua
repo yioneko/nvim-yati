@@ -32,6 +32,5 @@ return extend(config, {
     while_statement = { named = { "compound_statement", "condition_clause" } },
     do_statement = { named = { "compound_statement", "condition_clause" } },
     for_statement = { named = { "compound_statement" } },
-
-  }
+  },
 })

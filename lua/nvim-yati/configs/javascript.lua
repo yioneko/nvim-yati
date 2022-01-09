@@ -36,12 +36,12 @@ local config = {
   },
   skip_child = {
     if_statement = { named = { "statement_block", "else_clause", "parenthesized_expression" } },
-    else_clause = { named = { "statement_block", "parenthesized_expression"} },
+    else_clause = { named = { "statement_block", "parenthesized_expression" } },
     while_statement = { named = { "statement_block", "parenthesized_expression" } },
     jsx_fragment = { literal = { "<" } },
   },
-  ignore_self = { literal = { ";" }, named = {  "jsx_text" } },
-  ignore_within = { "description" }
+  ignore_self = { literal = { ";" }, named = { "jsx_text" } },
+  ignore_within = { "description" },
 }
 
 return config

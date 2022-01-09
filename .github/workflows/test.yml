@@ -10,7 +10,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        os: ['ubuntu-latest']
         nvim-versions: ['stable', 'nightly']
     runs-on: ${{ matrix.os }}
     steps:
@@ -30,3 +30,4 @@ jobs:
       - uses: JohnnyMorganz/stylua-action@1.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          args: --check .
