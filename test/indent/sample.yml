@@ -1,0 +1,21 @@
+include_newlines: |
+  exactly as you see
+  will appear these three
+  lines of poetry
+  MARKER
+
+fold_newlines: >
+  this is really a
+  MARKER
+  single line of text
+  despite appearances
+
+foo:
+  bar:
+    - a: fd
+      MARKER
+      b:
+        - fsdf
+        - fsfs
+        - dgsdgf
+

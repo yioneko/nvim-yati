@@ -13,6 +13,7 @@ local test_files = {
   html = { "sample.html" },
   css = { "sample.css" },
   json = { "sample.json" },
+  yaml = { "sample.yml" },
 }
 
 local function same_indent(state, arguments)

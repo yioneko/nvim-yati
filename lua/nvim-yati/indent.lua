@@ -131,9 +131,13 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
         prev_node = find_indent_block_with_missing(prev_node, prev_node:start(), spec)
       end
     end
-    -- If prev_node is contained, then we use prev_node as indent base
-    if prev_node and prev_node:start() > node:start() then
-      node = prev_node
+    -- If prev_node is contained inside, then we use prev_node as indent base
+    if prev_node then
+      local prer, prec = prev_node:start()
+      local curr, curc = node:start()
+      if prer > curr or (prer == curr and prec > curc) then
+        node = prev_node
+      end
     end
   end
 
