@@ -31,15 +31,17 @@ local config = {
   },
   indent_last_new_line = {
     "assignment_expression",
+    "arrow_function",
     "call_expression",
   },
   skip_child = {
-    if_statement = { named = { "statement_block", "else_clause" } },
-    else_clause = { named = { "statement_block" } },
-    while_statement = { named = { "statement_block" } },
+    if_statement = { named = { "statement_block", "else_clause", "parenthesized_expression" } },
+    else_clause = { named = { "statement_block", "parenthesized_expression"} },
+    while_statement = { named = { "statement_block", "parenthesized_expression" } },
     jsx_fragment = { literal = { "<" } },
   },
-  ignore = { literal = { ";" }, named = { "comment", "description", "jsx_text" } },
+  ignore_self = { literal = { ";" }, named = {  "jsx_text" } },
+  ignore_within = { "description" }
 }
 
 return config

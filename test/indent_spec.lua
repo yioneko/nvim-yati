@@ -4,9 +4,15 @@ local say = require("say")
 local marker = "MARKER"
 local test_file_dir = "test/indent"
 local test_files = {
+  c = { "sample.c" },
+  cpp = { "sample.cpp" },
   javascript = { "sample.js" },
+  typescript = { "sample.ts" },
   lua = { "sample.lua" },
+  python = { "sample.py" },
   html = { "sample.html" },
+  css = { "sample.css" },
+  json = { "sample.json" },
 }
 
 local function same_indent(state, arguments)

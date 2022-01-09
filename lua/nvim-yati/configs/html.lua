@@ -8,7 +8,7 @@ local config = {
     "end_tag",
     "self_closing_tag",
   },
-  ignore = { named = { "text", "comment" } },
+  ignore_self = { named = { "text" } },
 }
 
 return config

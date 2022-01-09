@@ -4,7 +4,7 @@ local config = {
     "block",
     "declaration",
   },
-  ignore = { literal = { ";" } },
+  ignore_self = { literal = { ";" } },
 }
 
 return config

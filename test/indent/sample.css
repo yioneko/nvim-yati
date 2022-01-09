@@ -1,0 +1,22 @@
+.foo {
+  box-shadow: 0 0 0 1px #ccc,
+    MARKER
+    0 0 0 2px #ccc;
+  font-size: 12px;
+  /* comment */
+  /*
+   * comment
+   * comment
+   * */
+}
+
+/*
+ * comment
+ * comment
+ * */
+
+.foo,
+.bar {
+  MARKER
+  color: #fff;
+}

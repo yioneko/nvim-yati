@@ -36,5 +36,5 @@ return {
     repeat_statement = { literal = { "until" } },
     return_statement = { literal = { "(", ")" } },
   },
-  ignore = { named = { "comment", "binary_operation" } },
+  ignore_self = { named = { "binary_operation" } },
 }

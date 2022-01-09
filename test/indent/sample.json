@@ -1,0 +1,16 @@
+{
+  "foo": "bar",
+  "foo1": {
+    "bar": "baz",
+    "bar1": {
+      MARKER
+      "baz": "qux",
+      "baz1": [
+        123,
+        456,
+        MARKER
+      ]
+    }
+  }
+  MARKER
+}

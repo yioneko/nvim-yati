@@ -80,14 +80,18 @@ else
 if (true) {
   foo();
   bar();
-} else if (false) {
+} else if (
+  false
+) {
+  (1 + 2)
   MARKER
 } else {
   MARKER
   foo();
 }
 
-while (condition)
+while (a === 1
+  || b === 1)
   inLoop();
 
 while (condition)
@@ -186,6 +190,23 @@ function func(
     fs
   }
 }
+
+function foo() {
+  return (function(
+    a,
+    b
+  ) {
+    MARKER
+    ff
+  })(
+    c
+    MARKER
+  )(
+    d
+    MARKER
+  );
+}
+
 class MyClass extends OtherComponent {
 
   state = {
@@ -207,3 +228,27 @@ class MyClass extends OtherComponent {
 foo(myWrapper(mysecondWrapper({
   a: 1
 })));
+
+const af1 = (c) => {
+  const a = () => {
+    MARKER
+    sdf
+  }
+}
+const af2 = (c
+  b,
+  d
+) => ({
+  f: () => {
+    MARKER
+    sdf
+  }
+})
+
+const af3 = (c) =>
+  ((d) =>
+    123
+  )(
+    e,
+    b
+  )

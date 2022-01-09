@@ -21,20 +21,24 @@ local config = {
     "while_statement",
     "with_statement",
     "try_statement",
+    "except_clause",
+    "finnaly_clause",
     "import_from_statement",
     "function_definition",
     "class_definition",
+    "return_statement",
     "elif_clause",
     "else_clause",
     "expression_list",
     "binary_operator",
-    "except_clause",
+    "lambda",
   },
   indent_last_open = true,
   skip_child = {
     if_statement = { named = { "else_clause", "elif_clause" } },
+    while_statement = { named = { "else_clause" } },
+    try_statement = { named = { "except_clause", "else_clause", "finnaly_clause" } },
   },
-  ignore = { named = { "comment" } },
 }
 
 return config

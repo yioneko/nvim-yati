@@ -1,4 +1,5 @@
 local M = {}
+local extend = require("nvim-yati.utils").extend_config
 
 ---@class TSNodeList
 ---@field named string[]
@@ -10,7 +11,9 @@ local M = {}
 ---@field indent_last_new_line string[]
 ---@field indent_last_open string[] | boolean
 ---@field skip_child table<string, TSNodeList>
----@field ignore TSNodeList
+---@field ignore_outer TSNodeList
+---@field ignore_within string[]
+---@field ignore_self TSNodeList
 
 ---@type YatiConfig
 local default = {
@@ -19,7 +22,9 @@ local default = {
   indent_last_new_line = {},
   indent_last_open = false,
   skip_child = {},
-  ignore = {},
+  ignore_within = { "string", "comment" },
+  ignore_outer = {},
+  ignore_self = {},
 }
 
 ---@type table<string, YatiConfig>
@@ -38,7 +43,7 @@ function M.get_config(lang)
     return
   end
 
-  return vim.tbl_extend("keep", overrides[lang] or {}, config, default)
+  return extend(default, extend(config, overrides[lang] or {}))
 end
 
 return M
