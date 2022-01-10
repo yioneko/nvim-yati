@@ -96,14 +96,12 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   local shift = vim.bo.shiftwidth -- TODO: Work with tabstop
 
   local node = get_node_at_line(line, tree, false, bufnr)
-  if
-    not node --[[ or match_type_spec(node, ignore_spec) ]]
-  then
+  if not node then
     return -1
   end
 
   local containing_node = get_node_at_line(line, tree, true, bufnr)
-  if vim.tbl_contains(spec.ignore_within, containing_node:type()) then
+  if line ~= containing_node:start() and vim.tbl_contains(spec.ignore_within, containing_node:type()) then
     return vim.fn.indent(line + 1)
   end
 
