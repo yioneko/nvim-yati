@@ -2,6 +2,7 @@ local function get_list_item_indent(node)
   local inc = 0
   local cur_indent = vim.fn.indent(node:start() + 1)
   local cur = node:prev_sibling()
+  -- The nested numbered list item is treated as sibling?
   while cur ~= nil do
     local indent = vim.fn.indent(cur:start() + 1)
     if indent < cur_indent then
@@ -10,6 +11,7 @@ local function get_list_item_indent(node)
     end
     cur = cur:prev_sibling()
   end
+
   if node:parent():parent():type() == "list_item" then
     inc = inc + 1
   end
