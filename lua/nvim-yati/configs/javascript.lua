@@ -30,8 +30,6 @@ local config = {
     "switch_case",
     "switch_default",
     "jsx_self_closing_element",
-  },
-  indent_last_new_line = {
     "assignment_expression",
     "arrow_function",
     "call_expression",

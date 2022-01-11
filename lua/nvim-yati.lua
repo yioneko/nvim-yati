@@ -7,6 +7,7 @@ function M.init()
       is_supported = function(lang)
         return pcall(require, "nvim-yati.configs." .. lang)
       end,
+      overrides = {},
     },
   })
 end

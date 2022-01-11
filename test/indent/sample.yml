@@ -11,11 +11,15 @@ fold_newlines: >
   despite appearances
 
 foo:
+  # comment
   bar:
     - a: fd
       MARKER
       b:
         - fsdf
         - fsfs
+        MARKER
         - dgsdgf
-
+    - c: fdsf
+  baz:
+    MARKER

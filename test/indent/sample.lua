@@ -88,7 +88,7 @@ local function ffa(
     -- [[
     -- block comment
     -- block comment
-    -- ]
+    -- ]]
     MARKER
   )
     -- comment

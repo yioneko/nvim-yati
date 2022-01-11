@@ -22,9 +22,9 @@ local function get_node_at_line(lnum, tree, named, bufnr)
   end
 end
 
-local function has_missing(root)
+local function node_has_missing(root)
   for node, _ in root:iter_children() do
-    if node:missing() or has_missing(node) then
+    if node:missing() or node_has_missing(node) then
       return true
     end
   end
@@ -38,9 +38,7 @@ end
 
 local function should_indent(node, spec)
   local type = node:type()
-  return vim.tbl_contains(spec.indent, type)
-    or vim.tbl_contains(spec.indent_last, type)
-    or vim.tbl_contains(spec.indent_last_new_line, type)
+  return vim.tbl_contains(spec.indent, type) or vim.tbl_contains(spec.indent_last, type)
 end
 
 local function should_ignore(node, spec)
@@ -55,9 +53,7 @@ local function get_node_range(node, spec)
 
   -- Use next sibling's start line as end line if this node has a last indent
   -- This fix issues with duplicate indent on the last node
-  local is_indent_last = vim.tbl_contains(spec.indent_last, node:type())
-    or vim.tbl_contains(spec.indent_last_new_line, node:type())
-  if is_indent_last and node:next_sibling() then
+  if vim.tbl_contains(spec.indent_last, node:type()) and node:next_sibling() then
     end_line = node:next_sibling():start()
   end
   return start_line, end_line
@@ -65,7 +61,7 @@ end
 
 local function find_indent_block_with_missing(root, start_line, spec)
   for node, _ in root:iter_children() do
-    if should_indent(node, spec) and node:start() == start_line and has_missing(node) then
+    if should_indent(node, spec) and node:start() == start_line and node_has_missing(node) then
       return node
     end
   end
@@ -100,41 +96,57 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     return -1
   end
 
+  ---@return HookCtx
+  local function make_ctx()
+    return { tree = tree, shift = shift, upper_line = upper_line }
+  end
+
   local containing_node = get_node_at_line(line, tree, true, bufnr)
-  if line ~= containing_node:start() and vim.tbl_contains(spec.ignore_within, containing_node:type()) then
-    return vim.fn.indent(line + 1)
+  if vim.tbl_contains(spec.ignore_within, containing_node:type()) then
+    if line ~= containing_node:start() then
+      return vim.fn.indent(line + 1) - vim.fn.indent(upper_line + 1)
+    else
+      node = containing_node
+    end
   end
 
   debug.log("Initial node", node:type())
   -- The line is empty
   if node:start() ~= line then
-    node = containing_node
-
-    local prev_node
-    do
-      -- TODO: Replace this with a lua function and work with bufnr
-      local cur_line = vim.fn.prevnonblank(line) - 1
-      prev_node = get_node_at_line(cur_line, tree, true, bufnr)
-
-      -- Skip ignored nodes
-      while prev_node and should_ignore(prev_node, spec) do
-        cur_line = vim.fn.prevnonblank(cur_line) - 1
-        if cur_line < upper_line then
-          prev_node = nil
-          break
-        end
+    local inc, next = spec.hook_new_line(line, node, make_ctx())
+    if inc ~= nil then
+      if inc < 0 then
+        return -1
+      end
+      indent = indent + inc
+      node = next
+    else
+      local prev_node
+      do
+        -- TODO: Replace this with a lua function and work with bufnr
+        local cur_line = vim.fn.prevnonblank(line) - 1
         prev_node = get_node_at_line(cur_line, tree, true, bufnr)
+
+        -- Skip ignored nodes
+        while prev_node and should_ignore(prev_node, spec) do
+          cur_line = vim.fn.prevnonblank(cur_line) - 1
+          if cur_line < upper_line then
+            prev_node = nil
+            break
+          end
+          prev_node = get_node_at_line(cur_line, tree, true, bufnr)
+        end
+        if not spec.indent_last_open and prev_node then
+          prev_node = find_indent_block_with_missing(prev_node, prev_node:start(), spec)
+        end
       end
-      if not spec.indent_last_open and prev_node then
-        prev_node = find_indent_block_with_missing(prev_node, prev_node:start(), spec)
-      end
-    end
-    -- If prev_node is contained inside, then we use prev_node as indent base
-    if prev_node then
-      local prer, prec = prev_node:start()
-      local curr, curc = node:start()
-      if prer > curr or (prer == curr and prec > curc) then
-        node = prev_node
+      -- If prev_node is contained inside, then we use prev_node as indent base
+      if prev_node then
+        local prer, prec = prev_node:start()
+        local curr, curc = node:start()
+        if prer > curr or (prer == curr and prec > curc) then
+          node = prev_node
+        end
       end
     end
   end
@@ -154,61 +166,57 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   end
   local start_line, end_line = get_node_range(node, spec)
 
+  if line ~= start_line and node:named() and should_indent(node, spec) then
+    indent = indent + shift
+  end
+
   if node:type() == "ERROR" then
     -- TODO: Better error handling
     debug.log("On error node at", start_line)
-    if line == start_line then
-      -- If the line of node is the same as line calcuated for indent, return 0 to maintain the idempotency
-      -- TODO: Replace this with a lua function and work with bufnr
-      return vim.fn.indent(line + 1) - vim.fn.indent(upper_line + 1)
-    else
-      return vim.fn.indent(start_line + 1) - vim.fn.indent(upper_line + 1)
-    end
-  end
-
-  if node:named() and should_indent(node, spec) then
-    indent = indent + shift
+    return vim.fn.indent(start_line + 1) - vim.fn.indent(upper_line + 1)
   end
 
   debug.log("Traverse from:", node:type(), start_line)
   while start_line >= upper_line and node do
     if match_type_spec(node, spec.ignore_outer) then
-      return indent
+      break
     end
 
-    local parent = node:parent()
-    if parent then
-      if parent:type() == "ERROR" then
-        debug.log("On error node at", parent:start())
-        if line == start_line then
-          indent = vim.fn.indent(line + 1) - vim.fn.indent(upper_line + 1)
-        else
+    local inc, next = spec.hook_node(node, make_ctx())
+    if inc ~= nil then
+      if inc < 0 then
+        return -1
+      end
+      indent = indent + inc
+      node = next
+    else
+      local parent = node:parent()
+      if parent then
+        if parent:type() == "ERROR" then
+          debug.log("On error node at", parent:start())
           indent = indent + vim.fn.indent(start_line + 1) - vim.fn.indent(upper_line + 1)
+          break
         end
-        break
+        -- Do not indent for the same line range
+        -- Use end line of the first node of parent to compare with start_line
+        if parent:child(0):end_() ~= start_line or parent:end_() ~= end_line then
+          local parent_type = parent:type()
+
+          if
+            should_indent(parent, spec)
+            and not match_type_spec(node, spec.skip_child[parent_type] or {})
+            and node:prev_sibling() -- Skip the first node
+            and (node:next_sibling() ~= nil or vim.tbl_contains(spec.indent_last, parent_type)) -- Skip the last node
+          then
+            indent = indent + shift
+          end
+        end
+        debug.log("Node:", node:type(), "Parent:", parent:type(), "Indent:", indent, "Line:", start_line, end_line)
       end
 
-      -- Do not indent for the same line range
-      if parent:start() ~= start_line or parent:end_() ~= end_line then
-        local parent_type = parent:type()
-
-        if
-          should_indent(parent, spec)
-          and not match_type_spec(node, spec.skip_child[parent_type] or {})
-          and node:prev_sibling() -- Skip the first node
-          and (
-            node:next_sibling() ~= nil
-            or vim.tbl_contains(spec.indent_last, parent_type)
-            or (vim.tbl_contains(spec.indent_last_new_line, parent_type) and node:prev_sibling():end_() ~= start_line)
-          ) -- Skip the last node
-        then
-          indent = indent + shift
-        end
-      end
-      debug.log("Node:", node:type(), "Parent:", parent:type(), "Indent:", indent, "Line:", start_line, end_line)
+      node = parent
     end
 
-    node = parent
     -- If the node is ignored (mainly test ignore_self), we should pass through it
     if node and not should_ignore(node, spec) then
       start_line, end_line = get_node_range(node, spec)

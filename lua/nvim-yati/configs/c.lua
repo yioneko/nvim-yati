@@ -28,8 +28,6 @@ local config = {
     "field_initializer_list",
     "init_declarator",
     "concatenated_string",
-  },
-  indent_last_new_line = {
     "binary_expression",
   },
   skip_child = {
