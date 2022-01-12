@@ -37,6 +37,8 @@ local config = {
   indent_last = {
     "const_item",
     "let_declaration",
+    "assignment_expression",
+    "binary_expression",
     "compound_assignment_expr",
     "field_expression",
     "call_expression",
@@ -54,7 +56,7 @@ local config = {
   ignore_within = { "raw_string_literal", "line_comment", "block_comment" },
   ignore_self = { named = { "string_literal" } },
   hook_node = function(node, ctx)
-    -- fix duplicate indent in macros
+    -- Fix duplicate indent in macros
     local parent = utils.get_nth_parent(node, 1)
     local grandparent = utils.get_nth_parent(node, 2)
     if parent and grandparent and parent:type() == "block" and grandparent:type() == "source_file" then

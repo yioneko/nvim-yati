@@ -70,6 +70,12 @@ impl Foo {
                 }
             }
         }
+        let mut trie = vec![TrieNode {
+            is_end: false,
+            MARKER
+            next: [None; 26],
+        }];
+
     }
     MARKER
 }
@@ -209,6 +215,13 @@ fn floaters() {
         val2
     }
         .method_call();
+
+    x =
+        456
+            + 789
+            + 111
+            - 222;
+
 
     {
         match x {
