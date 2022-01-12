@@ -166,7 +166,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   end
   local start_line, end_line = get_node_range(node, spec)
 
-  if line ~= start_line and node:named() and should_indent(node, spec) then
+  if line ~= start_line and start_line >= upper_line and node:named() and should_indent(node, spec) then
     indent = indent + shift
   end
 
@@ -183,13 +183,17 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     end
 
     local inc, next = spec.hook_node(node, make_ctx())
-    if inc ~= nil then
-      if inc < 0 then
-        return -1
-      end
+    if inc ~= nil and ((next ~= nil and next:id() ~= node:id()) or next == nil) then
       indent = indent + inc
       node = next
     else
+      if inc ~= nil then
+        if inc < 0 then
+          return -1
+        else
+          indent = indent + inc
+        end
+      end
       local parent = node:parent()
       if parent then
         if parent:type() == "ERROR" then

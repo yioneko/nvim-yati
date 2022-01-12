@@ -38,6 +38,7 @@ The calculation result heavily relies on the correct tree-sitter parsing of the 
 - Javascript/Typescript (jsx and tsx are also supported)
 - Python
 - Lua
+- Rust
 - HTML
 - CSS
 - JSON

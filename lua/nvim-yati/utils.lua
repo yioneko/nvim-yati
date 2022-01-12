@@ -20,4 +20,15 @@ function M.extend_config(config, extend)
   return merged
 end
 
+function M.get_nth_parent(node, n)
+  local parent = node
+  for _ = 1, n do
+    if not parent then
+      return
+    end
+    parent = parent:parent()
+  end
+  return parent
+end
+
 return M

@@ -19,4 +19,5 @@ require("nvim-treesitter.configs").setup {
 -- require("nvim-yati.debug").toggle()
 EOF
 
-execute("TSInstallSync all")
+" TODO: Only install needed parsers
+execute("silent TSInstallSync all")

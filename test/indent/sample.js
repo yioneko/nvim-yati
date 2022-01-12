@@ -129,6 +129,9 @@ req
   .field
   MARKER
   .shouldBeOne()
+  .abc(function() {
+    MARKER
+  })
 
 b =
   3

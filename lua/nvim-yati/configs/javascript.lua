@@ -42,6 +42,13 @@ local config = {
   },
   ignore_self = { literal = { ";" }, named = { "jsx_text" } },
   ignore_within = { "description" },
+  hook_node = function(node, ctx)
+    local sibling = node:prev_sibling()
+    -- Fix indent in arguemnt of chained function calls #L133(sample.js)
+    if node:type() == "arguments" and sibling:type() == "member_expression" and sibling:start() ~= sibling:end_() then
+      return ctx.shift, node
+    end
+  end,
 }
 
 return config

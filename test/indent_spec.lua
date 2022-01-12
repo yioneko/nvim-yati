@@ -10,6 +10,7 @@ local test_files = {
   typescript = { "sample.ts" },
   lua = { "sample.lua" },
   python = { "sample.py" },
+  rust = { "sample.rs" },
   html = { "sample.html" },
   css = { "sample.css" },
   json = { "sample.json" },
@@ -22,10 +23,6 @@ local function same_indent(state, arguments)
   local expected = arguments[2]
 
   local indent = get_indent(lnum)
-  if indent ~= expected then
-    vim.cmd("silent undo")
-  end
-
   return indent == expected
 end
 
