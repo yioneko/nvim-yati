@@ -108,9 +108,9 @@ error:
 
 // TODO: Add empty new line cause syntax error (need insert '\' automatically)
 #define FOO(x) do { \
-    x = x + 1;  \
-    x = x / 2;  \
-  } while (x > 0);
+  x = x + 1;  \
+  x = x / 2;  \
+} while (x > 0);
 
 int foo(int x) {
   if (x > 10)
