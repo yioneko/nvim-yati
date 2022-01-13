@@ -2,12 +2,16 @@ local M = {}
 local extend = require("nvim-yati.utils").extend_config
 local get_module_config = require("nvim-treesitter.configs").get_module
 
+---@alias tsnode userdata
+---@alias tstree userdata
+
 ---@class TSNodeList
 ---@field named string[]
 ---@field literal string[]
 
 ---@class HookCtx
----@field tree any
+---@field bufnr number
+---@field tree tstree
 ---@field upper_line number
 ---@field shift number
 
@@ -19,8 +23,8 @@ local get_module_config = require("nvim-treesitter.configs").get_module
 ---@field ignore_outer TSNodeList
 ---@field ignore_within string[]
 ---@field ignore_self TSNodeList
----@field hook_node fun(node, ctx: HookCtx): number, any
----@field hook_new_line fun(lnum: number, node, ctx: HookCtx): number, any
+---@field hook_node fun(node: tsnode, ctx: HookCtx): number, tsnode
+---@field hook_new_line fun(lnum: number, node: tsnode, ctx: HookCtx): number, tsnode
 
 ---@type YatiConfig
 local default = {

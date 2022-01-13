@@ -1,3 +1,5 @@
+local utils = require("nvim-yati.utils")
+
 ---@type YatiConfig
 local config = {
   indent = {
@@ -13,7 +15,7 @@ local config = {
   hook_new_line = function(lnum, node, ctx)
     if node:type() == "block_sequence" then
       return 0, node
-    elseif vim.endswith(vim.api.nvim_buf_get_lines(0, node:start(), node:start() + 1, true)[1], ":") then
+    elseif vim.endswith(utils.get_buf_line(ctx.bufnr, node:start()), ":") then
       return ctx.shift, node
     end
   end,

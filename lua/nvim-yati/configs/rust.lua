@@ -1,5 +1,3 @@
-local utils = require("nvim-yati.utils")
-
 ---@type YatiConfig
 local config = {
   indent = {
@@ -56,13 +54,6 @@ local config = {
   ignore_within = { "raw_string_literal", "line_comment", "block_comment" },
   ignore_self = { named = { "string_literal" } },
   hook_node = function(node, ctx)
-    -- Fix duplicate indent in macros
-    local parent = utils.get_nth_parent(node, 1)
-    local grandparent = utils.get_nth_parent(node, 2)
-    if parent and grandparent and parent:type() == "block" and grandparent:type() == "source_file" then
-      return 0
-    end
-
     local sibling = node:prev_sibling()
     -- Fix indent in arguemnt of chained function calls
     if node:type() == "arguments" and sibling:type() == "field_expression" and sibling:start() ~= sibling:end_() then

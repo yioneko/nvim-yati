@@ -1,26 +1,8 @@
-local api = vim.api
 local config = require("nvim-yati.config")
-local ts_utils = require("nvim-treesitter.ts_utils")
+local utils = require("nvim-yati.utils")
 local debug = require("nvim-yati.debug")
+local ts_utils = require("nvim-treesitter.ts_utils")
 local M = {}
-
-local function get_first_nonblank_col_for_line(lnum, bufnr)
-  local line = api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, false)[1]
-  local _, col = string.find(line, "^%s*")
-  return col or 0
-end
-
-local function get_node_at_line(lnum, tree, named, bufnr)
-  bufnr = bufnr or api.nvim_get_current_buf()
-  local root = tree:root()
-
-  local col = get_first_nonblank_col_for_line(lnum, bufnr)
-  if named then
-    return root:named_descendant_for_range(lnum, col, lnum, col)
-  else
-    return root:descendant_for_range(lnum, col, lnum, col)
-  end
-end
 
 local function node_has_missing(root)
   for node, _ in root:iter_children() do
@@ -79,7 +61,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     local upper_col
     upper_line, upper_col = tree:root():start()
 
-    local col = get_first_nonblank_col_for_line(upper_line, bufnr)
+    local col = utils.get_first_nonblank_col_at_line(upper_line, bufnr)
     if col < upper_col then
       if tree:root():end_() == upper_line then
         return 0
@@ -89,22 +71,22 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   end
 
   local indent = 0
-  local shift = vim.bo.shiftwidth -- TODO: Work with tabstop
+  local shift = vim.bo[bufnr].shiftwidth or vim.bo[bufnr].tabstop -- NOTE: Not work with 'vartabstop'
 
-  local node = get_node_at_line(line, tree, false, bufnr)
+  local node = utils.get_node_at_line(line, tree, false, bufnr)
   if not node then
     return -1
   end
 
   ---@return HookCtx
   local function make_ctx()
-    return { tree = tree, shift = shift, upper_line = upper_line }
+    return { bufnr = bufnr, tree = tree, shift = shift, upper_line = upper_line }
   end
 
-  local containing_node = get_node_at_line(line, tree, true, bufnr)
+  local containing_node = utils.get_node_at_line(line, tree, true, bufnr)
   if vim.tbl_contains(spec.ignore_within, containing_node:type()) then
     if line ~= containing_node:start() then
-      return vim.fn.indent(line + 1) - vim.fn.indent(upper_line + 1)
+      return utils.cur_indent(line, bufnr) - utils.cur_indent(upper_line, bufnr)
     else
       node = containing_node
     end
@@ -123,18 +105,17 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     else
       local prev_node
       do
-        -- TODO: Replace this with a lua function and work with bufnr
-        local cur_line = vim.fn.prevnonblank(line) - 1
-        prev_node = get_node_at_line(cur_line, tree, true, bufnr)
+        local cur_line = utils.prev_nonblank_lnum(line, bufnr)
+        prev_node = utils.get_node_at_line(cur_line, tree, true, bufnr)
 
         -- Skip ignored nodes
         while prev_node and should_ignore(prev_node, spec) do
-          cur_line = vim.fn.prevnonblank(cur_line) - 1
+          cur_line = utils.prev_nonblank_lnum(cur_line, bufnr)
           if cur_line < upper_line then
             prev_node = nil
             break
           end
-          prev_node = get_node_at_line(cur_line, tree, true, bufnr)
+          prev_node = utils.get_node_at_line(cur_line, tree, true, bufnr)
         end
         if not spec.indent_last_open and prev_node then
           prev_node = find_indent_block_with_missing(prev_node, prev_node:start(), spec)
@@ -173,7 +154,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   if node:type() == "ERROR" then
     -- TODO: Better error handling
     debug.log("On error node at", start_line)
-    return vim.fn.indent(start_line + 1) - vim.fn.indent(upper_line + 1)
+    return utils.cur_indent(start_line, bufnr) - utils.cur_indent(upper_line, bufnr)
   end
 
   debug.log("Traverse from:", node:type(), start_line)
@@ -183,22 +164,19 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     end
 
     local inc, next = spec.hook_node(node, make_ctx())
-    if inc ~= nil and ((next ~= nil and next:id() ~= node:id()) or next == nil) then
-      indent = indent + inc
-      node = next
-    else
-      if inc ~= nil then
-        if inc < 0 then
-          return -1
-        else
-          indent = indent + inc
-        end
+    if inc == nil or (next ~= nil and next:id() == node:id()) then
+      inc = inc or 0
+      if inc < 0 then
+        return -1
+      else
+        indent = indent + inc
       end
+
       local parent = node:parent()
       if parent then
         if parent:type() == "ERROR" then
           debug.log("On error node at", parent:start())
-          indent = indent + vim.fn.indent(start_line + 1) - vim.fn.indent(upper_line + 1)
+          indent = indent + utils.cur_indent(start_line, bufnr) - utils.cur_indent(upper_line, bufnr)
           break
         end
         -- Do not indent for the same line range
@@ -219,6 +197,13 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
       end
 
       node = parent
+    elseif inc ~= nil then
+      if inc < 0 then
+        return -1
+      else
+        indent = indent + inc
+        node = next
+      end
     end
 
     -- If the node is ignored (mainly test ignore_self), we should pass through it
@@ -231,7 +216,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   return indent
 end
 
-local function get_trees_for_position(root_lang_tree, line, col)
+local function get_trees_at_pos(root_lang_tree, line, col)
   local trees = {}
 
   -- Test whether the tree is duplicated
@@ -259,9 +244,9 @@ local function get_trees_for_position(root_lang_tree, line, col)
   return trees
 end
 
-function M.get_indent(line, bufnr)
-  line = (line or vim.v.lnum) - 1
-  bufnr = bufnr or api.nvim_get_current_buf()
+function M.get_indent(vlnum, bufnr)
+  local lnum = (vlnum or vim.v.lnum) - 1
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
 
   local root_tree = vim.treesitter.get_parser(bufnr)
 
@@ -275,10 +260,10 @@ function M.get_indent(line, bufnr)
 
   local total_indent = 0
 
-  local col = get_first_nonblank_col_for_line(line, bufnr)
-  local trees = get_trees_for_position(root_tree, line, col)
+  local col = utils.get_first_nonblank_col_at_line(lnum, bufnr)
+  local trees = get_trees_at_pos(root_tree, lnum, col)
   for _, tree in ipairs(trees) do
-    local indent = get_indent_for_tree(line, tree[1], tree[2], bufnr)
+    local indent = get_indent_for_tree(lnum, tree[1], tree[2], bufnr)
     if indent < 0 then
       return -1
     else
