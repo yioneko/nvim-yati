@@ -44,6 +44,7 @@ The calculation result heavily relies on the correct tree-sitter parsing of the 
 - JSON
 - YAML
 - Markdown
+- Vim
 
 More languages could be supported by adding config files to [configs/](lua/nvim-yati/configs) directory.
 

@@ -20,6 +20,7 @@ Unordered
   5. nested 2
 3. Integer molestie lorem at massa
 
+<!-- TODO: The html_block node break at new blank line -->
 <div>
   <img
     src="aaa"

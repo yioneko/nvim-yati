@@ -14,6 +14,7 @@ local test_files = {
   html = { "sample.html" },
   css = { "sample.css" },
   json = { "sample.json" },
+  vim = { "sample.vim" },
   yaml = { "sample.yml" },
   markdown = { "sample.md" },
 }

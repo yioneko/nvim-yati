@@ -20,6 +20,7 @@ function M.extend_config(config, extend)
   return merged
 end
 
+---@return string
 function M.get_buf_line(bufnr, lnum)
   return vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
 end
@@ -71,6 +72,16 @@ function M.get_node_at_line(lnum, tree, named, bufnr)
   else
     return root:descendant_for_range(lnum, col, lnum, col)
   end
+end
+
+-- Transform end position (x, 0) to (x-1, '$')
+function M.get_normalized_end(node, bufnr)
+  local erow, ecol = node:end_()
+  if ecol == 0 and erow > 0 then
+    erow = erow - 1
+    ecol = M.get_buf_line(bufnr, erow):len()
+  end
+  return erow, ecol
 end
 
 return M

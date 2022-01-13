@@ -63,7 +63,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
 
     local col = utils.get_first_nonblank_col_at_line(upper_line, bufnr)
     if col < upper_col then
-      if tree:root():end_() == upper_line then
+      if utils.get_normalized_end(tree:root(), bufnr) == upper_line then
         return 0
       end
       upper_line = upper_line + 1
@@ -181,7 +181,13 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
         end
         -- Do not indent for the same line range
         -- Use end line of the first node of parent to compare with start_line
-        if parent:start() >= upper_line and (parent:child(0):end_() ~= start_line or parent:end_() ~= end_line) then
+        if
+          parent:start() >= upper_line
+          and (
+            utils.get_normalized_end(parent:child(0), bufnr) ~= start_line
+            or utils.get_normalized_end(parent, bufnr) ~= end_line
+          )
+        then
           local parent_type = parent:type()
 
           if
