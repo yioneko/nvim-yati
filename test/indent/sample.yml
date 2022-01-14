@@ -21,5 +21,8 @@ foo:
         MARKER
         - dgsdgf
     - c: fdsf
+    MARKER
   baz:
     MARKER
+    baz2:
+      MARKER

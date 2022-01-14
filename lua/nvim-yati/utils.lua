@@ -96,19 +96,19 @@ function M.pos_cmp(pos1, pos2)
   end
 end
 
+function M.contains(node1, node2)
+  local srow1, scol1, erow1, ecol1 = node1:range()
+  local srow2, scol2, erow2, ecol2 = node2:range()
+  return M.pos_cmp({ srow1, scol1 }, { srow2, scol2 }) <= 0 and M.pos_cmp({ erow1, ecol1 }, { erow2, ecol2 }) >= 0
+end
+
 function M.node_has_injection(node, bufnr)
   local root_lang_tree = vim.treesitter.get_parser(bufnr)
   local res = false
 
   root_lang_tree:for_each_child(function(child, lang)
     child:for_each_tree(function(tree)
-      local srow1, scol1, erow1, ecol1 = node:range()
-      local srow2, scol2, erow2, ecol2 = tree:root():range()
-      if
-        M.pos_cmp({ srow1, scol1 }, { srow2, scol2 }) <= 0
-        and M.pos_cmp({ erow1, ecol1 }, { erow2, ecol2 }) >= 0
-        and M.is_supported(lang)
-      then
+      if M.contains(node, tree:root()) and M.is_supported(lang) then
         res = true
       end
     end)

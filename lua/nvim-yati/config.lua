@@ -18,7 +18,7 @@ local get_module_config = require("nvim-treesitter.configs").get_module
 ---@class YatiConfig
 ---@field indent string[]
 ---@field indent_last string[]
----@field indent_last_open string[] | boolean
+---@field indent_last_open string[]
 ---@field skip_child table<string, TSNodeList>
 ---@field ignore_outer TSNodeList
 ---@field ignore_within string[]
@@ -30,7 +30,7 @@ local get_module_config = require("nvim-treesitter.configs").get_module
 local default = {
   indent = {},
   indent_last = {},
-  indent_last_open = false,
+  indent_last_open = {},
   skip_child = {},
   ignore_within = { "string", "comment" },
   ignore_outer = {},
@@ -50,7 +50,9 @@ function M.get_config(lang)
 
   local overrides = get_module_config("yati").overrides
 
-  return extend(default, extend(config, overrides[lang] or {}))
+  local merged = extend(default, extend(config, overrides[lang] or {}))
+  vim.list_extend(merged.indent_last, merged.indent_last_open)
+  return merged
 end
 
 return M

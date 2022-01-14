@@ -1,7 +1,7 @@
 local utils = require("nvim-yati.utils")
 
 local function is_end_augroup(node, bufnr)
-  local text = vim.treesitter.get_node_text(node, bufnr)
+  local text = vim.treesitter.get_node_text(node, bufnr) or "" -- TODO: return nil in stable release?
   return vim.endswith(vim.trim(text), "END")
 end
 
@@ -52,8 +52,10 @@ local config = {
       return 0, prev_node
     end
 
-    if prev_node:type() == "augroup_statement" and not is_end_augroup(prev_node, ctx.bufnr) then
-      return ctx.shift, prev_node
+    if prev_node:type() == "augroup_statement" then
+      if not is_end_augroup(prev_node, ctx.bufnr) then
+        return ctx.shift, prev_node
+      end
     end
   end,
 }
