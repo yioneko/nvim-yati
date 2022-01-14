@@ -97,13 +97,13 @@ local function ffa(
     fdsf
   end
 
+  -- TODO: multiline injetion not work in 0.6.1 release build
+  -- see: https://github.com/neovim/neovim/pull/16348
   vim.cmd([[
     augroup G
-      MARKER
       au!
       au BufEnter,BufWinEnter * lua require'mod'.func()
     augroup END
-    MARKER
     ]]) -- TODO: Fix this (modification of core algorithm is needed)
 
   local ss = [[

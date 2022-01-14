@@ -12,9 +12,5 @@ packloadall
 runtime plugin/nvim-yati.vim
 
 lua << EOF
-require("nvim-treesitter.configs").setup {
-  ensure_installed = "maintained",
-  yati = { enable = true },
-}
 -- require("nvim-yati.debug").toggle()
 EOF
