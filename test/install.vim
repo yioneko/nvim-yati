@@ -1,3 +1,6 @@
+" https://github.com/neovim/neovim/issues/12432
+set display=lastline
+
 set packpath+=./deps
 set rtp+=.
 
