@@ -9,9 +9,10 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
-        os: ['ubuntu-latest']
-        nvim-versions: ['stable', 'nightly']
+        os: ["ubuntu-latest"]
+        nvim-versions: ["stable", "nightly"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -21,6 +22,10 @@ jobs:
         with:
           neovim: true
           version: ${{ matrix.nvim-versions }}
+      - name: Install deps
+        run: make deps
+      - name: Install parsers
+        run: nvim --headless -u "test/install.vim" -c "q"
       - name: Run test
         run: make test
   stylua:

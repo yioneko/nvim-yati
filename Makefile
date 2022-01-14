@@ -10,5 +10,5 @@ test: deps
 	@nvim \
 		--headless \
 		--noplugin \
-		-u test/preload.vim \
-		-c "PlenaryBustedDirectory test/ { minimal_init = 'test/init.vim' }"
+		-u test/install.vim \
+		-c "PlenaryBustedDirectory test/ { minimal_init = 'test/preload.vim' }"
