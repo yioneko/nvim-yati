@@ -49,6 +49,16 @@ local function find_indent_block_with_missing(root, start_line, spec)
   end
 end
 
+local function find_ignore_within_ancestor(node, spec)
+  local cur = node
+  while cur do
+    if vim.tbl_contains(spec.ignore_within, cur:type()) then
+      return cur
+    end
+    cur = cur:parent()
+  end
+end
+
 local function get_indent_for_tree(line, tree, lang, bufnr)
   local spec = config.get_config(lang)
   if not spec then
@@ -83,12 +93,14 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     return { bufnr = bufnr, tree = tree, shift = shift, upper_line = upper_line }
   end
 
-  local containing_node = utils.get_node_at_line(line, tree, true, bufnr)
-  if vim.tbl_contains(spec.ignore_within, containing_node:type()) then
-    if line ~= containing_node:start() and not utils.node_has_injection(node, bufnr) then
-      return utils.cur_indent(line, bufnr) - utils.cur_indent(upper_line, bufnr)
-    else
-      node = containing_node
+  do
+    local ignored = find_ignore_within_ancestor(node, spec)
+    if ignored then
+      if line ~= ignored:start() and not utils.node_has_injection(ignored, bufnr) then
+        return utils.cur_indent(line, bufnr) - utils.cur_indent(upper_line, bufnr)
+      else
+        node = ignored
+      end
     end
   end
 
@@ -239,11 +251,11 @@ local function get_trees_at_pos(root_lang_tree, line, col)
 
   root_lang_tree:for_each_child(function(lang_tree, lang)
     if lang_tree:contains({ line, col, line, col }) then
-      lang_tree:for_each_tree(function(tree)
+      for _, tree in ipairs(lang_tree:trees()) do
         if ts_utils.is_in_node_range(tree:root(), line, col) and not trees_contains(tree, lang) then
           table.insert(trees, { tree, lang })
         end
-      end)
+      end
     end
   end, true)
 

@@ -57,4 +57,11 @@ func s:func2(
     return
   endif
 
+  lua << EOF
+  function fun()
+    if a == b then
+      MARKER
+    end
+  end
+  EOF
 endfunc
