@@ -20,6 +20,10 @@ function M.extend_config(config, extend)
   return merged
 end
 
+function M.is_supported(lang)
+  return pcall(require, "nvim-yati.configs." .. lang)
+end
+
 ---@return string
 function M.get_buf_line(bufnr, lnum)
   return vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
@@ -82,6 +86,35 @@ function M.get_normalized_end(node, bufnr)
     ecol = M.get_buf_line(bufnr, erow):len()
   end
   return erow, ecol
+end
+
+function M.pos_cmp(pos1, pos2)
+  if pos1[1] == pos2[1] then
+    return pos1[2] - pos2[2]
+  else
+    return pos1[1] - pos2[1]
+  end
+end
+
+function M.node_has_injection(node, bufnr)
+  local root_lang_tree = vim.treesitter.get_parser(bufnr)
+  local res = false
+
+  root_lang_tree:for_each_child(function(child, lang)
+    child:for_each_tree(function(tree)
+      local srow1, scol1, erow1, ecol1 = node:range()
+      local srow2, scol2, erow2, ecol2 = tree:root():range()
+      if
+        M.pos_cmp({ srow1, scol1 }, { srow2, scol2 }) <= 0
+        and M.pos_cmp({ erow1, ecol1 }, { erow2, ecol2 }) >= 0
+        and M.is_supported(lang)
+      then
+        res = true
+      end
+    end)
+  end)
+
+  return res
 end
 
 return M

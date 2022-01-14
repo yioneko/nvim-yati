@@ -259,3 +259,12 @@ const af3 = (c) =>
     e,
     b
   )
+
+function inject() {
+  const style = css`
+    .foo {
+      MARKER
+      color: red;
+    }
+  `
+}

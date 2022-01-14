@@ -95,5 +95,20 @@ local function ffa(
     -- comment
     MARKER
     fdsf
+  end
+
+  vim.cmd([[
+    augroup G
+      MARKER
+      au!
+      au BufEnter,BufWinEnter * lua require'mod'.func()
+    augroup END
+    MARKER
+    ]]) -- TODO: Fix this (modification of core algorithm is needed)
+
+  local ss = [[
+  fdsafasf
+fdsagdgds
+  ]]
 end
 

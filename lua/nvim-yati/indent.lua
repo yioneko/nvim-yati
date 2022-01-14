@@ -85,7 +85,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
 
   local containing_node = utils.get_node_at_line(line, tree, true, bufnr)
   if vim.tbl_contains(spec.ignore_within, containing_node:type()) then
-    if line ~= containing_node:start() then
+    if line ~= containing_node:start() and not utils.node_has_injection(node, bufnr) then
       return utils.cur_indent(line, bufnr) - utils.cur_indent(upper_line, bufnr)
     else
       node = containing_node

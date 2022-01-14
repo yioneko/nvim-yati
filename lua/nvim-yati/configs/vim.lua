@@ -1,17 +1,8 @@
-local ts_utils = require("nvim-treesitter.ts_utils")
 local utils = require("nvim-yati.utils")
 
 local function is_end_augroup(node, bufnr)
-  local lines = ts_utils.get_node_text(node, bufnr)
-  for i = #lines, 1, -1 do
-    local text = vim.trim(lines[i])
-    if vim.endswith(text, "END") then
-      return true
-    elseif text ~= "" then
-      return false
-    end
-  end
-  return false
+  local text = vim.treesitter.get_node_text(node, bufnr)
+  return vim.endswith(vim.trim(text), "END")
 end
 
 ---@type YatiConfig
