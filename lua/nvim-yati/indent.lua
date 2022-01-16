@@ -71,7 +71,12 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   end
 
   local indent = 0
-  local shift = vim.bo[bufnr].shiftwidth or vim.bo[bufnr].tabstop -- NOTE: Not work with 'vartabstop'
+
+  -- NOTE: Not work with 'vartabstop'
+  local shift = vim.bo[bufnr].shiftwidth
+  if shift <= 0 then
+    shift = vim.bo[bufnr].tabstop
+  end
 
   local node = utils.get_node_at_line(line, tree, false, bufnr)
   if not node then
