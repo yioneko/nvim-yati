@@ -21,8 +21,12 @@ foo:
         MARKER
         - dgsdgf
     - c: fdsf
-    MARKER
+      MARKER
   baz:
     MARKER
-    baz2:
+    - ff: aaa
+    - aa: fff
+      ff: aaa
       MARKER
+  baz2:
+    MARKER

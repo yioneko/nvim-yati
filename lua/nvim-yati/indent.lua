@@ -4,15 +4,6 @@ local debug = require("nvim-yati.debug")
 local ts_utils = require("nvim-treesitter.ts_utils")
 local M = {}
 
-local function node_has_missing(root)
-  for node, _ in root:iter_children() do
-    if node:missing() or node_has_missing(node) then
-      return true
-    end
-  end
-  return false
-end
-
 local function match_type_spec(node, type_spec)
   return (node:named() and vim.tbl_contains(type_spec.named or {}, node:type()))
     or (not node:named() and vim.tbl_contains(type_spec.literal or {}, node:type()))
@@ -43,7 +34,13 @@ end
 
 local function find_indent_block_with_missing(root, start_line, spec)
   for node, _ in root:iter_children() do
-    if should_indent(node, spec) and node:start() == start_line and node_has_missing(node) then
+    if
+      should_indent(node, spec)
+      and node:start() == start_line
+      and utils.try_find_child(node, function(child)
+        return child:missing()
+      end) ~= nil
+    then
       return node
     end
   end

@@ -59,6 +59,20 @@ function M.try_find_parent(node, predicate)
   end
 end
 
+-- TODO: Limit depth to improve performance
+function M.try_find_child(node, predicate)
+  for child, _ in node:iter_children() do
+    if predicate(child) then
+      return child
+    else
+      local res = M.try_find_child(child, predicate)
+      if res then
+        return res
+      end
+    end
+  end
+end
+
 function M.get_nth_parent(node, n)
   local parent = node
   for _ = 1, n do
