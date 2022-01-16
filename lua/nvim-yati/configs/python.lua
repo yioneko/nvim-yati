@@ -1,3 +1,5 @@
+local utils = require("nvim-yati.utils")
+
 ---@type YatiConfig
 local config = {
   indent = {
@@ -40,6 +42,24 @@ local config = {
     while_statement = { named = { "else_clause" } },
     try_statement = { named = { "except_clause", "else_clause", "finnaly_clause" } },
   },
+  hook_node = function(node, ctx)
+    local dedent = {
+      ["else"] = "if_statement",
+      ["elif"] = "if_statement",
+      ["except"] = "try_statement",
+      ["finally"] = "try_statement",
+    }
+    for cur, next in pairs(dedent) do
+      local line = vim.trim(utils.get_buf_line(ctx.bufnr, node:start()))
+      if node:type() == "identifier" and vim.startswith(line, cur) and vim.endswith(line, ":") then
+        local parent = node:parent()
+        while parent:type() ~= next do
+          parent = parent:parent()
+        end
+        return 0, parent
+      end
+    end
+  end,
 }
 
 return config
