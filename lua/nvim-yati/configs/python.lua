@@ -17,11 +17,9 @@ local config = {
   },
   indent_last = {
     "import_from_statement",
-    "function_definition",
     "return_statement",
     "expression_list",
     "binary_operator",
-    "lambda",
   },
   indent_last_open = {
     "if_statement",
@@ -34,6 +32,8 @@ local config = {
     "except_clause",
     "finnaly_clause",
     "class_definition",
+    "function_definition",
+    "lambda",
   },
   skip_child = {
     if_statement = { named = { "else_clause", "elif_clause" } },

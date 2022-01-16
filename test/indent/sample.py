@@ -123,6 +123,7 @@ finally:
     MARKER
 
 def foo():
+    MARKER
     while True:
         if test:
             more()

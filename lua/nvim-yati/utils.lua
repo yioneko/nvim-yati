@@ -107,11 +107,11 @@ function M.node_has_injection(node, bufnr)
   local res = false
 
   root_lang_tree:for_each_child(function(child, lang)
-    child:for_each_tree(function(tree)
+    for _, tree in ipairs(child:trees()) do
       if M.contains(node, tree:root()) and M.is_supported(lang) then
         res = true
       end
-    end)
+    end
   end)
 
   return res
