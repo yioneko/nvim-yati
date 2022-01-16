@@ -49,28 +49,6 @@ local function find_indent_block_with_missing(root, start_line, spec)
   end
 end
 
-local function find_indent_last_open(node, spec)
-  local cur = node
-  while not vim.tbl_contains(spec.indent_last_open, cur:type()) do
-    if cur:parent() then
-      cur = cur:parent()
-    else
-      return
-    end
-  end
-  return cur
-end
-
-local function find_ignore_within_ancestor(node, spec)
-  local cur = node
-  while cur do
-    if vim.tbl_contains(spec.ignore_within, cur:type()) then
-      return cur
-    end
-    cur = cur:parent()
-  end
-end
-
 local function get_indent_for_tree(line, tree, lang, bufnr)
   local spec = config.get_config(lang)
   if not spec then
@@ -106,7 +84,9 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   end
 
   do
-    local ignored = find_ignore_within_ancestor(node, spec)
+    local ignored = utils.try_find_parent(node, function(parent)
+      return vim.tbl_contains(spec.ignore_within, parent:type())
+    end)
     if ignored then
       if line ~= ignored:start() and not utils.node_has_injection(ignored, bufnr) then
         return utils.cur_indent(line, bufnr) - utils.cur_indent(upper_line, bufnr)
@@ -142,7 +122,9 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
           prev_node = utils.get_node_at_line(cur_line, tree, true, bufnr)
         end
         if prev_node then
-          local last_open = find_indent_last_open(prev_node, spec)
+          local last_open = utils.try_find_parent(prev_node, function(parent)
+            return vim.tbl_contains(spec.indent_last_open, parent:type())
+          end)
           if last_open then
             prev_node = last_open
           else

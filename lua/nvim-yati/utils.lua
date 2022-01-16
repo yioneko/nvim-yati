@@ -49,6 +49,16 @@ function M.prev_nonblank_lnum(lnum, bufnr)
   return -1
 end
 
+function M.try_find_parent(node, predicate)
+  local cur = node
+  while cur do
+    if predicate(cur) then
+      return cur
+    end
+    cur = cur:parent()
+  end
+end
+
 function M.get_nth_parent(node, n)
   local parent = node
   for _ = 1, n do

@@ -49,14 +49,15 @@ local config = {
       ["except"] = "try_statement",
       ["finally"] = "try_statement",
     }
-    for cur, next in pairs(dedent) do
+    for cur, next_type in pairs(dedent) do
       local line = vim.trim(utils.get_buf_line(ctx.bufnr, node:start()))
       if node:type() == "identifier" and vim.startswith(line, cur) and vim.endswith(line, ":") then
-        local parent = node:parent()
-        while parent:type() ~= next do
-          parent = parent:parent()
+        local next = utils.try_find_parent(node, function(parent)
+          return parent:type() == next_type
+        end)
+        if next then
+          return 0, next
         end
-        return 0, parent
       end
     end
   end,
