@@ -23,6 +23,8 @@ return {
     "elseif",
     "local_variable_declaration",
     "variable_declaration",
+    "function_call",
+    "field_expression",
     "return_statement",
   },
   skip_child = {
@@ -37,4 +39,11 @@ return {
     return_statement = { literal = { "(", ")" } },
   },
   ignore_self = { named = { "binary_operation" } },
+  hook_node = function(node, ctx)
+    local sibling = node:prev_sibling()
+    -- Fix indent in arguemnt of chained function calls #L133(sample.js)
+    if node:type() == "arguments" and sibling:type() == "field_expression" and sibling:start() ~= sibling:end_() then
+      return ctx.shift, node
+    end
+  end,
 }

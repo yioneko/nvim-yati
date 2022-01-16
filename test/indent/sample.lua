@@ -112,3 +112,20 @@ fdsagdgds
   ]]
 end
 
+function fun()
+  Ins
+    :method1(
+      a,
+      MARKER
+      b
+    )
+    :method2()
+
+  Ins2
+    .method1(
+      a,
+      MARKER
+      b
+    )
+    .method2()
+end
