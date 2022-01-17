@@ -1,4 +1,5 @@
 local utils = require("nvim-yati.utils")
+local Hook = require("nvim-yati.hook")
 
 local function get_list_item_indent(node, bufnr)
   local inc = 0
@@ -20,21 +21,19 @@ local function get_list_item_indent(node, bufnr)
   return inc
 end
 
+local function hook_list_item(ctx)
+  local node = ctx.node
+  if node:type() == "list_item" then
+    return get_list_item_indent(node, ctx.bufnr) * ctx.shift - utils.cur_indent(ctx.upper_line, ctx.bufnr),
+      utils.get_nth_parent(node, 2)
+  end
+end
+
 ---@type YatiConfig
 local config = {
   ignore_within = { named = { "html_block", "fenced_code_block" } },
-  hook_new_line = function(lnum, node, ctx)
-    if node:type() == "list_item" then
-      return get_list_item_indent(node, ctx.bufnr) * ctx.shift - utils.cur_indent(ctx.upper_line, ctx.bufnr),
-        utils.get_nth_parent(node, 2)
-    end
-  end,
-  hook_node = function(node, ctx)
-    if node:type() == "list_item" then
-      return get_list_item_indent(node, ctx.bufnr) * ctx.shift - utils.cur_indent(ctx.upper_line, ctx.bufnr),
-        utils.get_nth_parent(node, 2)
-    end
-  end,
+  hook_new_line = Hook(hook_list_item),
+  hook_node = Hook(hook_list_item),
 }
 
 return config

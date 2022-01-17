@@ -1,3 +1,6 @@
+local Hook = require("nvim-yati.hook")
+local chains = require("nvim-yati.chains")
+
 ---@type YatiConfig
 local config = {
   indent = {
@@ -53,13 +56,7 @@ local config = {
   },
   ignore_within = { "raw_string_literal", "line_comment", "block_comment" },
   ignore_self = { named = { "string_literal" } },
-  hook_node = function(node, ctx)
-    local sibling = node:prev_sibling()
-    -- Fix indent in arguemnt of chained function calls
-    if node:type() == "arguments" and sibling:type() == "field_expression" and sibling:start() ~= sibling:end_() then
-      return ctx.shift, node
-    end
-  end,
+  hook_node = Hook(chains.chained_field_call("arguments", "field_expression")),
 }
 
 return config

@@ -1,4 +1,5 @@
 local utils = require("nvim-yati.utils")
+local Hook = require("nvim-yati.hook")
 
 local function is_end_augroup(node, bufnr)
   local text = vim.treesitter.get_node_text(node, bufnr) or "" -- TODO: return nil in stable release?
@@ -29,7 +30,8 @@ local config = {
     function_declaration = { named = { "parameters" } },
   },
   ignore_self = { named = { "body" } },
-  hook_node = function(node, ctx)
+  hook_node = Hook(function(ctx)
+    local node = ctx.node
     if node:type() == "autocmd_statement" then
       local prev = node:prev_sibling()
       while prev do
@@ -43,9 +45,9 @@ local config = {
         prev = prev:prev_sibling()
       end
     end
-  end,
-  hook_new_line = function(lnum, node, ctx)
-    local prev_line = utils.prev_nonblank_lnum(lnum, ctx.bufnr)
+  end),
+  hook_new_line = Hook(function(ctx)
+    local prev_line = utils.prev_nonblank_lnum(ctx.lnum, ctx.bufnr)
     local prev_node = utils.get_node_at_line(prev_line, ctx.tree, true, ctx.bufnr)
 
     if prev_node:type() == "autocmd_statement" then
@@ -57,7 +59,7 @@ local config = {
         return ctx.shift, prev_node
       end
     end
-  end,
+  end),
 }
 
 return config

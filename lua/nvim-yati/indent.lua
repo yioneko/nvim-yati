@@ -82,7 +82,15 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
 
   ---@return HookCtx
   local function make_ctx()
-    return { bufnr = bufnr, tree = tree, shift = shift, upper_line = upper_line }
+    return {
+      bufnr = bufnr,
+      indent = indent,
+      lnum = line,
+      node = node,
+      shift = shift,
+      tree = tree,
+      upper_line = upper_line,
+    }
   end
 
   do
@@ -101,14 +109,12 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   debug.log("Initial node", node:type())
   -- The line is empty
   if node:start() ~= line then
-    local inc, next = spec.hook_new_line(line, node, make_ctx())
-    if inc ~= nil then
-      if inc < 0 then
-        return -1
-      end
-      indent = indent + inc
-      node = next
-    else
+    local hooked = false
+    indent, node, hooked = spec.hook_new_line(make_ctx())
+    if indent < 0 then
+      return -1
+    end
+    if not hooked then
       local prev_node
       do
         local cur_line = utils.prev_nonblank_lnum(line, bufnr)
@@ -172,15 +178,12 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
       break
     end
 
-    local inc, next = spec.hook_node(node, make_ctx())
-    if inc == nil or (next ~= nil and next:id() == node:id()) then
-      inc = inc or 0
-      if inc < 0 then
-        return -1
-      else
-        indent = indent + inc
-      end
-
+    local hooked, prev_id = false, node:id()
+    indent, node, hooked = spec.hook_node(make_ctx())
+    if indent < 0 then
+      return -1
+    end
+    if not hooked or (node ~= nil and prev_id == node:id()) then
       local parent = node:parent()
       if parent then
         if parent:type() == "ERROR" then
@@ -212,13 +215,6 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
       end
 
       node = parent
-    elseif inc ~= nil then
-      if inc < 0 then
-        return -1
-      else
-        indent = indent + inc
-        node = next
-      end
     end
 
     -- If the node is ignored (mainly test ignore_self), we should pass through it

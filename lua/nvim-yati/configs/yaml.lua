@@ -1,4 +1,5 @@
 local utils = require("nvim-yati.utils")
+local Hook = require("nvim-yati.hook")
 
 ---@type YatiConfig
 local config = {
@@ -13,8 +14,8 @@ local config = {
     "block_scalar",
   },
   ignore_self = { named = { "block_node", "block_sequence", "block_mapping" } },
-  hook_new_line = function(lnum, node, ctx)
-    local prev_line = utils.prev_nonblank_lnum(lnum, ctx.bufnr)
+  hook_new_line = Hook(function(ctx)
+    local prev_line = utils.prev_nonblank_lnum(ctx.lnum, ctx.bufnr)
     local prev_node = utils.get_node_at_line(prev_line, ctx.tree, true, ctx.bufnr)
 
     -- - b: aa
@@ -45,7 +46,7 @@ local config = {
         end
       end
     end
-  end,
+  end),
 }
 
 return config

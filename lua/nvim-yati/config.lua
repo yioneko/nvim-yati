@@ -1,6 +1,7 @@
 local M = {}
 local extend = require("nvim-yati.utils").extend_config
 local get_module_config = require("nvim-treesitter.configs").get_module
+local Hook = require("nvim-yati.hook")
 
 ---@alias tsnode userdata
 ---@alias tstree userdata
@@ -11,9 +12,12 @@ local get_module_config = require("nvim-treesitter.configs").get_module
 
 ---@class HookCtx
 ---@field bufnr number
+---@field indent number
+---@field lnum number
+---@field node tsnode
+---@field shift number
 ---@field tree tstree
 ---@field upper_line number
----@field shift number
 
 ---@class YatiConfig
 ---@field indent string[]
@@ -23,8 +27,8 @@ local get_module_config = require("nvim-treesitter.configs").get_module
 ---@field ignore_outer TSNodeList
 ---@field ignore_within string[]
 ---@field ignore_self TSNodeList
----@field hook_node fun(node: tsnode, ctx: HookCtx): number, tsnode
----@field hook_new_line fun(lnum: number, node: tsnode, ctx: HookCtx): number, tsnode
+---@field hook_node fun(ctx: HookCtx): number, tsnode
+---@field hook_new_line fun(ctx: HookCtx): number, tsnode
 
 ---@type YatiConfig
 local default = {
@@ -36,8 +40,8 @@ local default = {
   ignore_outer = {},
   ignore_self = {},
   -- Used to handle complex scenarios
-  hook_node = function(node, ctx) end,
-  hook_new_line = function(lnum, node, ctx) end,
+  hook_node = Hook(),
+  hook_new_line = Hook(),
 }
 
 ---@param lang string

@@ -7,7 +7,8 @@ function M.extend_config(config, extend)
   ---@type YatiConfig
   local merged = vim.deepcopy(config)
   for k, v in pairs(extend) do
-    if type(v) == "table" then
+    -- Don't deep extend hooks
+    if type(v) == "table" and v.chains == nil then
       if vim.tbl_islist(v) then
         merged[k] = vim.list_extend(merged[k] or {}, v)
       else
