@@ -1,6 +1,7 @@
 local utils = require("nvim-yati.utils")
-
 local M = {}
+
+---@alias Chain fun(ctx: HookCtx): number | nil, tsnode | nil
 
 ---Fix indent in arguemnt of chained function calls (sample.js#L133)
 ---@return Chain

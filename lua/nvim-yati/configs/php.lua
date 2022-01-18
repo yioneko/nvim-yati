@@ -1,0 +1,68 @@
+local Hook = require("nvim-yati.hook")
+local chains = require("nvim-yati.chains")
+
+---@type YatiConfig
+local config = {
+  indent = {
+    "array_creation_expression",
+    "compound_statement",
+    "list_literal",
+    "function_definition",
+    "method_declarator",
+    "interface_declaration",
+    "class_declaration",
+    "declaration_list",
+    "match_block",
+    "if_statement",
+    "else_if_clause",
+    "else_clause",
+    "while_statement",
+    "switch_statement",
+    "switch_block",
+    "foreach_statement",
+    "for_statement",
+    "try_statement",
+    "catch_clause",
+    "finally_clause",
+    "assignment_expression",
+    "arguments",
+    "parameters",
+    "formal_parameters",
+    "use_list",
+    "anonymous_function_use_clause",
+    "namespace_use_group",
+    "parenthesized_expression",
+  },
+  indent_last = {
+    "array_element_initializer",
+    "global_declaration",
+    "member_call_expression",
+    "case_statement",
+    "default_statement",
+    "arrow_function",
+    "conditional_expression",
+    "colon_block",
+    "assignment_expression",
+    "binary_expression",
+    "match_conditional_expression",
+    "function_call_expression",
+  },
+  skip_child = {
+    if_statement = {
+      named = { "parenthesized_expression", "else_if_clause", "else_clause", "colon_block", "compound_statement" },
+      literal = { "endif" },
+    },
+    else_if_clause = { named = { "parenthesized_expression", "colon_block" } },
+    else_clause = { named = { "parenthesized_expression", "colon_block" } },
+    while_statement = { named = { "parenthesized_expression", "colon_block" }, literal = { "endwhile" } },
+    for_statement = { named = { "colon_block" }, literal = { "endfor" } },
+    foreach_statement = { literal = { "(", ")" } },
+    switch_statement = { named = { "parenthesized_expression" } },
+    switch_block = { literal = { "endswitch" } },
+    try_statement = { named = { "compound_statement", "catch_clause", "finally_clause" } },
+    catch_clause = { named = { "compound_statement" }, literal = { "(", ")" } },
+    finally_clause = { named = { "compound_statement" } },
+  },
+}
+
+return config

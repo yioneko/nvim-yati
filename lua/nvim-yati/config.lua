@@ -27,8 +27,8 @@ local Hook = require("nvim-yati.hook")
 ---@field ignore_outer TSNodeList
 ---@field ignore_within string[]
 ---@field ignore_self TSNodeList
----@field hook_node fun(ctx: HookCtx): number, tsnode
----@field hook_new_line fun(ctx: HookCtx): number, tsnode
+---@field hook_node Hook
+---@field hook_new_line Hook
 
 ---@type YatiConfig
 local default = {
@@ -39,7 +39,6 @@ local default = {
   ignore_within = { "string", "comment" },
   ignore_outer = {},
   ignore_self = {},
-  -- Used to handle complex scenarios
   hook_node = Hook(),
   hook_new_line = Hook(),
 }

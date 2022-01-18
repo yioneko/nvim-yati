@@ -1,9 +1,5 @@
----@alias Chain fun(ctx: HookCtx): number | nil, tsnode | nil
-
 ---@class Hook
 ---@field chains Chain[]
-
----@type Hook
 local Hook = {}
 Hook.__index = Hook
 
