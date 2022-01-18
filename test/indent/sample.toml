@@ -1,0 +1,6 @@
+multiLine = [
+  1,
+  MARKER
+  2,
+  { a = "str", b = "str" },
+]

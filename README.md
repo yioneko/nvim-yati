@@ -35,18 +35,19 @@ The calculation result heavily relies on the correct tree-sitter parsing of the 
 ## Supported languages
 
 - C/C++
-- Javascript/Typescript (jsx and tsx are also supported)
-- Python
-- Lua
-- Rust
-- HTML
 - CSS
-- JSON
-- YAML
-- Markdown
-- Vim
-- PHP
 - GraphQL
+- HTML
+- Javascript/Typescript (jsx and tsx are also supported)
+- JSON
+- Lua
+- Markdown
+- PHP
+- Python
+- Rust
+- TOML
+- Vim
+- YAML
 
 More languages could be supported by adding config files to [configs/](lua/nvim-yati/configs) directory.
 
