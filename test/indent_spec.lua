@@ -13,6 +13,7 @@ local test_files = {
   lua = { "sample.lua" },
   markdown = { "sample.md" },
   php = { "sample.php" },
+  graphql = { "sample.graphql" },
   python = { "sample.py" },
   rust = { "sample.rs" },
   typescript = { "sample.ts" },

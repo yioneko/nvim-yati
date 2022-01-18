@@ -267,4 +267,21 @@ function inject() {
       color: red;
     }
   `
+  const query = graphql`
+    {
+      args(
+        var: $var
+        MARKER
+      )
+      fds(
+        obj: {
+          str: "hello"
+          list: [
+            "hello"
+            MARKER
+          ]
+        }
+      )
+    }
+  `
 }
