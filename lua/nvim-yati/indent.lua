@@ -53,7 +53,15 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   end
 
   local upper_line
+  --[[
   -- Check if the line only contains node of the current tree, this is needed to handle injection
+  -- Example:
+  --   const inject = css` /* Original upper_line */
+  --     .foo {            /* Should be updated to this line */
+  --       color: red;
+  --     }
+  --   `
+  --]]
   do
     local upper_col
     upper_line, upper_col = tree:root():start()
@@ -115,6 +123,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
       return -1
     end
     if not hooked then
+      -- Try to find node above the current line as new indent base
       local prev_node
       do
         local cur_line = utils.prev_nonblank_lnum(line, bufnr)
@@ -130,12 +139,27 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
           prev_node = utils.get_node_at_line(cur_line, tree, true, bufnr)
         end
         if prev_node then
+          --[[
+          -- Try find node considered always 'open' for last indent
+          -- Example:
+          --   if true:
+          --     some()
+          --
+          --     |
+          --]]
           local last_open = utils.try_find_parent(prev_node, function(parent)
             return vim.tbl_contains(spec.indent_last_open, parent:type())
           end)
           if last_open then
             prev_node = last_open
           else
+            --[[
+            -- Try find indent node with missing child (usually 'end')
+            -- Example:
+            --   if true then
+            --     |
+            --   (end) <- missing
+            --]]
             prev_node = find_indent_block_with_missing(prev_node, cur_line, spec)
           end
         end
@@ -162,6 +186,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   end
   local start_line, end_line = get_node_range(node, spec)
 
+  -- If the node is not at the same line and it's an indent node, we should indent
   if line ~= start_line and start_line >= upper_line and node:named() and should_indent(node, spec) then
     indent = indent + shift
   end
@@ -183,6 +208,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     if indent < 0 then
       return -1
     end
+    -- If the new node is returned as is, we should continue to prevent infinite loop
     if not hooked or (node ~= nil and prev_id == node:id()) then
       local parent = node:parent()
       if parent then
@@ -191,10 +217,10 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
           indent = indent + utils.cur_indent(start_line, bufnr) - utils.cur_indent(upper_line, bufnr)
           break
         end
-        -- Do not indent for the same line range
-        -- Use end line of the first node of parent to compare with start_line
         if
           parent:start() >= upper_line
+          -- Do not indent for the same line range
+          -- Use end line of the first node of parent to compare with start_line
           and (
             utils.get_normalized_end(parent:child(0), bufnr) ~= start_line
             or utils.get_normalized_end(parent, bufnr) ~= end_line
