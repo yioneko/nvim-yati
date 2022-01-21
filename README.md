@@ -2,9 +2,7 @@
 
 Yet another tree-sitter indent plugin for Neovim.
 
-The experimental buitin indent module of [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) seems broken for dialy use and lacks maintainers currently (2022-01). However, if we want to get saner indent support we must turn on legacy vim syntax highlighting and run it with tree-siter parsing parallelly in most cases. This is such a pain so I decided to write another one with a more reasonable and powerful algorithm and get rid of the old-style vim syntax engine.
-
-If that's the same case for you, give this plugin a try. Contribution is also welcome.
+This plugin was originally created when the experience of builtin indent module of [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) was still terrible. Now since the maintainers came back, and it has improved a lot and become usable, I'll stop maintaining this once the 'official' one completely supersede (also hope it will!).
 
 ## Setup
 
@@ -53,5 +51,5 @@ More languages could be supported by adding config files to [configs/](lua/nvim-
 
 ## Credits
 
-- [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for initial spiration and test cases.
+- [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for initial aspiration and test cases.
 - [chfritz/atom-sane-indentation](https://github.com/chfritz/atom-sane-indentation) for algorithm and test cases.
