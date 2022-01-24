@@ -125,6 +125,22 @@ switch (e) {
     done();
 }
 
+for (
+  let i = 0;
+  i < 10;
+  i++
+) {
+  for (
+    const { a,
+      b,
+      c,
+      MARKER
+    } of foo
+  ) {
+    MARKER
+  }
+}
+
 req
   .field
   MARKER
