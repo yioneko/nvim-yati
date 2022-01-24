@@ -11,8 +11,12 @@ function Hook.new(...)
   return self
 end
 
-function Hook:add(chain)
-  table.insert(self.chains, chain)
+---@vararg Chain
+function Hook:add(...)
+  local new_chains = { ... }
+  for _, chain in ipairs(new_chains) do
+    table.insert(self.chains, chain)
+  end
 end
 
 ---@param ctx HookCtx

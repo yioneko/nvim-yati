@@ -104,12 +104,22 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   do
     local ignored = utils.try_find_parent(node, function(parent)
       return vim.tbl_contains(spec.ignore_within, parent:type())
-    end)
+    end, 1)
     if ignored then
-      if line ~= ignored:start() and not utils.node_has_injection(ignored, bufnr) then
-        return utils.cur_indent(line, bufnr) - utils.cur_indent(upper_line, bufnr)
-      else
-        node = ignored
+      -- Apply custom hooks here for special case of string and comment
+      local hooked
+      indent, node, hooked = spec.hook_node(make_ctx())
+      if not hooked then
+        -- Default handling
+        if line ~= ignored:start() and not utils.node_has_injection(ignored, bufnr) then
+          if utils.get_buf_line(bufnr, line):match("^%s*$") ~= nil then
+            -- If the line is empty, use default smart indent
+            return -1
+          end
+          return utils.cur_indent(line, bufnr) - utils.cur_indent(upper_line, bufnr)
+        else
+          node = ignored
+        end
       end
     end
   end

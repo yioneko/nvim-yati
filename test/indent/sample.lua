@@ -104,7 +104,7 @@ local function ffa(
       au!
       au BufEnter,BufWinEnter * lua require'mod'.func()
     augroup END
-    ]]) -- TODO: Fix this (modification of core algorithm is needed)
+  ]]) -- TODO: Fix this (modification of core algorithm is needed)
 
   local ss = [[
   fdsafasf

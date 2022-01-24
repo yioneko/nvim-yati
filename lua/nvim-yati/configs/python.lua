@@ -19,10 +19,10 @@ local config = {
     "parameters",
   },
   indent_last = {
+    "assignment",
     "import_from_statement",
     "return_statement",
     "expression_list",
-    "binary_operator",
   },
   indent_last_open = {
     "if_statement",
@@ -39,10 +39,12 @@ local config = {
     "lambda",
   },
   skip_child = {
-    if_statement = { named = { "else_clause", "elif_clause" } },
-    while_statement = { named = { "else_clause" } },
-    try_statement = { named = { "except_clause", "else_clause", "finnaly_clause" } },
+    if_statement = { named = { "else_clause", "elif_clause", "parenthesized_expression" } },
+    elif_clause = { named = { "parenthesized_expression" } },
+    while_statement = { named = { "else_clause", "parenthesized_expression" } },
+    try_statement = { named = { "except_clause", "else_clause", "finnaly_clause", "parenthesized_expression" } },
   },
+  ignore_self = { named = { "binary_operator" } },
   hook_node = Hook(
     chains.escape_indent("else:", "identifier", "if_statement"),
     chains.escape_indent("elif.*:", "identifier", "if_statement"),

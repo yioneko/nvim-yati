@@ -2,6 +2,7 @@ local M = {}
 local extend = require("nvim-yati.utils").extend_config
 local get_module_config = require("nvim-treesitter.configs").get_module
 local Hook = require("nvim-yati.hook")
+local chains = require("nvim-yati.chains")
 
 ---@alias tsnode userdata
 ---@alias tstree userdata
@@ -55,6 +56,11 @@ function M.get_config(lang)
 
   local merged = extend(default, extend(config, overrides[lang] or {}))
   vim.list_extend(merged.indent_last, merged.indent_last_open)
+  merged.hook_node:add(
+    chains.escape_string_end("string", '"'),
+    chains.escape_string_end("string", "'"),
+    chains.block_comment_extra_indent("comment")
+  )
   return merged
 end
 

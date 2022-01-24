@@ -56,7 +56,10 @@ local config = {
   },
   ignore_within = { "raw_string_literal", "line_comment", "block_comment" },
   ignore_self = { named = { "string_literal" } },
-  hook_node = Hook(chains.chained_field_call("arguments", "field_expression")),
+  hook_node = Hook(
+    chains.block_comment_extra_indent("block_comment"),
+    chains.chained_field_call("arguments", "field_expression")
+  ),
 }
 
 return config

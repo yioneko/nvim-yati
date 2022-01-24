@@ -18,7 +18,7 @@ local config = {
     "jsx_expression",
     "switch_body",
     "member_expression",
-    "template_string",
+    "template_substitution",
   },
   indent_last = {
     "expression_statement",
@@ -44,8 +44,13 @@ local config = {
     jsx_fragment = { literal = { "<" } },
   },
   ignore_self = { literal = { ";" }, named = { "jsx_text" } },
-  ignore_within = { "description" },
-  hook_node = Hook(chains.chained_field_call("arguments", "member_expression")),
+  ignore_within = { "description", "template_string" },
+  hook_node = Hook(
+    chains.escape_string_end("template_string", "`"),
+    chains.block_comment_extra_indent("description"),
+    chains.chained_field_call("arguments", "member_expression"),
+    chains.ternary_extra_indent("ternary_expression", "consequence", "alternative")
+  ),
 }
 
 return config

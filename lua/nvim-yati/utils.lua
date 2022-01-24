@@ -50,23 +50,29 @@ function M.prev_nonblank_lnum(lnum, bufnr)
   return -1
 end
 
-function M.try_find_parent(node, predicate)
+function M.try_find_parent(node, predicate, limit)
+  limit = limit or math.huge
   local cur = node
-  while cur do
+  while limit >= 0 and cur do
     if predicate(cur) then
       return cur
     end
     cur = cur:parent()
+    limit = limit - 1
   end
 end
 
 -- TODO: Limit depth to improve performance
-function M.try_find_child(node, predicate)
+function M.try_find_child(node, predicate, limit)
+  limit = limit or 5
+  if limit == 0 then
+    return
+  end
   for child, _ in node:iter_children() do
     if predicate(child) then
       return child
     else
-      local res = M.try_find_child(child, predicate)
+      local res = M.try_find_child(child, predicate, limit - 1)
       if res then
         return res
       end

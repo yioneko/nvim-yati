@@ -1,3 +1,6 @@
+local Hook = require("nvim-yati.hook")
+local chains = require("nvim-yati.chains")
+
 ---@type YatiConfig
 local config = {
   indent = {

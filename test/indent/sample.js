@@ -256,7 +256,26 @@ const af3 = (c) =>
   ((d) =>
     123
   )(
-    e,
+    somebool
+      ? foo(
+          a,
+          MARKER
+          b
+        )
+      : bar(
+          c,
+          d
+        ),
+    anotherbool ?
+      foo(
+        a,
+        MARKER
+        b
+      ) : bar(
+          c,
+          d
+        ),
+    MARKER
     b
   )
 
@@ -281,6 +300,21 @@ function inject() {
             MARKER
           ]
         }
+      )
+    }
+  `
+  const interpolated = `
+    fdsfsaf
+    ${
+      (function(
+        a,
+        b) {
+      })(
+        () => {
+          MARKER
+          return a + b
+        }
+        2,
       )
     }
   `

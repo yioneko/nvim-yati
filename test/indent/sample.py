@@ -143,13 +143,13 @@ String B
 
 c = """
     String C
-    """
+"""
 
 d = """
     String D
 String D
         String D
-    """
+"""
 
 from os import (
     path,
@@ -166,4 +166,15 @@ class Foo:
         pass
 
     def foo(self):
-        pass
+        if (bbbb or
+            ffff is not None
+            and aaaa > 0
+            or fffff.b
+        ):
+            a = (
+                1
+                + 2
+                - 3
+                * 4
+                * 5
+            )

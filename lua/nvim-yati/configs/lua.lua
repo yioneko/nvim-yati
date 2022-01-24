@@ -42,6 +42,7 @@ local config = {
   },
   ignore_self = { named = { "binary_expression" } },
   hook_node = Hook(
+    chains.escape_string_end("string", "string_end"),
     chains.chained_field_call("arguments", "method_index_expression"),
     chains.chained_field_call("arguments", "dot_index_expression")
   ),
