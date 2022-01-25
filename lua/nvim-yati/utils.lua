@@ -62,7 +62,6 @@ function M.try_find_parent(node, predicate, limit)
   end
 end
 
--- TODO: Limit depth to improve performance
 function M.try_find_child(node, predicate, limit)
   limit = limit or 5
   if limit == 0 then

@@ -46,10 +46,10 @@ local config = {
   },
   ignore_self = { named = { "binary_operator" } },
   hook_node = Hook(
-    chains.escape_indent("else:", "identifier", "if_statement"),
-    chains.escape_indent("elif.*:", "identifier", "if_statement"),
-    chains.escape_indent("except.*:", "identifier", "try_statement"),
-    chains.escape_indent("finnally:", "identifier", "try_statement")
+    chains.escape_indent("else", "identifier", "if_statement"),
+    chains.escape_indent("elif", "identifier", "if_statement"),
+    chains.escape_indent("except", "identifier", "try_statement"),
+    chains.escape_indent("finnally", "identifier", "try_statement")
   ),
 }
 
