@@ -59,7 +59,8 @@ function M.get_config(lang)
   merged.hook_node:add(
     chains.escape_string_end("string", '"'),
     chains.escape_string_end("string", "'"),
-    chains.block_comment_extra_indent("comment")
+    chains.block_comment_extra_indent("comment"),
+    chains.ignore_inner_left_binary_expression("binary_expression")
   )
   return merged
 end

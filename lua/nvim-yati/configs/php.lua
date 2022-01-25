@@ -46,6 +46,7 @@ local config = {
     "binary_expression",
     "match_conditional_expression",
     "function_call_expression",
+    "echo_statement",
   },
   skip_child = {
     if_statement = {

@@ -107,9 +107,9 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
     end, 1)
     if ignored then
       -- Apply custom hooks here for special case of string and comment
-      local hooked
-      indent, node, hooked = spec.hook_node(make_ctx())
-      if not hooked then
+      local cont = true
+      indent, node, cont = spec.hook_node(make_ctx())
+      if cont then
         -- Default handling
         if line ~= ignored:start() and not utils.node_has_injection(ignored, bufnr) then
           if utils.get_buf_line(bufnr, line):match("^%s*$") ~= nil then
@@ -127,12 +127,12 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   debug.log("Initial node", node:type())
   -- The line is empty
   if node:start() ~= line then
-    local hooked = false
-    indent, node, hooked = spec.hook_new_line(make_ctx())
+    local cont = true
+    indent, node, cont = spec.hook_new_line(make_ctx())
     if indent < 0 then
       return -1
     end
-    if not hooked then
+    if cont then
       -- Try to find node above the current line as new indent base
       local prev_node
       do
@@ -213,13 +213,13 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
       break
     end
 
-    local hooked, prev_id = false, node:id()
-    indent, node, hooked = spec.hook_node(make_ctx())
+    local cont = true
+    indent, node, cont = spec.hook_node(make_ctx())
     if indent < 0 then
       return -1
     end
     -- If the new node is returned as is, we should continue to prevent infinite loop
-    if not hooked or (node ~= nil and prev_id == node:id()) then
+    if cont then
       local parent = node:parent()
       if parent then
         if parent:type() == "ERROR" then

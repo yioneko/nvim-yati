@@ -20,6 +20,7 @@ local config = {
     "parenthesized_expression",
   },
   indent_last = {
+    "binary_expression",
     "else_statement",
     "elseif_statement",
     "assignment_statement",
@@ -40,11 +41,11 @@ local config = {
     while_statement = { literal = { "do" } },
     repeat_statement = { literal = { "until" } },
   },
-  ignore_self = { named = { "binary_expression" } },
   hook_node = Hook(
     chains.escape_string_end("string", "string_end"),
     chains.chained_field_call("arguments", "method_index_expression"),
-    chains.chained_field_call("arguments", "dot_index_expression")
+    chains.chained_field_call("arguments", "dot_index_expression"),
+    chains.ignore_inner_left_binary_expression("binary_expression")
   ),
 }
 

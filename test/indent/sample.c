@@ -32,21 +32,16 @@ void foo(int *x, int y) {
     MARKER
     x = -x;
 
-    // TODO: Is this indent better?
-    // and it's hard to implement because the binary_expression is right associative
-    // if (
-    //   x ||
-    //   y &&
-    //   z
-    // ) {
-    //   return;
-    // }
-
-    if ((x &&
-      MARKER
-      y) ||
+    if (
+      x &&
+      y &&
+      z &&
+      fs ||
+      (x &&
+        y) ||
       (z &&
-        x)) {
+        x)
+    ) {
       return;
     }
 

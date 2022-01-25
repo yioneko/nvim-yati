@@ -43,13 +43,13 @@ $fn1 = static fn($a,
 
 $var =
   $a ??
-    ($b ??
-      $e) ?:
+  ($b ??
+    $e) ?:
     $a;
 
 $callback =
   $var ??
-    (function() use (
+  (function() use (
       $a,
       $b,
       MARKER
@@ -57,9 +57,9 @@ $callback =
     ) {
       return true;
     } ??
-      function() {
-        return true;
-      });
+    function() {
+      return true;
+    });
 
 if (true) {
   MARKER
@@ -82,9 +82,9 @@ elseif (false):
   MARKER
   if (
     $a === "1" &&
-      !is_null($c) &&
+    !is_null($c) &&
       $b->mem() ===
-        "fds"
+      "fds"
   ) {
     while (list(
       0 => $a,

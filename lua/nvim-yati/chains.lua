@@ -1,7 +1,7 @@
 local utils = require("nvim-yati.utils")
 local M = {}
 
----@alias Chain fun(ctx: HookCtx): number | nil, tsnode | nil
+---@alias Chain fun(ctx: HookCtx): number | nil, tsnode | nil, boolean | nil
 
 ---Fix indent in arguemnt of chained function calls (sample.js#L133)
 ---@return Chain
@@ -79,6 +79,31 @@ function M.block_comment_extra_indent(comment, pattern)
       and utils.get_buf_line(ctx.bufnr, ctx.lnum):match(pattern) ~= nil
     then
       return 1, node
+    end
+  end
+end
+
+---Before: a &&    After:  a &&
+---          b &&          b &&
+---          c             c
+---@return Chain
+function M.ignore_inner_left_binary_expression(binary_expression, not_operators)
+  not_operators = not_operators or { "<<", ">>" }
+  return function(ctx)
+    local cur = ctx.node:parent()
+    if cur and cur:type() == binary_expression then
+      if vim.tbl_contains(not_operators, cur:child(1):type()) then
+        return
+      end
+      local parent = cur:parent()
+      while parent and parent:type() == binary_expression do
+        if parent:field("right")[1]:id() == cur:id() or vim.tbl_contains(not_operators, parent:child(1):type()) then
+          return 0, cur, true
+        end
+        cur = parent
+        parent = cur:parent()
+      end
+      return 0, cur, true
     end
   end
 end

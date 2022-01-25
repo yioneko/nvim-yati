@@ -20,19 +20,22 @@ function Hook:add(...)
 end
 
 ---@param ctx HookCtx
----@return number indent, tsnode node, boolean hooked
+---@return number indent, tsnode node, boolean cont
 function Hook:__call(ctx)
+  local prev_id = ctx.node:id()
+
   for _, chain in ipairs(self.chains) do
-    local inc, next_node = chain(ctx)
+    local inc, next_node, cont = chain(ctx)
     if inc ~= nil then
       if inc < 0 then
-        return -1, nil, true
+        return -1, nil, false
       else
-        return ctx.indent + inc, next_node, true
+        local next_id = next_node and next_node:id()
+        return ctx.indent + inc, next_node, (cont == true) or (next_id ~= nil and prev_id == next_id)
       end
     end
   end
-  return ctx.indent, ctx.node, false
+  return ctx.indent, ctx.node, true
 end
 
 return Hook.new
