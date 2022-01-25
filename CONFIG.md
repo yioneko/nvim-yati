@@ -1,6 +1,6 @@
 # Config
 
-This following sections documents fields of indent configuration.
+The following sections documents fields of indent configuration.
 
 ### indent
 
@@ -78,7 +78,9 @@ Nodes considered not exist but their children should be remained. This is simila
 ```javascript
 const jsx = (
   <div>
-    <div>'jsx_text' should be unwraped to 'jsx_element'</div>
+    <div>
+      'jsx_text' should be unwraped to 'jsx_element'
+    </div>
   </div>
 );
 ```

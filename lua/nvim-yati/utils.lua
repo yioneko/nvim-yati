@@ -92,7 +92,7 @@ end
 
 function M.get_first_nonblank_col_at_line(lnum, bufnr)
   local line = M.get_buf_line(bufnr, lnum)
-  local _, col = string.find(line, "^%s*")
+  local _, col = string.find(line, "^[%s%\\]*") -- NOTE: Also exclude \ (sample.vim#L6)
   return col or 0
 end
 

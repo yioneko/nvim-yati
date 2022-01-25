@@ -1,17 +1,15 @@
 func s:func()
   "{{{
   let l = [1,
-    2,
-    MARKER
-    3
-  ]
+    \2,
+    \3
+  \]
 
   let d = {
-    1: 1,
-    MARKER
-    2: 2,
-    3: 3,
-  }
+    \1: 1,
+    \2: 2,
+    \3: 3,
+  \}
   while a && b
     " Comment
     let lnum =
@@ -46,11 +44,10 @@ augroup Group
 augroup END
 
 func s:func2(
-  a,
-  b,
-  MARKER
-  c
-)
+  \a,
+  \b,
+  \c
+\)
   if ttt =~ '456'
     \ && s:bool(123)
     \ && s:bool(456)
