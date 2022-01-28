@@ -31,7 +31,10 @@ function Hook:__call(ctx)
         return -1, nil, false
       else
         local next_id = next_node and next_node:id()
-        return ctx.indent + inc, next_node, (cont == true) or (next_id ~= nil and prev_id == next_id)
+        if cont == nil then
+          cont = next_id ~= nil and prev_id == next_id
+        end
+        return ctx.indent + inc, next_node, cont
       end
     end
   end

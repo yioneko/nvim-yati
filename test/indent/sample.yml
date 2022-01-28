@@ -28,5 +28,7 @@ foo:
     - aa: fff
       ff: aaa
       MARKER
+  bar2: fff
+  MARKER
   baz2:
     MARKER

@@ -42,7 +42,12 @@ local config = {
         if line:match("[:>|]%s*$") ~= nil then
           return 0, mapping_pair
         else
-          return 0, mapping_pair:parent()
+          local next = mapping_pair:parent()
+          -- Skip the original node
+          if next and next:id() == ctx.node:id() then
+            next = next:parent()
+          end
+          return 0, next
         end
       end
     end

@@ -1,6 +1,22 @@
+import {
+  a,
+  b,
+  MARKER
+  c
+} from "mod";
+
+export {
+  a,
+  b,
+  MARKER
+}
+
 foo({
     sd,
-    sdf
+    aaa: sdf[
+      "index" +
+      2
+    ]
   },
   4
 );
@@ -261,6 +277,10 @@ class MyClass extends OtherComponent {
 }
 
 foo(myWrapper(mysecondWrapper({
+  /**
+   * Comment
+   * Comment
+   */
   a: 1
 })));
 
@@ -293,7 +313,12 @@ const af3 = (c) =>
       : bar(
           c,
           d
-        ),
+        )
+        ? dd
+        : baz(
+            MARKER
+            c
+          ),
     anotherbool ?
       foo(
         a,

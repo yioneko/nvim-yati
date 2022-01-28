@@ -15,17 +15,28 @@ function M.chained_field_call(arguemnts, field)
   end
 end
 
+---TODO: May need to refactor hook to make it more reasonable and understandable
 ---Add extra indent in ternary branch (sample.js#L261)
 ---@return Chain
-function M.ternary_extra_indent(ternary, consequence, alternative)
+function M.ternary_extra_indent(ternary)
   return function(ctx)
     local node = ctx.node
-    local prev = node:prev_sibling() -- "?" or ":"
+    local prev = node:prev_sibling()
     local parent = node:parent()
 
-    if parent and prev and parent:type() == ternary and prev:start() == node:start() then
-      if parent:field(consequence)[1]:id() == node:id() or parent:field(alternative)[1]:id() == node:id() then
-        return ctx.shift, node
+    if parent and prev and parent:type() == ternary then
+      if prev:start() == node:start() and (prev:type() == "?" or prev:type() == ":") then
+        if parent:parent():type() ~= ternary then
+          return ctx.shift, node
+        else
+          return ctx.shift, parent
+        end
+      elseif node:type() == "?" or node:type() == ":" then
+        if parent:parent():type() ~= ternary then
+          return 0, node
+        else
+          return 0, parent
+        end
       end
     end
   end
@@ -78,7 +89,7 @@ function M.block_comment_extra_indent(comment, pattern)
       and ctx.lnum ~= node:start()
       and utils.get_buf_line(ctx.bufnr, ctx.lnum):match(pattern) ~= nil
     then
-      return 1, node
+      return 1, node, false
     end
   end
 end

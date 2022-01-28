@@ -19,6 +19,9 @@ local config = {
     "switch_body",
     "member_expression",
     "template_substitution",
+    "named_imports",
+    "export_clause",
+    "subscript_expression",
   },
   indent_last = {
     "expression_statement",
@@ -51,9 +54,8 @@ local config = {
   ignore_within = { "description", "template_string" },
   hook_node = Hook(
     chains.escape_string_end("template_string", "`"),
-    chains.block_comment_extra_indent("description"),
     chains.chained_field_call("arguments", "member_expression"),
-    chains.ternary_extra_indent("ternary_expression", "consequence", "alternative")
+    chains.ternary_extra_indent("ternary_expression")
   ),
 }
 
