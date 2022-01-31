@@ -252,10 +252,10 @@ function foo() {
     d
     MARKER
   )(123, function () {
-      dosome()
-    }, {
-      a: 456
-    }); // TODO: is this indentation wrong?
+    dosome()
+  }, {
+    a: 456
+  });
 }
 
 class MyClass extends OtherComponent {

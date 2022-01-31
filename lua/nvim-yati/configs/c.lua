@@ -12,6 +12,7 @@ local config = {
     "initializer_list",
     "parenthesized_expression",
     "preproc_function_def",
+    "preproc_arg",
   },
   indent_last = {
     "for_statement",

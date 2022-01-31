@@ -21,13 +21,38 @@ local function should_ignore(node, spec)
     or vim.tbl_contains(spec.ignore_within, type)
 end
 
-local function get_node_range(node, spec)
-  local start_line, _, end_line, _ = node:range()
+local function get_node_indent_range(node, spec, bufnr)
+  local start_line, end_line = node:range(), utils.get_normalized_end(node, bufnr)
+
+  -- Try to expand the range if the start/end line is the adjacent to prev/next sibling
+  -- This fix duplicate indent in list-like indent scope (sample.js#L255)
+  local prev = node:prev_sibling()
+  while
+    prev
+    and utils.get_normalized_end(prev, bufnr) == start_line
+    and not should_ignore(prev, spec)
+    and not match_type_spec(prev, spec.skip_child[node:parent():type()] or {})
+  do
+    start_line = prev:start()
+    prev = prev:prev_sibling()
+  end
+
+  local next = node:next_sibling()
+  while
+    next
+    and next:start() == end_line
+    and not should_ignore(next, spec)
+    and not match_type_spec(next, spec.skip_child[node:parent():type()] or {})
+  do
+    end_line = utils.get_normalized_end(next, bufnr)
+    next = next:next_sibling()
+  end
 
   -- Use next sibling's start line as end line if this node has a last indent
   -- This fix issues with duplicate indent on the last node
-  if vim.tbl_contains(spec.indent_last, node:type()) and node:next_sibling() then
-    end_line = node:next_sibling():start()
+  -- sample.js#L305
+  if vim.tbl_contains(spec.indent_last, node:type()) and next then
+    end_line = next:start()
   end
   return start_line, end_line
 end
@@ -194,7 +219,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
   if not node then
     return -1
   end
-  local start_line, end_line = get_node_range(node, spec)
+  local start_line, end_line = get_node_indent_range(node, spec, bufnr)
 
   -- If the node is not at the same line and it's an indent node, we should indent
   if line ~= start_line and start_line >= upper_line and node:named() and should_indent(node, spec) then
@@ -231,10 +256,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
           parent:start() >= upper_line
           -- Do not indent for the same line range
           -- Use end line of the first node of parent to compare with start_line
-          and (
-            utils.get_normalized_end(parent:child(0), bufnr) ~= start_line
-            or utils.get_normalized_end(parent, bufnr) ~= end_line
-          )
+          and (parent:start() ~= start_line or utils.get_normalized_end(parent, bufnr) ~= end_line)
         then
           local parent_type = parent:type()
 
@@ -255,7 +277,7 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
 
     -- If the node is ignored (mainly test ignore_self), we should pass through it
     if node and not should_ignore(node, spec) then
-      start_line, end_line = get_node_range(node, spec)
+      start_line, end_line = get_node_indent_range(node, spec, bufnr)
     end
   end
   debug.log("Traverse end")
