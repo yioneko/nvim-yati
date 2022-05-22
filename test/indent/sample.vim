@@ -12,8 +12,7 @@ func s:func()
   \}
   while a && b
     " Comment
-    let lnum =
-      prevnonblank(lnum - 1)
+    let lnum = prevnonblank(lnum - 1)
   endwhile
   if aaa
     if aaa

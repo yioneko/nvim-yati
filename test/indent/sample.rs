@@ -96,7 +96,9 @@ macro_rules! foo {
 }
 
 foo! {
-    A
+    (bar) => {
+            MARKER // TODO: Fix overlap of trees
+    }
 }
 
 fn foo(x: i32) -> i32 {
@@ -214,6 +216,7 @@ fn floaters() {
     } else {
         val2
     }
+        .await
         .method_call();
 
     x =
@@ -231,8 +234,20 @@ fn floaters() {
                     Some(d) => d as usize - 1,
                     None => return Err("bad param number".to_owned()),
                 }]
-                    .clone());
+                    .clone()
+                    .await
+                    MARKER
+                    .unwrap()
+                );
             }
+        }
+
+        if let Some(frame) = match connection.read_frame().await {
+            Ok(it) => it,
+            Err(err) => return Err(err),
+            MARKER
+        } {
+            println!("Got {}", frame);
         }
     }
 }

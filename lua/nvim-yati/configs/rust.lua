@@ -44,6 +44,7 @@ local config = {
     "field_expression",
     "call_expression",
     "where_clause",
+    "await_expression",
   },
   skip_child = {
     if_expression = { named = { "block", "else_clause" } },

@@ -41,3 +41,9 @@ type Foo2<A,
     A,
     B>
 }
+
+enum e {
+  a,
+  MARKER
+  b,
+}

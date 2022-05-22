@@ -5,6 +5,7 @@ return extend(config, {
   indent = {
     "object_type",
     "tuple_type",
+    "enum_body",
   },
   indent_last = {
     "property_signature",
