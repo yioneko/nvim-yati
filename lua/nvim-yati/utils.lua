@@ -1,4 +1,5 @@
 local M = {}
+local ts_parser = require("nvim-treesitter.parsers")
 
 ---Extend the config table with max depth 2
 ---@param config YatiConfig
@@ -23,6 +24,10 @@ end
 
 function M.is_supported(lang)
   return pcall(require, "nvim-yati.configs." .. lang)
+end
+
+function M.get_parser(bufnr)
+  return ts_parser.get_parser(bufnr)
 end
 
 ---@return string
@@ -133,7 +138,7 @@ function M.contains(node1, node2)
 end
 
 function M.node_has_injection(node, bufnr)
-  local root_lang_tree = vim.treesitter.get_parser(bufnr)
+  local root_lang_tree = M.get_parser(bufnr)
   local res = false
 
   root_lang_tree:for_each_child(function(child, lang)
