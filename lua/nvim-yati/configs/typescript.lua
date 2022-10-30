@@ -1,16 +1,16 @@
 local config = require("nvim-yati.configs.javascript")
-local extend = require("nvim-yati.utils").extend_config
+local extend = require("nvim-yati.config").extend
 
 return extend(config, {
-  indent = {
+  scope = {
     "object_type",
     "tuple_type",
     "enum_body",
-  },
-  indent_last = {
-    "property_signature",
-    "conditional_type",
     "type_arguments",
     "type_parameters",
+  },
+  scope_open = {
+    "property_signature",
+    "conditional_type",
   },
 })

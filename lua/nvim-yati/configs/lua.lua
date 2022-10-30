@@ -1,9 +1,8 @@
-local Hook = require("nvim-yati.hook")
-local chains = require("nvim-yati.chains")
+local ch = require("nvim-yati.handlers.common")
 
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "table_constructor",
     "function",
     "function_definition",
@@ -19,7 +18,7 @@ local config = {
     "repeat_statement",
     "parenthesized_expression",
   },
-  indent_last = {
+  scope_open = {
     "binary_expression",
     "else_statement",
     "elseif_statement",
@@ -30,23 +29,27 @@ local config = {
     "dot_index_expression",
     "return_statement",
   },
-  skip_child = {
-    local_function = { named = { "parameters" } },
-    function_definition = { named = { "parameters" } },
-    function_declaration = { named = { "parameters" } },
-    ["function"] = { named = { "parameters" } },
-    if_statement = { literal = { "then" }, named = { "else_statement", "elseif_statement" } },
-    for_statement = { literal = { "do" } },
-    for_in_statement = { literal = { "do", "in" } },
-    while_statement = { literal = { "do" } },
-    repeat_statement = { literal = { "until" } },
+  dedent_child = {
+    local_function = { "parameters" },
+    function_definition = { "parameters" },
+    function_declaration = { "parameters" },
+    ["function"] = { "parameters" },
+    if_statement = { "'then'", "else_statement", "elseif_statement" },
+    for_statement = { "'do'" },
+    for_in_statement = { "'do'", "'in'" },
+    while_statement = { "'do'" },
+    repeat_statement = { "'until'" },
   },
-  hook_node = Hook(
-    chains.escape_string_end("string", "string_end"),
-    chains.chained_field_call("arguments", "method_index_expression"),
-    chains.chained_field_call("arguments", "dot_index_expression"),
-    chains.ignore_inner_left_binary_expression("binary_expression")
-  ),
+  handlers = {
+    on_initial = {
+      ch.multiline_string_literal("string_content"),
+    },
+    on_parent = {
+      ch.chained_field_call("arguments", "method_index_expression"),
+      ch.chained_field_call("arguments", "dot_index_expression"),
+      ch.multiline_string_injection("string_content", "string_end"),
+    },
+  },
 }
 
 return config

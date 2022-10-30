@@ -162,8 +162,8 @@ req
   MARKER
   .shouldBeOne()
   .abc(function() {
-  MARKER //TODO
-})
+    MARKER //TODO
+  })
 
 b =
   3
@@ -254,7 +254,7 @@ function foo() {
   )(123, function () {
     dosome()
   }, {
-      a: 456 // TODO
+      a: 456 // do not consider this, no proper solution
     });
 }
 
@@ -278,9 +278,9 @@ class MyClass extends OtherComponent {
 
 foo(myWrapper(mysecondWrapper({
   /**
-  * Comment TODO
-  * Comment
-  */
+   * Comment
+   * Comment
+   */
   a: 1
 })));
 
@@ -314,11 +314,11 @@ const af3 = (c) =>
           c,
           d
         )
-        ? dd
-        : baz(
-            MARKER
-            c
-          ),
+      ? dd
+      : baz(
+          MARKER
+          c
+        ),
     anotherbool ?
       foo(
         a,

@@ -45,8 +45,8 @@ elseif x < 3 then
   then
     if
       x
-      and x * 5
-      or x - 6
+        and x * 5
+        or x - 6
       MARKER
     then
       while df do
@@ -97,12 +97,9 @@ local function ffa(
     fdsf
   end
 
-  vim.cmd([[
-    augroup G
-      au!
-      au BufEnter,BufWinEnter * lua require'mod'.func()
-    augroup END
-  ]])
+  -- vim.cmd([[
+  --   startinsert
+  -- ]])
 
   local ss = [[
   fdsafasf

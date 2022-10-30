@@ -1,5 +1,4 @@
 local get_module_config = require("nvim-treesitter.configs").get_module
-local default_handlers = require("nvim-yati.handlers.default")
 
 local M = {}
 
@@ -38,9 +37,13 @@ local common_config = {
   dedent_child = {},
   fallback = { "comment", "string" },
   handlers = {
-    on_initial = { default_handlers.on_initial() },
-    on_parent = { default_handlers.on_parent() },
+    on_initial = {},
+    on_parent = {},
   },
+}
+
+M.global = {
+  ignore = { "source", "document", "chunk", "script_file" },
 }
 
 ---@param config YatiBuiltinConfig
@@ -81,12 +84,8 @@ function M.transform_builtin(config)
     transformed.nodes[node].scope = true
     transformed.nodes[node].dedent_child = child_list
   end
-  for _, handler in ipairs(config.handlers.on_parent) do
-    table.insert(transformed.handlers.on_parent, 1, handler)
-  end
-  for _, handler in ipairs(config.handlers.on_initial) do
-    table.insert(transformed.handlers.on_initial, 1, handler)
-  end
+  transformed.handlers.on_parent = config.handlers.on_parent or {}
+  transformed.handlers.on_initial = config.handlers.on_initial or {}
 
   return transformed
 end
@@ -97,13 +96,17 @@ end
 function M.extend(base, config)
   local merged = vim.deepcopy(base)
 
-  vim.list_extend(merged.scope, config.scope or {})
-  vim.list_extend(merged.scope_open, config.scope_open or {})
-  vim.list_extend(merged.scope_open_extended, config.scope_open_extended or {})
-  vim.list_extend(merged.indent_zero, config.indent_zero or {})
-  vim.list_extend(merged.indent_align, config.indent_align or {})
-  vim.list_extend(merged.fallback, config.fallback or {})
-  merged.dedent_child = vim.tbl_extend("force", merged.dedent_child, config.dedent_child or {})
+  vim.list_extend(merged.scope or {}, config.scope or {})
+  vim.list_extend(merged.scope_open or {}, config.scope_open or {})
+  vim.list_extend(merged.scope_open_extended or {}, config.scope_open_extended or {})
+  vim.list_extend(merged.indent_zero or {}, config.indent_zero or {})
+  vim.list_extend(merged.indent_align or {}, config.indent_align or {})
+  vim.list_extend(merged.fallback or {}, config.fallback or {})
+  if config.handlers then
+    vim.list_extend(merged.handlers.on_initial or {}, config.handlers.on_initial or {})
+    vim.list_extend(merged.handlers.on_parent or {}, config.handlers.on_parent or {})
+  end
+  merged.dedent_child = vim.tbl_extend("force", merged.dedent_child or {}, config.dedent_child or {})
 
   return merged
 end

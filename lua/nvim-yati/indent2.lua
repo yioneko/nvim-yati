@@ -9,9 +9,10 @@ local M = {}
 ---@field bufnr integer
 ---@field indent integer
 ---@field shift integer
----@field config YatiNodesConfig
 ---@field lang string
----@field set_indent fun(self, indent: integer)
+---@field config YatiNodesConfig
+---@field add fun(self, delta: integer)
+---@field set fun(self, indent: integer)
 
 ---@class YatiInitialCtx:YatiBaseCtx
 ---@field lnum integer
@@ -21,6 +22,15 @@ local M = {}
 ---@class YatiParentCtx:YatiBaseCtx
 ---@field cursor TSCursor
 ---@field handlers YatiParentHandler[]
+---@field parent_lang string|nil
+---@field parent_config YatiNodesConfig|nil
+---@field parent_handlers YatiParentHandler[]
+
+local function cursor_filter()
+  return function(node)
+    return not vim.tbl_contains(o.global.ignore, utils.node_type(node))
+  end
+end
 
 function M.get_indent(lnum, bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
@@ -34,7 +44,14 @@ function M.get_indent(lnum, bufnr)
     root_tree:parse()
   end
 
-  local lang = root_tree:language_for_range({ lnum, 0, lnum, 0 }):lang()
+  local node = utils.get_node_at_line(lnum, false, bufnr)
+  if not node then
+    return -1
+  end
+
+  local initial_cursor = TSCursor:new(node, root_tree, cursor_filter)
+  local lang = initial_cursor:lang()
+
   ---@type YatiInitialCtx
   local ctx = {
     bufnr = bufnr,
@@ -45,21 +62,22 @@ function M.get_indent(lnum, bufnr)
     shift = utils.get_shift(bufnr),
     indent = 0,
   }
-  function ctx:set_indent(new_indent)
-    self.indent = new_indent
+  function ctx:add(indent_delta)
+    self.indent = self.indent + indent_delta
+  end
+  function ctx:set(indent)
+    self.indent = indent
   end
 
-  local initial_node = handlers.handle_initial(ctx)
-  if not initial_node then
-    return -1
+  local initial_node_or_cont = handlers.handle_initial(ctx, initial_cursor)
+  if not initial_node_or_cont then
+    return ctx.indent
   end
 
-  local cursor = TSCursor:new(initial_node, root_tree)
+  local cursor = TSCursor:new(initial_node_or_cont, root_tree, cursor_filter)
   lang = cursor:lang()
-  if not lang then
-    return -1
-  end
 
+  local parent_lang = cursor:parent_lang()
   ---@type YatiParentCtx
   local ctx = {
     bufnr = bufnr,
@@ -68,27 +86,39 @@ function M.get_indent(lnum, bufnr)
     shift = ctx.shift,
     config = o.get(lang).nodes,
     handlers = o.get(lang).handlers.on_parent,
+    parent_lang = parent_lang,
+    parent_config = parent_lang and o.get(parent_lang).nodes,
+    parent_handlers = parent_lang and o.get(parent_lang).handlers.on_parent,
     indent = ctx.indent,
   }
-  function ctx:set_indent(new_indent)
-    self.indent = new_indent
+  function ctx:add(indent_delta)
+    self.indent = self.indent + indent_delta
+  end
+  function ctx:set(indent)
+    self.indent = indent
   end
 
   while cursor:deref() do
+    local prev_node = cursor:deref()
+
     local should_cont = handlers.handle_parent(ctx, cursor)
-    if should_cont == nil then
-      return -1
-    elseif not should_cont then
-      return ctx.indent
+    if not should_cont then
+      break
     end
-    cursor:to_parent()
+
+    -- force traversing up if not changed in handlers
+    if prev_node == cursor:deref() then
+      cursor:to_parent()
+    end
 
     lang = cursor:lang()
-    if lang and lang ~= ctx.lang then
-      ctx.lang = lang
-      ctx.config = o.get(lang).nodes
-      ctx.handlers = o.get(lang).handlers.on_parent
-    end
+    parent_lang = cursor:parent_lang()
+    ctx.lang = lang
+    ctx.config = o.get(lang).nodes
+    ctx.handlers = o.get(lang).handlers.on_parent
+    ctx.parent_lang = parent_lang
+    ctx.parent_config = parent_lang and o.get(parent_lang).nodes
+    ctx.parent_handlers = parent_lang and o.get(parent_lang).handlers.on_parent
   end
 
   return ctx.indent

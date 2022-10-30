@@ -1,3 +1,5 @@
+local ch = require("nvim-yati.handlers.common")
+
 ---@type YatiBuiltinConfig
 local config = {
   scope = {
@@ -24,7 +26,7 @@ local config = {
     "expression_statement",
     "variable_declarator",
     "lexical_declaration",
-    "ternary_expression",
+    "member_expression",
     "binary_expression",
     "return_statement",
     "if_statement",
@@ -49,7 +51,15 @@ local config = {
     jsx_fragment = { "'<'" },
     jsx_self_closing_element = { "'/'" },
   },
-  fallback = { "description", "template_string" },
+  fallback = { "template_string" },
+  handlers = {
+    on_initial = { ch.multiline_string_literal("template_string") },
+    on_parent = {
+      ch.ternary_flatten_indent("ternary_expression"),
+      ch.chained_field_call("arguments", "member_expression"),
+      ch.multiline_string_injection("template_string", "`"),
+    },
+  },
 }
 
 return config

@@ -39,7 +39,8 @@ type Foo2<A,
   bar: string;
   baz: Record<
     A,
-    B>
+    B
+  >
 }
 
 enum e {

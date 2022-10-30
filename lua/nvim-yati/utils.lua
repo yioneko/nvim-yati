@@ -34,6 +34,10 @@ function M.cur_indent(lnum, bufnr)
   end)
 end
 
+function M.indent_diff(l1, l2, bufnr)
+  return M.cur_indent(l1, bufnr) - M.cur_indent(l2, bufnr)
+end
+
 function M.prev_nonblank_lnum(lnum, bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local prev = lnum - 1
@@ -70,28 +74,43 @@ function M.get_nth_parent(node, n)
   return parent
 end
 
+function M.is_line_empty(lnum, bufnr)
+  local line = M.get_buf_line(bufnr, lnum)
+  return #vim.trim(line) == 0
+end
+
 function M.get_first_nonblank_col_at_line(lnum, bufnr)
   local line = M.get_buf_line(bufnr, lnum)
   local _, col = string.find(line, "^[%s%\\]*") -- NOTE: Also exclude \ (sample.vim#L6)
   return col or 0
 end
 
-function M.get_node_at_line(lnum, named, bufnr)
+function M.get_node_at_line(lnum, named, bufnr, ignores)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
+  ignores = ignores or {}
   local col = M.get_first_nonblank_col_at_line(lnum, bufnr)
 
   local parser = M.get_parser(bufnr)
-  local tree = parser:tree_for_range({ lnum, col, lnum, col })
-  if not tree then
-    return
-  end
 
-  local root = tree:root()
-  if named then
-    return root:named_descendant_for_range(lnum, col, lnum, col)
-  else
-    return root:descendant_for_range(lnum, col, lnum, col)
-  end
+  local min_node
+  parser.for_each_tree(parser, function(tstree)
+    local root = tstree:root()
+    local node
+    if named then
+      node = root:named_descendant_for_range(lnum, col, lnum, col)
+    else
+      node = root:descendant_for_range(lnum, col, lnum, col)
+    end
+    if
+      node
+      and not vim.tbl_contains(ignores, M.node_type(node))
+      and (not min_node or M.node_contains(min_node, node))
+    then
+      min_node = node
+    end
+  end)
+
+  return min_node
 end
 
 function M.pos_cmp(pos1, pos2)
@@ -100,6 +119,10 @@ function M.pos_cmp(pos1, pos2)
   else
     return pos1[1] - pos2[1]
   end
+end
+
+function M.range_eql(range1, range2)
+  return M.pos_cmp(range1[1], range2[1]) == 0 and M.pos_cmp(range1[2], range2[2]) == 0
 end
 
 function M.range_contains(range1, range2)

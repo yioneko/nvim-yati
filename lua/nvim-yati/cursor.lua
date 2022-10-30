@@ -5,8 +5,6 @@ local function always_true()
   return true
 end
 
-local meaningless_nodes = { "source", "document" }
-
 ---@class TSCursor
 ---@field node userdata
 ---@field tree_stack table
@@ -28,26 +26,33 @@ function TSCursor:new(node, parser, filter)
   local nrange = utils.node_range_inclusive(node)
 
   local trees = {}
-  parser:for_each_child(function(lang_tree, lang)
-    lang_tree:for_each_tree(function(tstree)
-      local root = tstree:root()
-      local min_capture_node = root:descendant_for_range(nrange[1][1], nrange[1][2], nrange[2][1], nrange[2][2])
+  parser:for_each_tree(function(tree, lang_tree)
+    local root = tree:root()
+    local min_capture_node = root:descendant_for_range(nrange[1][1], nrange[1][2], nrange[2][1], nrange[2][2])
 
-      if
-        not vim.tbl_contains(meaningless_nodes, min_capture_node:type()) and utils.node_contains(min_capture_node, node)
-      then
-        print(vim.inspect(utils.node_range_inclusive(min_capture_node)))
-        print(min_capture_node:type())
+    if filter(min_capture_node) and utils.node_contains(min_capture_node, node) then
+      local has_same = false
+      for _, t in ipairs(trees) do
+        if utils.range_eql(utils.node_range_inclusive(t.tstree:root()), utils.node_range_inclusive(root)) then
+          has_same = true
+        end
+      end
+      if not has_same then
         table.insert(trees, {
-          lang = lang,
-          tstree = tstree,
+          lang = lang_tree:lang(),
+          tstree = tree,
           min_capture_node = min_capture_node,
         })
       end
-    end)
-  end, true)
+    end
+  end)
 
   table.sort(trees, function(a, b)
+    local is_same = utils.node_contains(a.min_capture_node, b.min_capture_node)
+      and utils.node_contains(b.min_capture_node, a.min_capture_node)
+    if is_same then
+      return utils.node_contains(a.tstree:root(), b.tstree:root())
+    end
     return utils.node_contains(a.min_capture_node, b.min_capture_node)
   end)
 
@@ -58,13 +63,6 @@ end
 
 function TSCursor:deref()
   return self.node
-end
-
-function TSCursor:lang()
-  local entry = self.tree_stack[#self.tree_stack]
-  if entry then
-    return entry.lang
-  end
 end
 
 local function wrap_move_check(fun)
@@ -86,7 +84,8 @@ local function wrap_move_check(fun)
   end
 end
 
-function TSCursor:peek_parent()
+---@param self TSCursor
+local function _peek_parent(self)
   if not self.node then
     return
   end
@@ -102,7 +101,25 @@ function TSCursor:peek_parent()
       return
     end
   end
-  return cur
+  return cur, stack_pos + 1
+end
+
+function TSCursor:lang()
+  local entry = self.tree_stack[#self.tree_stack]
+  if entry then
+    return entry.lang
+  end
+end
+
+function TSCursor:parent_lang()
+  local _, pos = _peek_parent(self)
+  if pos ~= nil and pos >= 1 then
+    return self.tree_stack[pos].lang
+  end
+end
+function TSCursor:peek_parent()
+  local node = _peek_parent(self)
+  return node
 end
 
 function TSCursor:peek_prev_sibling()

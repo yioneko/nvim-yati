@@ -27,7 +27,6 @@ fragment Visit on HighlightedVisit
 # Comment
 query claimsByBookingReferenceAndLastName(
   $lastName: String!
-  MARKER
   # Comment
 ) {
   claimsByBookingReferenceAndLastName(

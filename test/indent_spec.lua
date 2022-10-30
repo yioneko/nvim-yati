@@ -6,19 +6,17 @@ local test_file_dir = "test/fixtures"
 local test_files = {
   -- cpp = { "sample.cpp" },
   -- c = { "sample.c" },
-  -- css = { "sample.css" },
-  -- graphql = { "sample.graphql" },
-  -- html = { "sample.html" },
+  css = { "sample.css" },
+  graphql = { "sample.graphql" }, --TODO
+  html = { "sample.html" },
   javascript = { "sample.js" },
-  -- json = { "sample.json" },
-  -- lua = { "sample.lua" },
+  json = { "sample.json" },
+  lua = { "sample.lua" },
   -- markdown = { "sample.md" },
-  -- php = { "sample.php" },
   -- python = { "sample.py" },
-  -- rust = { "sample.rs" },
-  -- toml = { "sample.toml" },
-  -- typescript = { "sample.ts" },
-  -- vim = { "sample.vim" },
+  rust = { "sample.rs" },
+  toml = { "sample.toml" },
+  typescript = { "sample.ts" },
   -- yaml = { "sample.yml" },
 }
 
