@@ -12,20 +12,20 @@ export {
 }
 
 foo({
-    sd,
-    aaa: sdf[
-      "index" +
+  sd,
+  aaa: sdf[
+    "index" +
       2
-    ]
-  },
+  ]
+},
   4
 );
 
 foo(2, {
-    sd,
-    sdf,
-    MARKER
-  },
+  sd,
+  sdf,
+  MARKER
+},
   4
 );
 
@@ -73,12 +73,12 @@ let h = {
     MARKER
     2 ],
   b: { j: [
-      { l: 1 }]
+    { l: 1 }]
   },
   c:
   { j: [
-      MARKER
-      { l: 1 }]
+    MARKER
+    { l: 1 }]
   },
 };
 
@@ -162,23 +162,23 @@ req
   MARKER
   .shouldBeOne()
   .abc(function() {
-    MARKER
-  })
+  MARKER //TODO
+})
 
 b =
   3
-  + 5
-  + 7
-  + 8
-    * 8
-    * 9
-    / 17
-    * 8
-    / 20
-  - 34
-  + 3 *
-    9
-  - 8;
+    + 5
+    + 7
+    + 8
+      * 8
+      * 9
+      / 17
+      * 8
+      / 20
+    - 34
+    + 3 *
+      9
+    - 8;
 
 ifthis
 && thendo()
@@ -187,15 +187,15 @@ ifthis
     && dothis
     && bbbb
     && cccc) &&
-  fff &&
-  fds ||
-(fffff &&
-  foo(
-    a,
-    b,
-    MARKER
-  ) &&
-  aaa)
+    fff &&
+    fds ||
+  (fffff &&
+    foo(
+      a,
+      b,
+      MARKER
+    ) &&
+    aaa)
 
 
 const jsx = (
@@ -212,8 +212,8 @@ const jsx = (
     MARKER
   >
     <div>
-      MARKER
-      sdf
+    MARKER
+    sdf
     </div>
   </div>
 );
@@ -221,7 +221,7 @@ const jsx = (
 const a = (
   <img
     src='/img.jpg'
-    />
+  />
 );
 
 const b = (
@@ -254,8 +254,8 @@ function foo() {
   )(123, function () {
     dosome()
   }, {
-    a: 456
-  });
+      a: 456 // TODO
+    });
 }
 
 class MyClass extends OtherComponent {
@@ -278,9 +278,9 @@ class MyClass extends OtherComponent {
 
 foo(myWrapper(mysecondWrapper({
   /**
-   * Comment
-   * Comment
-   */
+  * Comment TODO
+  * Comment
+  */
   a: 1
 })));
 

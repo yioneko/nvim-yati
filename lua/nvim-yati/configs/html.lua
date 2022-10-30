@@ -1,6 +1,6 @@
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "element",
     "style_element",
     "script_element",
@@ -8,7 +8,6 @@ local config = {
     "end_tag",
     "self_closing_tag",
   },
-  ignore_self = { named = { "text" } },
 }
 
 return config

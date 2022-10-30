@@ -1,32 +1,33 @@
 local assert = require("luassert")
-local get_indent = require("nvim-yati.indent").get_indent
+local indentexpr = require("nvim-yati.indent2").indentexpr
 local say = require("say")
 local marker = "MARKER"
-local test_file_dir = "test/indent"
+local test_file_dir = "test/fixtures"
 local test_files = {
-  cpp = { "sample.cpp" },
-  c = { "sample.c" },
-  css = { "sample.css" },
-  graphql = { "sample.graphql" },
-  html = { "sample.html" },
+  -- cpp = { "sample.cpp" },
+  -- c = { "sample.c" },
+  -- css = { "sample.css" },
+  -- graphql = { "sample.graphql" },
+  -- html = { "sample.html" },
   javascript = { "sample.js" },
-  json = { "sample.json" },
-  lua = { "sample.lua" },
-  markdown = { "sample.md" },
-  php = { "sample.php" },
-  python = { "sample.py" },
-  rust = { "sample.rs" },
-  toml = { "sample.toml" },
-  typescript = { "sample.ts" },
-  vim = { "sample.vim" },
-  yaml = { "sample.yml" },
+  -- json = { "sample.json" },
+  -- lua = { "sample.lua" },
+  -- markdown = { "sample.md" },
+  -- php = { "sample.php" },
+  -- python = { "sample.py" },
+  -- rust = { "sample.rs" },
+  -- toml = { "sample.toml" },
+  -- typescript = { "sample.ts" },
+  -- vim = { "sample.vim" },
+  -- yaml = { "sample.yml" },
 }
 
 local function same_indent(state, arguments)
   local lnum = arguments[1]
   local expected = arguments[2]
 
-  local indent = get_indent(lnum)
+  local indent = indentexpr(lnum)
+  print(indent)
   return indent == expected
 end
 
@@ -86,20 +87,6 @@ for lang, files in pairs(test_files) do
             end
           end
         end)
-
-        -- TODO: adaptive test
-        -- it("should adapt to wrong syntax", function()
-        --   local empty_indents = extract_marker(0, marker)
-        --   local line_cnt = vim.api.nvim_buf_line_count(0)
-        --
-        --   for lnum = 1, line_cnt do
-        --     feedkeys(string.format("%dGjdG", lnum))
-        --     if empty_indents[lnum] then
-        --       assert.same_indent(lnum, empty_indents[lnum])
-        --     end
-        --     vim.cmd("silent undo")
-        --   end
-        -- end)
       end)
     end
   end)

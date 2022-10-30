@@ -6,7 +6,7 @@ local M = {}
 
 local function match_type_spec(node, type_spec)
   return (node:named() and vim.tbl_contains(type_spec.named or {}, node:type()))
-      or (not node:named() and vim.tbl_contains(type_spec.literal or {}, node:type()))
+    or (not node:named() and vim.tbl_contains(type_spec.literal or {}, node:type()))
 end
 
 local function should_indent(node, spec)
@@ -17,8 +17,8 @@ end
 local function should_ignore(node, spec)
   local type = node:type()
   return match_type_spec(node, spec.ignore_self)
-      or match_type_spec(node, spec.ignore_outer)
-      or vim.tbl_contains(spec.ignore_within, type)
+    or match_type_spec(node, spec.ignore_outer)
+    or vim.tbl_contains(spec.ignore_within, type)
 end
 
 local function get_node_indent_range(node, spec, bufnr)
@@ -49,11 +49,12 @@ end
 
 local function find_indent_block_with_missing(root, start_line, spec)
   for node, _ in root:iter_children() do
-    if should_indent(node, spec)
-        and node:start() == start_line
-        and utils.try_find_child(node, function(child)
-          return child:missing()
-        end) ~= nil
+    if
+      should_indent(node, spec)
+      and node:start() == start_line
+      and utils.try_find_child(node, function(child)
+        return child:missing()
+      end) ~= nil
     then
       return node
     end
@@ -241,17 +242,19 @@ local function get_indent_for_tree(line, tree, lang, bufnr)
           indent = indent + utils.cur_indent(start_line, bufnr) - utils.cur_indent(upper_line, bufnr)
           break
         end
-        if parent:start() >= upper_line
-            -- Do not indent for the same line range
-            -- Use end line of the first node of parent to compare with start_line
-            and (parent:start() ~= start_line or utils.get_normalized_end(parent, bufnr) ~= end_line)
+        if
+          parent:start() >= upper_line
+          -- Do not indent for the same line range
+          -- Use end line of the first node of parent to compare with start_line
+          and (parent:start() ~= start_line or utils.get_normalized_end(parent, bufnr) ~= end_line)
         then
           local parent_type = parent:type()
 
-          if should_indent(parent, spec)
-              and not match_type_spec(node, spec.skip_child[parent_type] or {})
-              and node:prev_sibling() -- Skip the first node
-              and (node:next_sibling() ~= nil or vim.tbl_contains(spec.indent_last, parent_type)) -- Skip the last node
+          if
+            should_indent(parent, spec)
+            and not match_type_spec(node, spec.skip_child[parent_type] or {})
+            and node:prev_sibling() -- Skip the first node
+            and (node:next_sibling() ~= nil or vim.tbl_contains(spec.indent_last, parent_type)) -- Skip the last node
           then
             indent = indent + shift
           end

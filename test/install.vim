@@ -9,10 +9,10 @@ runtime plugin/nvim-yati.vim
 
 lua << EOF
 local parsers = require('nvim-treesitter.parsers')
-local utils = require('nvim-yati.utils')
+local config = require('nvim-yati.config')
 for _, lang in ipairs(parsers.available_parsers()) do
   if
-    utils.is_supported(lang)
+    config.is_supported(lang)
     and #vim.api.nvim_get_runtime_file("parser/" .. lang .. ".so", false) == 0
   then
     vim.cmd("TSInstallSync " .. lang)

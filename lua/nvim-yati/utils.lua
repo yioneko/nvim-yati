@@ -1,31 +1,6 @@
 local M = {}
 local ts_parser = require("nvim-treesitter.parsers")
 
----Extend the config table with max depth 2
----@param config YatiConfig
----@param extend YatiConfig
-function M.extend_config(config, extend)
-  ---@type YatiConfig
-  local merged = vim.deepcopy(config)
-  for k, v in pairs(extend) do
-    -- Don't deep extend hooks
-    if type(v) == "table" and v.chains == nil then
-      if vim.tbl_islist(v) then
-        merged[k] = vim.list_extend(merged[k] or {}, v)
-      else
-        merged[k] = vim.tbl_extend("force", merged[k] or {}, v)
-      end
-    else
-      merged[k] = v
-    end
-  end
-  return merged
-end
-
-function M.is_supported(lang)
-  return pcall(require, "nvim-yati.configs." .. lang)
-end
-
 function M.get_parser(bufnr)
   return ts_parser.get_parser(bufnr)
 end
@@ -33,6 +8,23 @@ end
 ---@return string
 function M.get_buf_line(bufnr, lnum)
   return vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
+end
+
+function M.get_shift(bufnr)
+  -- NOTE: Not work with 'vartabstop'
+  local shift = vim.bo[bufnr].shiftwidth
+  if shift <= 0 then
+    shift = vim.bo[bufnr].tabstop
+  end
+  return shift
+end
+
+function M.node_type(node)
+  if node:named() then
+    return node:type()
+  else
+    return "'" .. node:type() .. "'"
+  end
 end
 
 function M.cur_indent(lnum, bufnr)
@@ -67,23 +59,6 @@ function M.try_find_parent(node, predicate, limit)
   end
 end
 
-function M.try_find_child(node, predicate, limit)
-  limit = limit or 5
-  if limit == 0 then
-    return
-  end
-  for child, _ in node:iter_children() do
-    if predicate(child) then
-      return child
-    else
-      local res = M.try_find_child(child, predicate, limit - 1)
-      if res then
-        return res
-      end
-    end
-  end
-end
-
 function M.get_nth_parent(node, n)
   local parent = node
   for _ = 1, n do
@@ -101,26 +76,22 @@ function M.get_first_nonblank_col_at_line(lnum, bufnr)
   return col or 0
 end
 
-function M.get_node_at_line(lnum, tree, named, bufnr)
+function M.get_node_at_line(lnum, named, bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
-  local root = tree:root()
-
   local col = M.get_first_nonblank_col_at_line(lnum, bufnr)
+
+  local parser = M.get_parser(bufnr)
+  local tree = parser:tree_for_range({ lnum, col, lnum, col })
+  if not tree then
+    return
+  end
+
+  local root = tree:root()
   if named then
     return root:named_descendant_for_range(lnum, col, lnum, col)
   else
     return root:descendant_for_range(lnum, col, lnum, col)
   end
-end
-
--- Transform end position (x, 0) to (x-1, '$')
-function M.get_normalized_end(node, bufnr)
-  local erow, ecol = node:end_()
-  if ecol == 0 and erow > 0 then
-    erow = erow - 1
-    ecol = M.get_buf_line(bufnr, erow):len()
-  end
-  return erow, ecol
 end
 
 function M.pos_cmp(pos1, pos2)
@@ -131,25 +102,17 @@ function M.pos_cmp(pos1, pos2)
   end
 end
 
-function M.contains(node1, node2)
-  local srow1, scol1, erow1, ecol1 = node1:range()
-  local srow2, scol2, erow2, ecol2 = node2:range()
-  return M.pos_cmp({ srow1, scol1 }, { srow2, scol2 }) <= 0 and M.pos_cmp({ erow1, ecol1 }, { erow2, ecol2 }) >= 0
+function M.range_contains(range1, range2)
+  return M.pos_cmp(range1[1], range2[1]) <= 0 and M.pos_cmp(range1[2], range2[2]) >= 0
 end
 
-function M.node_has_injection(node, bufnr)
-  local root_lang_tree = M.get_parser(bufnr)
-  local res = false
+function M.node_range_inclusive(node)
+  local srow, scol, erow, ecol = node:range()
+  return { { srow, scol }, { erow, ecol - 1 } }
+end
 
-  root_lang_tree:for_each_child(function(child, lang)
-    for _, tree in ipairs(child:trees()) do
-      if M.contains(node, tree:root()) and M.is_supported(lang) then
-        res = true
-      end
-    end
-  end)
-
-  return res
+function M.node_contains(node1, node2)
+  return M.range_contains(M.node_range_inclusive(node1), M.node_range_inclusive(node2))
 end
 
 return M

@@ -1,9 +1,6 @@
-local chains = require("nvim-yati.chains")
-local Hook = require("nvim-yati.hook")
-
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "list",
     "tuple",
     "dictionary",
@@ -18,13 +15,13 @@ local config = {
     "argument_list",
     "parameters",
   },
-  indent_last = {
+  scope_open = {
     "assignment",
     "import_from_statement",
     "return_statement",
     "expression_list",
   },
-  indent_last_open = {
+  scope_open_extended = {
     "if_statement",
     "elif_clause",
     "else_clause",
@@ -38,19 +35,12 @@ local config = {
     "function_definition",
     "lambda",
   },
-  skip_child = {
-    if_statement = { named = { "else_clause", "elif_clause", "parenthesized_expression" } },
-    elif_clause = { named = { "parenthesized_expression" } },
-    while_statement = { named = { "else_clause", "parenthesized_expression" } },
-    try_statement = { named = { "except_clause", "else_clause", "finnaly_clause", "parenthesized_expression" } },
+  dedent_child = {
+    if_statement = { "else_clause", "elif_clause", "parenthesized_expression" },
+    elif_clause = { "parenthesized_expression" },
+    while_statement = { "else_clause", "parenthesized_expression" },
+    try_statement = { "except_clause", "else_clause", "finnaly_clause", "parenthesized_expression" },
   },
-  ignore_self = { named = { "binary_operator" } },
-  hook_node = Hook(
-    chains.escape_indent("else", "identifier", "if_statement"),
-    chains.escape_indent("elif", "identifier", "if_statement"),
-    chains.escape_indent("except", "identifier", "try_statement"),
-    chains.escape_indent("finnally", "identifier", "try_statement")
-  ),
 }
 
 return config
