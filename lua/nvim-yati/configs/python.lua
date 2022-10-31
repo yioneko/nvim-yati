@@ -1,3 +1,5 @@
+local ch = require("nvim-yati.handlers.common")
+
 ---@type YatiBuiltinConfig
 local config = {
   scope = {
@@ -20,6 +22,8 @@ local config = {
     "import_from_statement",
     "return_statement",
     "expression_list",
+    "boolean_operator",
+    "binary_operator",
   },
   scope_open_extended = {
     "if_statement",
@@ -35,11 +39,22 @@ local config = {
     "function_definition",
     "lambda",
   },
+  indent_align = {
+    "arguments_list",
+    "parameters",
+    "list",
+    "tuple",
+  },
   dedent_child = {
     if_statement = { "else_clause", "elif_clause", "parenthesized_expression" },
     elif_clause = { "parenthesized_expression" },
     while_statement = { "else_clause", "parenthesized_expression" },
     try_statement = { "except_clause", "else_clause", "finnaly_clause", "parenthesized_expression" },
+  },
+  handlers = {
+    on_initial = {
+      ch.multiline_string_literal("string"),
+    },
   },
 }
 

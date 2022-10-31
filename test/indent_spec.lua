@@ -1,11 +1,11 @@
 local assert = require("luassert")
-local indentexpr = require("nvim-yati.indent2").indentexpr
+local indentexpr = require("nvim-yati.indent").indentexpr
 local say = require("say")
 local marker = "MARKER"
 local test_file_dir = "test/fixtures"
 local test_files = {
-  -- cpp = { "sample.cpp" },
-  -- c = { "sample.c" },
+  cpp = { "sample.cpp" },
+  c = { "sample.c" },
   css = { "sample.css" },
   graphql = { "sample.graphql" }, --TODO
   html = { "sample.html" },
@@ -13,7 +13,7 @@ local test_files = {
   json = { "sample.json" },
   lua = { "sample.lua" },
   -- markdown = { "sample.md" },
-  -- python = { "sample.py" },
+  python = { "sample.py" },
   rust = { "sample.rs" },
   toml = { "sample.toml" },
   typescript = { "sample.ts" },
@@ -25,7 +25,7 @@ local function same_indent(state, arguments)
   local expected = arguments[2]
 
   local indent = indentexpr(lnum)
-  print(indent)
+  -- print(indent)
   return indent == expected
 end
 

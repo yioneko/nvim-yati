@@ -22,9 +22,9 @@ private:
 
 void foo() {
   auto f2 = [](int x, int y)
-  -> int {
-    return x + y;
-  };
+    -> int {
+      return x + y;
+    };
 }
 
 namespace myspace {

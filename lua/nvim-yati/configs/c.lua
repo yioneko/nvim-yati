@@ -30,6 +30,7 @@ local config = {
     "init_declarator",
     "concatenated_string",
     "binary_expression",
+    "labeled_statement",
   },
   dedent_child = {
     compound_statement = {

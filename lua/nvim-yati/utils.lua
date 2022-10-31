@@ -101,6 +101,9 @@ function M.get_node_at_line(lnum, named, bufnr, ignores)
     else
       node = root:descendant_for_range(lnum, col, lnum, col)
     end
+    if node then
+      print(M.node_type(node), vim.inspect(M.node_range_inclusive(node)))
+    end
     if
       node
       and not vim.tbl_contains(ignores, M.node_type(node))

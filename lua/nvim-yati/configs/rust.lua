@@ -55,6 +55,10 @@ local config = {
     function_item = { "parameters", "where_clause", "type_parameters" },
   },
   handlers = {
+    on_initial = {
+      ch.multiline_string_literal("string_literal"),
+      ch.multiline_string_literal("raw_string_literal"),
+    },
     on_parent = {
       ch.chained_field_call("arguments", "field_expression"),
     },

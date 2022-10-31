@@ -91,7 +91,10 @@ local function _peek_parent(self)
   end
   local cur = self.node:parent()
   local stack_pos = #self.tree_stack - 1
-  while not cur or not self.filter(cur) do
+  -- we need to check whether the new parent contains old node
+  -- because `min_capture_node` is not always correct (multiple
+  -- trees span same range)
+  while not cur or not self.filter(cur) or not utils.node_contains(cur, self.node) do
     if cur then
       cur = cur:parent()
     elseif stack_pos >= 1 then
@@ -170,15 +173,24 @@ function TSCursor:peek_last_sibling()
   end
 end
 
----@param self TSCursor
-local function unchecked_to_parent(self)
-  local parent = self.node:parent()
-  if not parent and #self.tree_stack > 1 then
-    table.remove(self.tree_stack)
-    parent = self.tree_stack[#self.tree_stack].min_capture_node
+function TSCursor:to_parent()
+  if not self.node then
+    return
   end
+  local cur = self.node:parent()
+  while not cur or not self.filter(cur) or not utils.node_contains(cur, self.node) do
+    if cur then
+      cur = cur:parent()
+    elseif #self.tree_stack > 1 then
+      table.remove(self.tree_stack)
+      cur = self.tree_stack[#self.tree_stack].min_capture_node
+    else
+      break
+    end
+  end
+  self.node = cur
 
-  self.node = parent
+  return self.node
 end
 
 ---@param self TSCursor
@@ -201,7 +213,6 @@ local function unchecked_to_last_sibling(self)
   self.node = self:peek_last_sibling()
 end
 
-TSCursor.to_parent = wrap_move_check(unchecked_to_parent)
 TSCursor.to_prev_sibling = wrap_move_check(unchecked_to_prev_sibling)
 TSCursor.to_next_sibling = wrap_move_check(unchecked_to_next_sibling)
 TSCursor.to_first_sibling = wrap_move_check(unchecked_to_first_sibling)

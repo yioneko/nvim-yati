@@ -34,13 +34,13 @@ void foo(int *x, int y) {
 
     if (
       x &&
-      y &&
-      z &&
-      fs ||
-      (x &&
-        y) ||
-      (z &&
-        x)
+        y &&
+        z &&
+        fs ||
+        (x &&
+          y) ||
+        (z &&
+          x)
     ) {
       return;
     }
@@ -101,7 +101,6 @@ error:
 
 }
 
-// TODO: Add empty new line cause syntax error (need insert '\' automatically)
 #define FOO(x) do { \
   x = x + 1;  \
   x = x / 2;  \

@@ -97,7 +97,7 @@ macro_rules! foo {
 
 foo! {
     (bar) => {
-            MARKER // TODO: Fix overlap of trees
+        MARKER
     }
 }
 
@@ -217,13 +217,18 @@ fn floaters() {
         val2
     }
         .await
-        .method_call();
+        .method_call([
+            1,
+            3,
+            MARKER
+            1
+        ]);
 
     x =
         456
-        + 789
-        + 111
-        - 222;
+            + 789
+            + 111
+            - 222;
 
 
     {

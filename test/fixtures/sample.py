@@ -11,9 +11,9 @@ a = [
 
 b = [
     1, [[
-            3
-            MARKER
-        ],
+        3
+        MARKER
+    ],
     ]
 ]
 
@@ -38,11 +38,10 @@ d = {
     )
 }
 
-e = (1, 2,
-    3, 4,
-    MARKER
-    5, 6
-)
+eeeeeeee = (1, 2,
+            3, 4,
+            MARKER
+            5, 6)
 
 a = [
     x + 1 for x in range(3)
@@ -65,9 +64,9 @@ e = [
     in range(3)
 ]
 
-def foo(a,
-        b,
-        c):
+def fooaaaaaaaa(a,
+                b,
+                c):
 
     if a and b and c:
         MARKER
@@ -78,6 +77,11 @@ def foo(a,
         also_works = True
     else:
         more()
+        e = (1, 2,
+             3, 4,
+             MARKER
+             5, 6
+        )
         MARKER
 
     baz = 'aaa' + \
@@ -122,7 +126,11 @@ finally:
     pass
     MARKER
 
-def foo():
+def foo(
+    a,
+    c,
+    d
+):
     MARKER
     while True:
         if test:
@@ -168,13 +176,13 @@ class Foo:
     def foo(self):
         if (bbbb or
             ffff is not None
-            and aaaa > 0
+                and aaaa > 0
             or fffff.b
         ):
             a = (
                 1
-                + 2
-                - 3
-                * 4
-                * 5
+                    + 2
+                    - 3
+                        * 4
+                        * 5
             )

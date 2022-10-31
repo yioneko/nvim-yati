@@ -16,7 +16,7 @@ function M.on_initial(ctx, initial_cursor)
   if node:start() ~= ctx.lnum then
     local prev_node
     local cur_line = utils.prev_nonblank_lnum(ctx.lnum, ctx.bufnr)
-    prev_node = utils.get_node_at_line(cur_line, false, ctx.bufnr)
+    prev_node = utils.get_node_at_line(cur_line, false, ctx.bufnr, ctx.global.ignore)
 
     --[[
     -- Try find node considered always 'open' for last indent
@@ -32,7 +32,7 @@ function M.on_initial(ctx, initial_cursor)
         prev_node = nil
         break
       end
-      prev_node = utils.get_node_at_line(cur_line, false, ctx.bufnr)
+      prev_node = utils.get_node_at_line(cur_line, false, ctx.bufnr, ctx.global.ignore)
     end
     prev_node = utils.try_find_parent(prev_node, function(parent)
       return ctx.config[nt(parent)].scope_open_extended
@@ -43,9 +43,15 @@ function M.on_initial(ctx, initial_cursor)
       node = prev_node
     end
 
+    local attrs = ctx.config[nt(node)]
     -- If the node is not at the same line and it's an indent node, we should indent
-    if node:start() ~= ctx.lnum and ctx.config[nt(node)].scope then
-      if ctx.config[nt(node)].scope_open_extended or node:end_() >= ctx.lnum then
+    if node:start() ~= ctx.lnum and attrs.scope and (attrs.scope_open_extended or node:end_() >= ctx.lnum) then
+      local first_no_delim_sib = node:child(1)
+      if attrs.indent_align and (first_no_delim_sib and first_no_delim_sib:start() == node:start()) then
+        local col_s = utils.get_first_nonblank_col_at_line(node:start(), ctx.bufnr)
+        local _, col_e = first_no_delim_sib:start()
+        ctx:add(col_e - col_s)
+      else
         ctx:add(ctx.shift)
       end
     end
@@ -79,15 +85,16 @@ function M.on_parent(ctx, cursor)
       and (cursor:peek_next_sibling() ~= nil or p_attrs.scope_open)
 
     if should_indent then
-      if p_attrs.indent_align then
+      local first_no_delim_sib = cursor:peek_first_sibling():next_sibling()
+      if p_attrs.indent_align and (first_no_delim_sib and first_no_delim_sib:start() == parent:start()) then
         local col_s = utils.get_first_nonblank_col_at_line(parent:start(), ctx.bufnr)
-        local _, col_e = cursor:peek_first_sibling():start()
+        local _, col_e = first_no_delim_sib:start()
         ctx:add(col_e - col_s)
       else
         ctx:add(ctx.shift)
       end
     end
-    print(nt(node) .. " " .. nt(parent) .. " " .. ctx.lang .. " " .. (ctx.parent_lang or "") .. ctx.indent)
+    -- print(nt(node) .. " " .. nt(parent) .. " " .. ctx.lang .. " " .. (ctx.parent_lang or "") .. ctx.indent)
   end
 
   return true

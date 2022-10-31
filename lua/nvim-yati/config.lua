@@ -43,7 +43,7 @@ local common_config = {
 }
 
 M.global = {
-  ignore = { "source", "document", "chunk", "script_file" },
+  ignore = { "source", "document", "chunk", "script_file", "source_file" },
 }
 
 ---@param config YatiBuiltinConfig

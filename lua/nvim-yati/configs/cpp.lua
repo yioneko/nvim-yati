@@ -11,6 +11,7 @@ return extend(config, {
     "for_range_loop",
     "condition_clause",
     "lambda_expression",
+    "abstract_function_declarator",
     "field_initializer_list",
     "init_declarator",
     "class_specifier",
@@ -19,7 +20,7 @@ return extend(config, {
     "for_statement",
     "for_range_loop",
   },
-  skip_child = {
+  dedent_child = {
     field_declaration_list = {
       "access_specifier",
     },
@@ -30,7 +31,7 @@ return extend(config, {
       "condition_clause",
       "'else'",
     },
-    else_clause = "compound_statement",
+    else_clause = { "compound_statement" },
     while_statement = { "compound_statement", "condition_clause" },
     do_statement = { "compound_statement", "condition_clause" },
     for_statement = { "compound_statement" },
