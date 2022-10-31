@@ -19,7 +19,6 @@ local config = {
     "parenthesized_expression",
   },
   scope_open = {
-    "binary_expression",
     "else_statement",
     "elseif_statement",
     "assignment_statement",
@@ -28,6 +27,10 @@ local config = {
     "variable_declaration",
     "dot_index_expression",
     "return_statement",
+  },
+  indent_list = {
+    "arguments",
+    "table_constructor",
   },
   dedent_child = {
     local_function = { "parameters" },
@@ -40,13 +43,14 @@ local config = {
     while_statement = { "'do'" },
     repeat_statement = { "'until'" },
   },
+  ignore = { "binary_expression" }, -- ignore binary_expression to be compatible with stylua
   handlers = {
     on_initial = {
       ch.multiline_string_literal("string_content"),
     },
     on_traverse = {
-      ch.chained_field_call("arguments", "method_index_expression"),
-      ch.chained_field_call("arguments", "dot_index_expression"),
+      ch.chained_field_call("arguments", "method_index_expression", "method"),
+      ch.chained_field_call("arguments", "dot_index_expression", "field"),
       ch.multiline_string_injection("string_content", "string_end"),
     },
   },

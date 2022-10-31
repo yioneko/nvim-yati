@@ -45,8 +45,8 @@ elseif x < 3 then
   then
     if
       x
-        and x * 5
-        or x - 6
+      and x * 5
+      or x - 6
       MARKER
     then
       while df do
@@ -114,7 +114,15 @@ function fun()
       MARKER
       b
     )
-    :method2()
+    :method2({
+      ffffffffffffff = 111,
+      aaffs = function()
+        foooo()
+      end
+    }, function()
+      MARKER
+      somecall()
+    end)
 
   Ins2
     .method1(

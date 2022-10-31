@@ -8,6 +8,7 @@ local M = {}
 ---@field scope_open_extended string[]
 ---@field indent_zero string[]
 ---@field indent_align string[]
+---@field indent_list string[]
 ---@field dedent_child table<string, string[]>
 ---@field ignore string[]
 ---@field fallback string[]
@@ -19,6 +20,7 @@ local M = {}
 ---@field scope_open_extended boolean
 ---@field indent_zero boolean
 ---@field indent_align boolean
+---@field indent_list boolean
 ---@field fallback boolean
 ---@field ignore boolean
 ---@field dedent_child string[]
@@ -36,8 +38,9 @@ local common_config = {
   scope_open_extended = {},
   indent_zero = {},
   indent_align = {},
+  indent_list = {},
   dedent_child = {},
-  -- ignore this outermost nodes to work around cross tree issue
+  -- ignore these outermost nodes to work around cross tree issue
   ignore = { "source", "document", "chunk", "script_file", "source_file", "program" },
   fallback = {},
   handlers = {
@@ -77,6 +80,9 @@ function M.transform_builtin(config)
   for _, node in ipairs(config.indent_align) do
     transformed.nodes[node].indent_align = true
   end
+  for _, node in ipairs(config.indent_list) do
+    transformed.nodes[node].indent_list = true
+  end
   for _, node in ipairs(config.ignore) do
     transformed.nodes[node].ignore = true
   end
@@ -104,6 +110,7 @@ function M.extend(base, config)
   vim.list_extend(merged.scope_open_extended or {}, config.scope_open_extended or {})
   vim.list_extend(merged.indent_zero or {}, config.indent_zero or {})
   vim.list_extend(merged.indent_align or {}, config.indent_align or {})
+  vim.list_extend(merged.indent_list or {}, config.indent_list or {})
   vim.list_extend(merged.fallback or {}, config.fallback or {})
   vim.list_extend(merged.ignore or {}, config.ignore or {})
   if config.handlers then

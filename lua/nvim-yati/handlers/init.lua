@@ -11,18 +11,16 @@ local M = {}
 ---@param ctx YatiContext
 function M.handle_initial(ctx)
   for _, handler in ipairs(ctx:handlers() or {}) do
-    local initial_node_or_cont = handler(ctx)
-    if initial_node_or_cont == false then
-      return false
-    elseif initial_node_or_cont ~= nil then
-      return initial_node_or_cont
+    local should_cont = handler(ctx)
+    if should_cont ~= nil then
+      return should_cont
     end
   end
   return default_handlers.on_initial(ctx)
 end
 
 ---@param ctx YatiContext
-function M.handle_parent(ctx)
+function M.handle_traverse(ctx)
   local handlers = {}
   vim.list_extend(handlers, ctx:handlers() or {})
   vim.list_extend(handlers, ctx:parent_handlers() or {})

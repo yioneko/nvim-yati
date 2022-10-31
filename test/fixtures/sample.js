@@ -12,20 +12,20 @@ export {
 }
 
 foo({
-  sd,
-  aaa: sdf[
-    "index" +
-      2
-  ]
-},
+    sd,
+    aaa: sdf[
+      "index" +
+        2
+    ]
+  },
   4
 );
 
 foo(2, {
-  sd,
-  sdf,
-  MARKER
-},
+    sd,
+    sdf,
+    MARKER
+  },
   4
 );
 
@@ -112,7 +112,11 @@ while (a === 1
 
 while (condition)
   inLoop();
-after();
+after(
+  aaaaaaaa
+)
+  .fooo // NOTE: this conforms to prettier behavior
+  .bar(fffff);
 
 while (mycondition) {
   MARKER
@@ -254,8 +258,8 @@ function foo() {
   )(123, function () {
     dosome()
   }, {
-      a: 456 // do not consider this, no proper solution
-    });
+    a: 456
+  });
 }
 
 class MyClass extends OtherComponent {

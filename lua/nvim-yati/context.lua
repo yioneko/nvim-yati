@@ -281,7 +281,7 @@ end
 
 function Context:fallback()
   self.has_fallback = true
-  return false
+  return false -- not continue
 end
 
 return Context

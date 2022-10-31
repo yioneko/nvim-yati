@@ -2,6 +2,8 @@ local utils = require("nvim-yati.utils")
 local o = require("nvim-yati.config")
 local handlers = require("nvim-yati.handlers")
 local Context = require("nvim-yati.context")
+local logger = require("nvim-yati.logger")
+local nt = utils.node_type
 
 local M = {}
 
@@ -22,7 +24,12 @@ function M.get_indent(lnum, bufnr)
   if not bootstrap_lang then
     return -1
   end
+
   local bootstrap_conf = o.get(bootstrap_lang)
+  if not bootstrap_conf then
+    return -1
+  end
+
   local node_filter = function(node)
     return not bootstrap_conf.nodes[utils.node_type(node)].ignore
   end
@@ -39,11 +46,12 @@ function M.get_indent(lnum, bufnr)
   end
 
   ctx:begin_traverse()
-
+  -- main traverse loop
   while ctx.node do
     local prev_node = ctx.node
+    local prev_lang = ctx:lang()
 
-    local should_cont = handlers.handle_parent(ctx)
+    should_cont = handlers.handle_traverse(ctx)
     if ctx.has_fallback then
       return -1
     elseif not should_cont then
@@ -54,6 +62,19 @@ function M.get_indent(lnum, bufnr)
     if prev_node == ctx.node then
       ctx:to_parent()
     end
+
+    if ctx.node then
+      logger(
+        string.format(
+          "Traverse from %s(%s) to %s(%s), computed %s",
+          nt(prev_node),
+          prev_lang,
+          nt(ctx.node),
+          ctx:lang(),
+          ctx.computed_indent
+        )
+      )
+    end
   end
 
   return ctx.computed_indent
@@ -63,7 +84,21 @@ function M.indentexpr(vlnum)
   if vlnum == nil then
     vlnum = vim.v.lnum
   end
-  return M.get_indent(vlnum - 1)
+
+  local ok, indent = pcall(M.get_indent, vlnum - 1)
+  if ok then
+    logger("Total computed: " .. indent)
+    return indent
+  else
+    error(indent)
+    vim.schedule(function()
+      vim.notify_once(
+        string.format("[nvim-yati]: indent computation for line %s failed, please submit an issue", vlnum),
+        vim.log.levels.WARN
+      )
+    end)
+    return -1
+  end
 end
 
 return M

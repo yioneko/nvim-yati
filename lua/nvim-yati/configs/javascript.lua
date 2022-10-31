@@ -41,6 +41,11 @@ local config = {
     "arrow_function",
     "call_expression",
   },
+  indent_list = {
+    "object",
+    "array",
+    "arguments",
+  },
   dedent_child = {
     if_statement = { "statement_block", "else_clause", "parenthesized_expression" },
     else_clause = { "statement_block", "parenthesized_expression" },
@@ -56,7 +61,7 @@ local config = {
     on_initial = { ch.multiline_string_literal("template_string") },
     on_traverse = {
       ch.ternary_flatten_indent("ternary_expression"),
-      ch.chained_field_call("arguments", "member_expression"),
+      ch.chained_field_call("arguments", "member_expression", "property"),
       ch.multiline_string_injection("template_string", "`"),
     },
   },

@@ -153,7 +153,7 @@ fn foo<T>(t: T) -> i32 where
             MARKER
             .cloned()
     })
-        .collect(); // TODO: Is this correct?
+    .collect();
 
     statement();
 }
@@ -200,7 +200,7 @@ fn f<
         >::new();
         h();
     })
-        .unwrap();
+    .unwrap();
     h();
 }
 
@@ -209,20 +209,20 @@ fn floaters() {
         field1: val1,
         field2: val2,
     }
-        .method_call().method_call();
+    .method_call().method_call();
 
     let y = if cond {
         val1
     } else {
         val2
     }
-        .await
-        .method_call([
-            1,
-            3,
-            MARKER
-            1
-        ]);
+    .await
+    .method_call([
+        1,
+        3,
+        MARKER
+        1
+    ]);
 
     x =
         456
@@ -230,6 +230,13 @@ fn floaters() {
             + 111
             - 222;
 
+    // NOTE: rustfmt do not expand binary expression
+    if aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        && bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+        || ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            && ecccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    {
+    }
 
     {
         match x {
@@ -239,10 +246,11 @@ fn floaters() {
                     Some(d) => d as usize - 1,
                     None => return Err("bad param number".to_owned()),
                 }]
-                    .clone()
-                    .await
-                    MARKER
-                    .unwrap()
+                .clone()
+                MARKER
+                .await
+                MARKER
+                .unwrap()
                 );
             }
         }

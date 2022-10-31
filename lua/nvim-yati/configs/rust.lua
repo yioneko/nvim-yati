@@ -1,4 +1,5 @@
 local ch = require("nvim-yati.handlers.common")
+local handlers = require("nvim-yati.handlers.rust")
 
 ---@type YatiBuiltinConfig
 local config = {
@@ -58,9 +59,13 @@ local config = {
     on_initial = {
       ch.multiline_string_literal("string_literal"),
       ch.multiline_string_literal("raw_string_literal"),
+      handlers.dedent_field_on_close_initial("field_expression"),
+      handlers.dedent_field_on_close_initial("await_expression"),
     },
     on_traverse = {
-      ch.chained_field_call("arguments", "field_expression"),
+      ch.chained_field_call("arguments", "field_expression", "field"),
+      handlers.dedent_field_on_close_traverse("field_expression", "field_identifier"),
+      handlers.dedent_field_on_close_traverse("await_expression", "'await'"),
     },
   },
 }

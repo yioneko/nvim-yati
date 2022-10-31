@@ -1,4 +1,5 @@
 local utils = require("nvim-yati.utils")
+local nt = utils.node_type
 
 local M = {}
 
@@ -7,7 +8,7 @@ function M.block_comment_extra_indent(comment, ignores, pattern)
   ---@param ctx YatiContext
   return function(ctx)
     -- NOTE: this mutates cursor to skip comment initially
-    while ctx.node and vim.tbl_contains(ignores, utils.node_type(ctx.node)) do
+    while ctx.node and vim.tbl_contains(ignores, nt(ctx.node)) do
       ctx:to_parent()
     end
 
@@ -57,19 +58,21 @@ function M.ternary_flatten_indent(ternary)
 end
 
 ---Fix indent in arguemnt of chained function calls (sample.js#L133)
-function M.chained_field_call(arguemnts, field)
+function M.chained_field_call(arguemnts, field_expr, field_name)
   ---@param ctx YatiContext
   return function(ctx)
     local node = ctx.node
     local sibling = ctx:prev_sibling()
+    local field = sibling and sibling:field(field_name)[1]
     if
       node
       and sibling
+      and field
       and node:type() == arguemnts
-      and sibling:type() == field
+      and sibling:type() == field_expr
       and sibling:start() ~= sibling:end_()
     then
-      ctx:add(ctx.shift)
+      ctx:relocate(field)
       return true
     end
   end
@@ -82,6 +85,7 @@ function M.multiline_string_literal(str)
       if utils.is_line_empty(ctx.lnum, ctx.bufnr) then
         return ctx:fallback()
       else
+        -- TODO: replace with fallback
         ctx:set(utils.cur_indent(ctx.lnum, ctx.bufnr))
       end
       return false

@@ -1,8 +1,20 @@
 local utils = require("nvim-yati.utils")
+local logger = require("nvim-yati.logger")
 
 local M = {}
 
 local nt = utils.node_type
+
+---@param parent userdata
+---@param bufnr integer
+local function check_indent_align(parent, bufnr)
+  local first_no_delim_sib = parent:child(1)
+  if first_no_delim_sib and first_no_delim_sib:start() == parent:start() then
+    local col_s = utils.get_first_nonblank_col_at_line(parent:start(), bufnr)
+    local _, col_e = first_no_delim_sib:start()
+    return col_e - col_s
+  end
+end
 
 ---@param ctx YatiContext
 function M.on_initial(ctx)
@@ -43,23 +55,67 @@ function M.on_initial(ctx)
     if not node then
       return ctx:fallback()
     end
-    print(ctx.node)
 
     local attrs = ctx:config()[nt(node)]
     -- If the node is not at the same line and it's an indent node, we should indent
     if node:start() ~= ctx.lnum and attrs.scope and (attrs.scope_open_extended or node:end_() >= ctx.lnum) then
-      local first_no_delim_sib = node:child(1)
-      if attrs.indent_align and (first_no_delim_sib and first_no_delim_sib:start() == node:start()) then
-        local col_s = utils.get_first_nonblank_col_at_line(node:start(), ctx.bufnr)
-        local _, col_e = first_no_delim_sib:start()
-        ctx:add(col_e - col_s)
-      else
+      local aligned_indent
+      if attrs.indent_align then
+        aligned_indent = check_indent_align(node, ctx.bufnr)
+        if aligned_indent ~= nil then
+          ctx:add(aligned_indent)
+        end
+      end
+
+      if aligned_indent == nil then
         ctx:add(ctx.shift)
       end
     end
   end
 
   return true
+end
+
+---@param ctx YatiContext
+local function check_indent_range(ctx)
+  local node = ctx.node
+  local parent = ctx:parent()
+  if not parent then
+    return false
+  end
+
+  local attrs = ctx:config()[nt(parent)]
+  local delimeters = 2
+  if attrs.scope_open then
+    delimeters = 1
+  end
+
+  -- special case: not direct parent
+  if node:parent() ~= parent then
+    return ctx.node:start() ~= parent:start()
+  end
+
+  -- only expand range if more than one child
+  if attrs.indent_list and parent:child_count() > delimeters + 1 then
+    local srow = node:start()
+    local erow = node:end_()
+
+    local prev = node:prev_sibling()
+    while prev and prev:end_() == srow do
+      srow = prev:start(0)
+      prev = prev:prev_sibling()
+    end
+
+    local next = node:next_sibling()
+    while next and next:start() == erow do
+      erow = next:end_()
+      next = next:next_sibling()
+    end
+
+    return srow ~= parent:start() or erow ~= parent:end_()
+  else
+    return ctx.node:start() ~= ctx:first_sibling():end_()
+  end
 end
 
 ---@param ctx YatiContext
@@ -84,23 +140,28 @@ function M.on_traverse(ctx)
   if parent then
     local p_attrs = conf[nt(parent)]
     local prev = ctx:prev_sibling()
-    local should_indent = p_attrs.scope
-      and prev
-      and ctx:first_sibling():end_() ~= node:start()
-      and not vim.tbl_contains(p_attrs.dedent_child, nt(node))
-      and (ctx:next_sibling() ~= nil or p_attrs.scope_open)
+    local should_indent = p_attrs.scope and check_indent_range(ctx)
+    -- TODO: deal with no direct parent
+    if parent == node:parent() then
+      should_indent = should_indent
+        and prev ~= nil
+        and not vim.tbl_contains(p_attrs.dedent_child, nt(node))
+        and (ctx:next_sibling() ~= nil or p_attrs.scope_open)
+    end
 
     if should_indent then
-      local first_no_delim_sib = ctx:first_sibling():next_sibling()
-      if p_attrs.indent_align and (first_no_delim_sib and first_no_delim_sib:start() == parent:start()) then
-        local col_s = utils.get_first_nonblank_col_at_line(parent:start(), ctx.bufnr)
-        local _, col_e = first_no_delim_sib:start()
-        ctx:add(col_e - col_s)
-      else
+      local aligned_indent
+      if p_attrs.indent_align then
+        aligned_indent = check_indent_align(parent, ctx.bufnr)
+        if aligned_indent ~= nil then
+          ctx:add(aligned_indent)
+        end
+      end
+
+      if aligned_indent == nil then
         ctx:add(ctx.shift)
       end
     end
-    print(nt(node) .. " " .. nt(parent) .. " " .. ctx:lang() .. " " .. (ctx:parent_lang() or "") .. ctx.computed_indent)
   end
 
   return true

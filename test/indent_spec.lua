@@ -12,13 +12,11 @@ local test_files = {
   javascript = { "sample.js" },
   json = { "sample.json" },
   lua = { "sample.lua" },
-  -- markdown = { "sample.md" },
   python = { "sample.py" },
   rust = { "sample.rs" },
   toml = { "sample.toml" },
   typescript = { "sample.ts" },
   vue = { "sample.vue" },
-  -- yaml = { "sample.yml" },
 }
 
 local function same_indent(state, arguments)
@@ -26,7 +24,6 @@ local function same_indent(state, arguments)
   local expected = arguments[2]
 
   local indent = indentexpr(lnum)
-  print(indent)
   return indent == expected
 end
 
