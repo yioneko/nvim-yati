@@ -1,4 +1,5 @@
 local utils = require("nvim-yati.utils")
+local logger = require("nvim-yati.logger")
 local nt = utils.node_type
 
 local M = {}
@@ -9,6 +10,7 @@ function M.block_comment_extra_indent(comment, ignores, pattern)
   return function(ctx)
     -- NOTE: this mutates cursor to skip comment initially
     while ctx.node and vim.tbl_contains(ignores, nt(ctx.node)) do
+      logger("handler", "Skip initial comment " .. nt(ctx.node))
       ctx:to_parent()
     end
 
@@ -19,6 +21,7 @@ function M.block_comment_extra_indent(comment, ignores, pattern)
       and node:start() ~= ctx.lnum
       and utils.get_buf_line(ctx.bufnr, ctx.lnum):match(pattern) ~= nil
     then
+      logger("handler", string.format("Match inner block comment (%s), add extra indent", nt(ctx.node)))
       ctx:add(1)
       return true
     end

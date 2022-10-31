@@ -1,3 +1,5 @@
+local ch = require("nvim-yati.handlers.common")
+
 ---@type YatiBuiltinConfig
 local config = {
   scope = {
@@ -48,6 +50,11 @@ local config = {
     for_statement = { "compound_statement", "parenthesized_expression" },
   },
   indent_zero = { "'#if'", "'#else'", "'#endif'", "'#ifdef'", "'#ifndef'", "'#define'" },
+  handlers = {
+    on_initial = {
+      ch.block_comment_extra_indent("comment", {}),
+    },
+  },
 }
 
 return config

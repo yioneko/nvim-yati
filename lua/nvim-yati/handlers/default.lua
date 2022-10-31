@@ -1,5 +1,4 @@
 local utils = require("nvim-yati.utils")
-local logger = require("nvim-yati.logger")
 
 local M = {}
 
