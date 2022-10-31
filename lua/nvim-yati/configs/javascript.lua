@@ -51,10 +51,10 @@ local config = {
     jsx_fragment = { "'<'" },
     jsx_self_closing_element = { "'/'" },
   },
-  fallback = { "template_string" },
+  ignore = { "jsx_text" },
   handlers = {
     on_initial = { ch.multiline_string_literal("template_string") },
-    on_parent = {
+    on_traverse = {
       ch.ternary_flatten_indent("ternary_expression"),
       ch.chained_field_call("arguments", "member_expression"),
       ch.multiline_string_injection("template_string", "`"),

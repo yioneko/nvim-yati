@@ -59,14 +59,10 @@ local config = {
       ch.multiline_string_literal("string_literal"),
       ch.multiline_string_literal("raw_string_literal"),
     },
-    on_parent = {
+    on_traverse = {
       ch.chained_field_call("arguments", "field_expression"),
     },
   },
-  -- hook_node = Hook(
-  --   chains.block_comment_extra_indent("block_comment"),
-  --   chains.chained_field_call("arguments", "field_expression")
-  -- ),
 }
 
 return config

@@ -9,6 +9,7 @@ local M = {}
 ---@field indent_zero string[]
 ---@field indent_align string[]
 ---@field dedent_child table<string, string[]>
+---@field ignore string[]
 ---@field fallback string[]
 ---@field handlers YatiHandlers
 
@@ -19,6 +20,7 @@ local M = {}
 ---@field indent_zero boolean
 ---@field indent_align boolean
 ---@field fallback boolean
+---@field ignore boolean
 ---@field dedent_child string[]
 
 ---@alias YatiNodesConfig table<string, YatiNodeConfig>
@@ -35,22 +37,20 @@ local common_config = {
   indent_zero = {},
   indent_align = {},
   dedent_child = {},
-  fallback = { "comment", "string" },
+  -- ignore this outermost nodes to work around cross tree issue
+  ignore = { "source", "document", "chunk", "script_file", "source_file", "program" },
+  fallback = {},
   handlers = {
     on_initial = {},
-    on_parent = {},
+    on_traverse = {},
   },
-}
-
-M.global = {
-  ignore = { "source", "document", "chunk", "script_file", "source_file" },
 }
 
 ---@param config YatiBuiltinConfig
 ---@return YatiLangConfig
 function M.transform_builtin(config)
   ---@type YatiLangConfig
-  local transformed = { nodes = {}, handlers = { on_initial = {}, on_parent = {} } }
+  local transformed = { nodes = {}, handlers = { on_initial = {}, on_traverse = {} } }
 
   setmetatable(transformed.nodes, {
     __index = function(tbl, key)
@@ -77,6 +77,9 @@ function M.transform_builtin(config)
   for _, node in ipairs(config.indent_align) do
     transformed.nodes[node].indent_align = true
   end
+  for _, node in ipairs(config.ignore) do
+    transformed.nodes[node].ignore = true
+  end
   for _, node in ipairs(config.fallback) do
     transformed.nodes[node].fallback = true
   end
@@ -84,7 +87,7 @@ function M.transform_builtin(config)
     transformed.nodes[node].scope = true
     transformed.nodes[node].dedent_child = child_list
   end
-  transformed.handlers.on_parent = config.handlers.on_parent or {}
+  transformed.handlers.on_traverse = config.handlers.on_traverse or {}
   transformed.handlers.on_initial = config.handlers.on_initial or {}
 
   return transformed
@@ -102,9 +105,10 @@ function M.extend(base, config)
   vim.list_extend(merged.indent_zero or {}, config.indent_zero or {})
   vim.list_extend(merged.indent_align or {}, config.indent_align or {})
   vim.list_extend(merged.fallback or {}, config.fallback or {})
+  vim.list_extend(merged.ignore or {}, config.ignore or {})
   if config.handlers then
     vim.list_extend(merged.handlers.on_initial or {}, config.handlers.on_initial or {})
-    vim.list_extend(merged.handlers.on_parent or {}, config.handlers.on_parent or {})
+    vim.list_extend(merged.handlers.on_traverse or {}, config.handlers.on_traverse or {})
   end
   merged.dedent_child = vim.tbl_extend("force", merged.dedent_child or {}, config.dedent_child or {})
 

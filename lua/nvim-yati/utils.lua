@@ -81,13 +81,20 @@ end
 
 function M.get_first_nonblank_col_at_line(lnum, bufnr)
   local line = M.get_buf_line(bufnr, lnum)
-  local _, col = string.find(line, "^[%s%\\]*") -- NOTE: Also exclude \ (sample.vim#L6)
+  local _, col = string.find(line or "", "^%s*")
   return col or 0
 end
 
-function M.get_node_at_line(lnum, named, bufnr, ignores)
+-- Get the bootstrap language for the given line
+function M.get_lang_at_line(lnum, bufnr)
+  local parser = M.get_parser(bufnr)
+  local col = M.get_first_nonblank_col_at_line(lnum, bufnr)
+  local lang_tree = parser:language_for_range({ lnum, col, lnum, col })
+  return lang_tree:lang()
+end
+
+function M.get_node_at_line(lnum, named, bufnr, filter)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
-  ignores = ignores or {}
   local col = M.get_first_nonblank_col_at_line(lnum, bufnr)
 
   local parser = M.get_parser(bufnr)
@@ -101,14 +108,10 @@ function M.get_node_at_line(lnum, named, bufnr, ignores)
     else
       node = root:descendant_for_range(lnum, col, lnum, col)
     end
-    if node then
-      print(M.node_type(node), vim.inspect(M.node_range_inclusive(node)))
+    while node and filter and not filter(node) do
+      node = node:parent()
     end
-    if
-      node
-      and not vim.tbl_contains(ignores, M.node_type(node))
-      and (not min_node or M.node_contains(min_node, node))
-    then
+    if node and (not min_node or M.node_contains(min_node, node)) then
       min_node = node
     end
   end)
@@ -132,13 +135,20 @@ function M.range_contains(range1, range2)
   return M.pos_cmp(range1[1], range2[1]) <= 0 and M.pos_cmp(range1[2], range2[2]) >= 0
 end
 
-function M.node_range_inclusive(node)
+function M.node_range(node, inclusive)
+  if inclusive == nil then
+    inclusive = true
+  end
+  local ecol_diff = 0
+  if inclusive then
+    ecol_diff = -1
+  end
   local srow, scol, erow, ecol = node:range()
-  return { { srow, scol }, { erow, ecol - 1 } }
+  return { { srow, scol }, { erow, ecol + ecol_diff } }
 end
 
 function M.node_contains(node1, node2)
-  return M.range_contains(M.node_range_inclusive(node1), M.node_range_inclusive(node2))
+  return M.range_contains(M.node_range(node1), M.node_range(node2))
 end
 
 return M

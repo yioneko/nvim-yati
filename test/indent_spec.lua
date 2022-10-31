@@ -7,7 +7,7 @@ local test_files = {
   cpp = { "sample.cpp" },
   c = { "sample.c" },
   css = { "sample.css" },
-  graphql = { "sample.graphql" }, --TODO
+  graphql = { "sample.graphql" },
   html = { "sample.html" },
   javascript = { "sample.js" },
   json = { "sample.json" },
@@ -17,6 +17,7 @@ local test_files = {
   rust = { "sample.rs" },
   toml = { "sample.toml" },
   typescript = { "sample.ts" },
+  vue = { "sample.vue" },
   -- yaml = { "sample.yml" },
 }
 
@@ -25,7 +26,7 @@ local function same_indent(state, arguments)
   local expected = arguments[2]
 
   local indent = indentexpr(lnum)
-  -- print(indent)
+  print(indent)
   return indent == expected
 end
 

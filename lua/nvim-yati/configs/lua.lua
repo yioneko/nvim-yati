@@ -44,7 +44,7 @@ local config = {
     on_initial = {
       ch.multiline_string_literal("string_content"),
     },
-    on_parent = {
+    on_traverse = {
       ch.chained_field_call("arguments", "method_index_expression"),
       ch.chained_field_call("arguments", "dot_index_expression"),
       ch.multiline_string_injection("string_content", "string_end"),

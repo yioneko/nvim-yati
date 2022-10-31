@@ -140,6 +140,11 @@ def foo(
             more2()
         else:
             bar()
+            if fsdf:
+                fsfs
+                fsdfa
+            else:
+                MARKER
 
 a = """
     String A

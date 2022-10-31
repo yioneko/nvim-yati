@@ -4,15 +4,14 @@ local M = {}
 
 function M.block_comment_extra_indent(comment, ignores, pattern)
   pattern = pattern or "^%s*%*"
-  ---@param ctx YatiInitialCtx
-  ---@param cursor TSCursor
-  return function(ctx, cursor)
+  ---@param ctx YatiContext
+  return function(ctx)
     -- NOTE: this mutates cursor to skip comment initially
-    while cursor:deref() and vim.tbl_contains(ignores, utils.node_type(cursor:deref())) do
-      cursor:to_parent()
+    while ctx.node and vim.tbl_contains(ignores, utils.node_type(ctx.node)) do
+      ctx:to_parent()
     end
 
-    local node = cursor:deref()
+    local node = ctx.node
     if
       node
       and node:type() == comment
@@ -20,27 +19,26 @@ function M.block_comment_extra_indent(comment, ignores, pattern)
       and utils.get_buf_line(ctx.bufnr, ctx.lnum):match(pattern) ~= nil
     then
       ctx:add(1)
-      return node
+      return true
     end
   end
 end
 
 function M.ternary_flatten_indent(ternary)
-  ---@param ctx YatiParentCtx
-  ---@param cursor TSCursor
-  return function(ctx, cursor)
-    local node = cursor:deref()
-    local parent = cursor:peek_parent()
-    local prev = cursor:peek_prev_sibling()
+  ---@param ctx YatiContext
+  return function(ctx)
+    local node = ctx.node
+    local parent = ctx:parent()
+    local prev = ctx:prev_sibling()
 
     if parent and parent:type() == ternary then
-      cursor:to_parent()
+      ctx:to_parent()
       if parent and parent:parent():type() == ternary and parent:child(0) == node then
-        prev = cursor:peek_prev_sibling()
+        prev = ctx:prev_sibling()
       end
 
-      while cursor:peek_parent():type() == ternary do
-        cursor:to_parent()
+      while ctx:parent():type() == ternary do
+        ctx:to_parent()
       end
 
       if node:type() == "?" or node:type() == ":" then
@@ -60,11 +58,10 @@ end
 
 ---Fix indent in arguemnt of chained function calls (sample.js#L133)
 function M.chained_field_call(arguemnts, field)
-  ---@param ctx YatiParentCtx
-  ---@param cursor TSCursor
-  return function(ctx, cursor)
-    local node = cursor:deref()
-    local sibling = cursor:peek_prev_sibling()
+  ---@param ctx YatiContext
+  return function(ctx)
+    local node = ctx.node
+    local sibling = ctx:prev_sibling()
     if
       node
       and sibling
@@ -79,12 +76,11 @@ function M.chained_field_call(arguemnts, field)
 end
 
 function M.multiline_string_literal(str)
-  ---@param ctx YatiInitialCtx
-  ---@param cursor TSCursor
-  return function(ctx, cursor)
-    if cursor:deref():type() == str and cursor:deref():start() ~= ctx.lnum then
+  ---@param ctx YatiContext
+  return function(ctx)
+    if ctx.node:type() == str and ctx.node:start() ~= ctx.lnum then
       if utils.is_line_empty(ctx.lnum, ctx.bufnr) then
-        ctx:set(-1)
+        return ctx:fallback()
       else
         ctx:set(utils.cur_indent(ctx.lnum, ctx.bufnr))
       end
@@ -97,21 +93,40 @@ function M.multiline_string_injection(str, close_delim, should_indent)
   if should_indent == nil then
     should_indent = true
   end
-  ---@param ctx YatiParentCtx
-  ---@param cursor TSCursor
-  return function(ctx, cursor)
-    local parent = cursor:peek_parent()
+  ---@param ctx YatiContext
+  return function(ctx)
+    local parent = ctx:parent()
     if parent and parent:type() == str then
       -- in injection
-      if ctx.lang ~= ctx.parent_lang and cursor:deref():start() ~= parent:start() then
+      if ctx:lang() ~= ctx:parent_lang() and ctx.node:start() ~= parent:start() then
         if should_indent then
           ctx:add(ctx.shift)
         end
-      elseif cursor:deref():type() ~= close_delim then
-        ctx:add(utils.cur_indent(cursor:deref():start(), ctx.bufnr))
+      elseif ctx.node:type() ~= close_delim then
+        ctx:add(utils.cur_indent(ctx.node:start(), ctx.bufnr))
         return false
       end
       return true
+    end
+  end
+end
+
+function M.dedent_pattern(pattern, node_type, indent_node_type)
+  ---@param ctx YatiContext
+  return function(ctx)
+    local node = ctx.node
+    local line = utils.get_buf_line(ctx.bufnr, node:start())
+    if not line then
+      return
+    end
+    line = vim.trim(line)
+    if node:type() == node_type and line:match(pattern) ~= nil then
+      local next = utils.try_find_parent(node, function(parent)
+        return parent:type() == indent_node_type
+      end)
+      if next then
+        ctx:relocate(next, true)
+      end
     end
   end
 end
