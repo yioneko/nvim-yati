@@ -150,6 +150,9 @@ fn foo<T>(t: T) -> i32 where
     let paths: Vec<_> = ({
         fs::read_dir("test_data")
             .unwrap()
+            .clone(|aaaaa| {
+                MARKER
+            })
             MARKER
             .cloned()
     })
@@ -246,7 +249,9 @@ fn floaters() {
                     Some(d) => d as usize - 1,
                     None => return Err("bad param number".to_owned()),
                 }]
-                .clone()
+                .clone(|aaaaa| {
+                    MARKER
+                })
                 MARKER
                 .await
                 MARKER

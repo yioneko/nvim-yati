@@ -7,12 +7,12 @@ local nt = utils.node_type
 
 local M = {}
 
-function M.get_ts_indent(lnum, bufnr)
+function M.get_indent(lnum, bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local root_tree = utils.get_parser(bufnr)
 
   if not root_tree then
-    return
+    return -1
   end
   -- Firstly, ensure the tree is updated
   if not root_tree:is_valid() then
@@ -21,12 +21,12 @@ function M.get_ts_indent(lnum, bufnr)
 
   local bootstrap_lang = utils.get_lang_at_line(lnum, bufnr)
   if not bootstrap_lang then
-    return
+    return -1
   end
 
   local bootstrap_conf = o.get(bootstrap_lang)
   if not bootstrap_conf then
-    return
+    return -1
   end
 
   local node_filter = function(node)
@@ -34,14 +34,18 @@ function M.get_ts_indent(lnum, bufnr)
   end
   local ctx = Context:new(lnum, bufnr, node_filter)
   if not ctx then
-    return
+    return -1
   end
 
   logger("main", string.format("Bootstrap node %s(%s)", nt(ctx.node), ctx:lang()))
 
   local should_cont = handlers.handle_initial(ctx)
   if ctx.has_fallback then
-    return
+    if ctx:lang() then
+      return o.get(ctx:lang()).fallback(lnum, 0, bufnr)
+    else
+      return bootstrap_conf.fallback(lnum, 0, bufnr)
+    end
   elseif not should_cont then
     return ctx.computed_indent
   end
@@ -56,7 +60,13 @@ function M.get_ts_indent(lnum, bufnr)
 
     should_cont = handlers.handle_traverse(ctx)
     if ctx.has_fallback then
-      return
+      local lang = ctx:lang()
+      local node = ctx.node
+      if lang and node then
+        return o.get(lang).fallback(node:start(), ctx.computed_indent, bufnr)
+      else
+        return bootstrap_conf.fallback(lnum, 0, bufnr)
+      end
     elseif not should_cont then
       break
     end
@@ -82,16 +92,6 @@ function M.get_ts_indent(lnum, bufnr)
   end
 
   return ctx.computed_indent
-end
-
-function M.get_indent(lnum, bufnr)
-  local indent = M.get_ts_indent(lnum, bufnr)
-  if type(indent) ~= "number" or indent < 0 then
-    -- TODO: call fallback here
-    return -1
-  else
-    return indent
-  end
 end
 
 function M.indentexpr(vlnum)

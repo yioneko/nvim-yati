@@ -1,4 +1,5 @@
-local nt = require("nvim-yati.utils").node_type
+local utils = require("nvim-yati.utils")
+local nt = utils.node_type
 
 local M = {}
 
@@ -10,27 +11,25 @@ local function check_prev_field_closed(field_node, bufnr)
     if first_char ~= "" and first_char ~= "." then
       -- find close delimeter
       if first_char:find("^[%]})>]") ~= nil then
-        return true
+        local prev_line = field_node:end_() - #lines + i
+        return utils.get_node_at_line(prev_line, false, bufnr)
       else
         break
       end
     end
   end
-  return false
 end
 
 -- Related: sample.rs#L203
 function M.dedent_field_on_close_initial(field_expression)
   ---@param ctx YatiContext
   return function(ctx)
-    if
-      ctx.node
-      and nt(ctx.node) == field_expression
-      and ctx.node:child(0)
-      and check_prev_field_closed(ctx.node:child(0), ctx.bufnr)
-    then
-      -- skip default indent
-      return true
+    if ctx.node and nt(ctx.node) == field_expression and ctx.node:child(0) then
+      local prev_close_node = check_prev_field_closed(ctx.node:child(0), ctx.bufnr)
+      if prev_close_node then
+        ctx:relocate(prev_close_node)
+        return true
+      end
     end
   end
 end
@@ -42,10 +41,12 @@ function M.dedent_field_on_close_traverse(field_expression, field_type)
       (nt(ctx.node) == field_type or ctx.node:type() == ".")
       and ctx:parent()
       and nt(ctx:parent()) == field_expression
-      and check_prev_field_closed(ctx:first_sibling(), ctx.bufnr)
     then
-      ctx:to_parent()
-      return true
+      local prev_close_node = check_prev_field_closed(ctx:first_sibling(), ctx.bufnr)
+      if prev_close_node then
+        ctx:relocate(prev_close_node)
+        return true
+      end
     end
   end
 end
