@@ -8,6 +8,11 @@ function M.block_comment_extra_indent(comment, ignores, pattern)
   pattern = pattern or "^%s*%*"
   ---@param ctx YatiContext
   return function(ctx)
+    if utils.get_buf_line(ctx.bufnr, ctx.lnum):match(pattern) == nil then
+      return
+    end
+    ctx:parse()
+
     -- NOTE: this mutates cursor to skip comment initially
     while ctx.node and vim.tbl_contains(ignores, nt(ctx.node)) do
       logger("handler", "Skip initial comment " .. nt(ctx.node))
@@ -15,12 +20,7 @@ function M.block_comment_extra_indent(comment, ignores, pattern)
     end
 
     local node = ctx.node
-    if
-      node
-      and node:type() == comment
-      and node:start() ~= ctx.lnum
-      and utils.get_buf_line(ctx.bufnr, ctx.lnum):match(pattern) ~= nil
-    then
+    if node and node:type() == comment and node:start() ~= ctx.lnum then
       logger("handler", string.format("Match inner block comment (%s), add extra indent", nt(ctx.node)))
       ctx:add(1)
       return true
@@ -48,7 +48,7 @@ function M.ternary_flatten_indent(ternary)
       if node:type() == "?" or node:type() == ":" then
         ctx:add(ctx.shift)
       elseif prev and (prev:type() == "?" or prev:type() == ":") then
-        -- sample.js#L386
+        -- ternary.js #L39
         if prev:start() == node:start() and utils.is_first_node_on_line(prev, ctx.bufnr) then
           ctx:add(ctx.shift * 2)
         elseif parent:start() ~= node:start() then
@@ -61,7 +61,7 @@ function M.ternary_flatten_indent(ternary)
   end
 end
 
----Fix indent in arguemnt of chained function calls (sample.js#L133)
+---Fix indent in arguemnt of chained function calls (chained_call.js)
 function M.chained_field_call(arguemnts, field_expr, field_name)
   ---@param ctx YatiContext
   return function(ctx)

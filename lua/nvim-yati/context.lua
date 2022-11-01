@@ -279,6 +279,12 @@ function Context:begin_traverse()
   self.stage = "traverse"
 end
 
+function Context:parse()
+  if not self.parser:is_valid() then
+    self.parser:parse()
+  end
+end
+
 function Context:fallback()
   self.has_fallback = true
   return false -- not continue

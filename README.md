@@ -2,11 +2,9 @@
 
 Yet another tree-sitter indent plugin for Neovim.
 
-This plugin was originally created when the experience of builtin indent module of [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) was still terrible. Now since the maintainers came back, and it has improved a lot and become usable, I'll stop maintaining this once the 'official' one completely supersede (also hope it will!).
+This plugin was originally created when the experience of builtin indent module of [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) was still terrible. Now since it has improved a lot with better community support, this plugin **should be no longer needed** if the upstream one already satisfies you.
 
-Currently I'm very confident that this plugin is nearly perfect and should cover most of the situations for supported languages. If you are still frustrated with the 'official' indent module, welcome to use this plugin instead as temporary solution. Feel free to submit issues for any problems.
-
-The details of configuration are described at [CONFIG.md](CONFIG.md). Take a glance at it if you are interested in internal working principles or helping development.
+If you are still frustrated with the 'official' indent module or interested in this plugin, welcome to provide feedback or submit any issues. Take a glance at [features](#features) to learn about the differences.
 
 ## Warning
 
@@ -24,30 +22,70 @@ Enable this module:
 
 ```lua
 require("nvim-treesitter.configs").setup {
-  yati = { enable = true },
+  yati = {
+    enable = true,
+    disable = { "python" }, -- disable by languages
+    default_lazy = false, -- enable lazy mode
+  },
+  indent = {
+    enable = false -- disable builtin indent module
+  }
 }
 ```
 
+Available config options:
+
+```lua
+local get_builtin = require("nvim-yati.config").get_builtin
+-- This is just an example, not recommend to do this since the result is unpredictable
+local js_overrides = vim.tbl_deep_extend("force", get_builtin("javascript"), {
+  lazy_mode =  false,
+  fallback = function() return -1 end,
+  nodes = {
+    ["if_statement"] = { "scope" }, -- set attributes by node
+  },
+  handlers = {
+    on_inital = {},
+    on_travers = {
+      function(ctx) return false end, -- set custom handlers
+    }
+  }
+})
+
+require("nvim-treesitter.configs").setup {
+  yati = {
+    enable = true,
+    disable = { "python" },
+    default_lazy = false,
+    default_fallback = function() return -1 end, -- provide custom fallback indent method
+    overrides = {
+      javascript = js_overrides -- override config by language
+    }
+  }
+}
+```
+
+More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md).
+
 ## Features
 
-- Fast, match node on demand by implementing completely in Lua, compared to executing scm query on the whole file on every indent calculation (that's why I use Lua table instead of scm query for configuration).
-- Support indent in injection region. See [sample.html](test/indent/sample.html) for example.
-- [Tests](test/indent) covered and handles much more edge cases. Refer samples in that directory for what the indentation would be like (it is slightly opinionated since there is no actual standard for it).
-- Support for custom hooks to deal with complex scenarios. Personally I regard this as killer feature of this plugin and finally making it possible to become perfect.
-
-  For example, the following situation is difficult to handle in pure scm query because of breaking of syntax tree in Python:
+- Fast, match node on demand by implementing completely in Lua, compared to executing scm query on the whole file on every indent calculation.
+- Even faster if `lazy_mode` enabled, see `default_lazy` option.
+- Fallback indent method support, by default `:h cindent()` is used.
+- Support indent in injection region. See [sample.html](test/fixtures/html/sample.html) for example.
+- [Tests](test/fixtures) covered and handles much more edge cases. Refer samples in that directory for what the indentation would be like. The style is slightly opinionated since there is no actual standard for it, but customization is still possible.
+- Support for custom handlers to deal with complex scenarios. This plugin relies on dedicated handlers to fix many edge cases like this:
 
   ```python
   if True:
     pass
-    else # should auto dedent
+    else: # should auto dedent <-
+          # the parsed tree is broken here and cannot be handled by tree-sitter
   ```
-
-  But by using custom hooks in Lua, we could use regex to test the line and check the tree programmatically to make the decision of dedent. I already create many commonly used hooks in [chains.lua](lua/nvim-yati/chains.lua) and other language-specific hooks in their configs.
 
 ## Notes
 
-The calculation result heavily relies on the correct tree-sitter parsing of the code. I'd recommend using plugins like [windwp/nvim-autopairs](https://github.com/windwp/nvim-autopairs) to keep the syntax tree error-free while inserting. This should avoid most of the wrong indent calculations.
+The calculation result heavily relies on the correct tree-sitter parsing of the code. I'd recommend using plugins like [nvim-autopairs](https://github.com/windwp/nvim-autopairs) or [luasnip](https://github.com/L3MON4D3/LuaSnip) to keep the syntax tree error-free while editing. This should avoid most of the wrong indent calculations.
 
 ## Supported languages
 
@@ -58,13 +96,9 @@ The calculation result heavily relies on the correct tree-sitter parsing of the 
 - Javascript/Typescript (jsx and tsx are also supported)
 - JSON
 - Lua
-- Markdown
-- PHP
 - Python
 - Rust
 - TOML
-- Vim
-- YAML
 
 More languages could be supported by adding config files to [configs/](lua/nvim-yati/configs) directory.
 

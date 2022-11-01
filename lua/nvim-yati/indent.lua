@@ -7,6 +7,22 @@ local nt = utils.node_type
 
 local M = {}
 
+---@param ctx YatiContext
+local function check_lazy_exit(ctx)
+  local lang = ctx:lang()
+  if
+    lang
+    and ctx.node
+    and ctx.node:start() ~= ctx.lnum
+    and o.get(lang).lazy_mode
+    and utils.is_first_node_on_line(ctx.node, ctx.bufnr)
+  then
+    ctx:add(utils.cur_indent(ctx.node:start(), ctx.bufnr))
+    logger("main", "Exit early for lazy mode at " .. nt(ctx.node))
+    return true
+  end
+end
+
 function M.get_indent(lnum, bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local root_tree = utils.get_parser(bufnr)
@@ -14,10 +30,12 @@ function M.get_indent(lnum, bufnr)
   if not root_tree then
     return -1
   end
+
   -- Firstly, ensure the tree is updated
-  if not root_tree:is_valid() then
-    root_tree:parse()
-  end
+  -- TODO: conditionally reparse tree (always parsing will conflict with 'indentkeys')
+  -- if not root_tree:is_valid() then
+  --   root_tree:parse()
+  -- end
 
   local bootstrap_lang = utils.get_lang_at_line(lnum, bufnr)
   if not bootstrap_lang then
@@ -51,6 +69,10 @@ function M.get_indent(lnum, bufnr)
   end
 
   logger("main", string.format("Initial node %s(%s), computed %s", nt(ctx.node), ctx:lang(), ctx.computed_indent))
+
+  if check_lazy_exit(ctx) then
+    return ctx.computed_indent
+  end
 
   ctx:begin_traverse()
 
@@ -91,13 +113,8 @@ function M.get_indent(lnum, bufnr)
       )
     end
 
-    do
-      local lang = ctx:lang()
-      if lang and ctx.node and o.get(lang).lazy_mode and utils.is_first_node_on_line(ctx.node, ctx.bufnr) then
-        ctx:add(utils.cur_indent(ctx.node:start(), bufnr))
-        logger("main", "Exit early for lazy mode at " .. nt(ctx.node))
-        break
-      end
+    if check_lazy_exit(ctx) then
+      break
     end
   end
 

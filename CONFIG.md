@@ -2,7 +2,7 @@
 
 The following sections documents fields of indent configuration.
 
-### indent
+### scope
 
 Types of nodes considered as an indent scope. Direct children of them should be indented one more level than the parent, except the first and last child, usually open and close delimiters.
 
@@ -14,13 +14,24 @@ function fn(fd)
 end -- Don't indent the last 'end' delimiter
 ```
 
-### indent_last
+### scope_open
 
-Almost the same as `indent` except the last child should also be indented. This usually applies to nodes without close delimiter.
+Almost the same as `scope` except the last child should also be indented. This usually applies to nodes with only open delimiter.
 
 **Example**:
 
 ```c
+if (1)
+  some_call() // should be indented
+```
+
+### scope_open_extended
+
+Same as `scope_open` but used to relocate 
+
+**Example**:
+
+``` c
 if (1)
   // should be indented
 ```
