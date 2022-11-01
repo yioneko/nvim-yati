@@ -1,5 +1,5 @@
 local assert = require("luassert")
-local indentexpr = require("nvim-yati.indent").indentexpr
+local get_indent = require("nvim-yati.indent").get_indent
 local say = require("say")
 local marker = "MARKER"
 local test_file_dir = "test/fixtures"
@@ -23,8 +23,16 @@ local function same_indent(state, arguments)
   local lnum = arguments[1]
   local expected = arguments[2]
 
-  local indent = indentexpr(lnum)
+  local indent = get_indent(lnum - 1)
   return indent == expected
+end
+
+local function setup_lazy_mode()
+  require("nvim-treesitter.configs").setup({
+    yati = {
+      default_lazy = true,
+    },
+  })
 end
 
 say:set_namespace("en")
@@ -62,6 +70,36 @@ for lang, files in pairs(test_files) do
   describe(lang .. " indentation in", function()
     for _, file in ipairs(files) do
       describe("[" .. file .. "]", function()
+        before_each(function()
+          vim.cmd("edit! " .. test_file_dir .. "/" .. file)
+        end)
+
+        after_each(function()
+          vim.cmd("bdelete!")
+        end)
+
+        it("should be correct", function()
+          local empty_indents = extract_marker(0, marker)
+          local line_cnt = vim.api.nvim_buf_line_count(0)
+
+          for lnum = 1, line_cnt do
+            local indent = vim.fn.indent(lnum)
+            if empty_indents[lnum] then
+              assert.same_indent(lnum, empty_indents[lnum])
+            elseif indent ~= 0 then
+              assert.same_indent(lnum, indent)
+            end
+          end
+        end)
+      end)
+    end
+  end)
+
+  describe(lang .. " indentation in", function()
+    setup_lazy_mode()
+
+    for _, file in ipairs(files) do
+      describe("[" .. file .. "] with lazy mode", function()
         before_each(function()
           vim.cmd("edit! " .. test_file_dir .. "/" .. file)
         end)

@@ -49,6 +49,7 @@ local config = {
     do_statement = { "compound_statement", "parenthesized_expression" },
     for_statement = { "compound_statement", "parenthesized_expression" },
   },
+  ignore = { "preproc_if", "preproc_else" },
   indent_zero = { "'#if'", "'#else'", "'#endif'", "'#ifdef'", "'#ifndef'", "'#define'" },
   handlers = {
     on_initial = {

@@ -108,6 +108,13 @@ function M.get_node_at_line(lnum, named, bufnr, filter)
     else
       node = root:descendant_for_range(lnum, col, lnum, col)
     end
+
+    -- OK, this is weird, but there are cases where this will be true...
+    -- sample.lua#L138
+    if node:start() > lnum or node:end_() < lnum then
+      return
+    end
+
     while node and filter and not filter(node) do
       node = node:parent()
     end

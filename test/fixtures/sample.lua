@@ -51,7 +51,7 @@ elseif x < 3 then
     then
       while df do
         for x, x in ipairs(aa) do
-          cx
+          cx()
           MARKER
           repeat
             x = x + 1
@@ -63,7 +63,7 @@ elseif x < 3 then
         aaa
         MARKER
       do
-        fdsf
+        fdsf()
       end
     end
   end
@@ -132,3 +132,18 @@ function fun()
     )
     .method2()
 end
+
+describe("foooooo", function()
+  for _, bar in ipairs(bars) do
+    MARKER
+    describe("aaaaaaa", function()
+      before_each(function()
+        vim.cmd("aaaaaaaa")
+      end)
+
+      it("bbbbbbbbbbbb", function()
+        MARKER
+      end)
+    end)
+  end
+end)

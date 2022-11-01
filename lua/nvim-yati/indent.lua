@@ -53,6 +53,7 @@ function M.get_indent(lnum, bufnr)
   logger("main", string.format("Initial node %s(%s), computed %s", nt(ctx.node), ctx:lang(), ctx.computed_indent))
 
   ctx:begin_traverse()
+
   -- main traverse loop
   while ctx.node do
     local prev_node = ctx.node
@@ -88,6 +89,18 @@ function M.get_indent(lnum, bufnr)
           ctx.computed_indent
         )
       )
+    end
+
+    do
+      local lang = ctx:lang()
+      if lang and ctx.node then
+        local crow, ccol = ctx.node:start()
+        if o.get(lang).lazy_mode and crow ~= lnum and ccol <= utils.get_first_nonblank_col_at_line(crow, bufnr) then
+          ctx:add(utils.cur_indent(crow, bufnr))
+          logger("main", "Exit early for lazy mode at " .. nt(ctx.node))
+          break
+        end
+      end
     end
   end
 

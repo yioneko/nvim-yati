@@ -294,7 +294,7 @@ const af1 = (c) => {
     sdf
   }
 }
-const af2 = (c
+const af2 = (c,
   b,
   d
 ) => ({

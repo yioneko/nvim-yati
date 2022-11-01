@@ -106,6 +106,7 @@ function M.transform_builtin(config)
   transformed.handlers.on_traverse = config.handlers.on_traverse or {}
   transformed.handlers.on_initial = config.handlers.on_initial or {}
   transformed.fallback = config.fallback
+  -- transformed.lazy_mode = true
 
   return transformed
 end
@@ -190,7 +191,7 @@ function M.get(lang)
     conf = overrides[lang]
   end
 
-  if user_config.default_lazy then
+  if user_config.default_lazy ~= nil then
     conf.lazy_mode = user_config.default_lazy
   end
   if user_config.default_fallback then

@@ -56,6 +56,11 @@ function M.on_initial(ctx)
     end
 
     local attrs = ctx:config()[nt(node)]
+
+    if attrs.indent_fallback then
+      return ctx:fallback()
+    end
+
     -- If the node is not at the same line and it's an indent node, we should indent
     if node:start() ~= ctx.lnum and attrs.scope and (attrs.scope_open_extended or node:end_() >= ctx.lnum) then
       local aligned_indent
@@ -132,7 +137,7 @@ function M.on_traverse(ctx)
   end
 
   local attrs = conf[nt(node)]
-  if attrs.fallback then
+  if attrs.indent_fallback then
     return ctx:fallback()
   end
 

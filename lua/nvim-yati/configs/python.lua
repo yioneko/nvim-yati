@@ -34,7 +34,7 @@ local config = {
     "with_statement",
     "try_statement",
     "except_clause",
-    "finnaly_clause",
+    "finally_clause",
     "class_definition",
     "function_definition",
     "lambda",
@@ -49,7 +49,7 @@ local config = {
     if_statement = { "else_clause", "elif_clause", "parenthesized_expression" },
     elif_clause = { "parenthesized_expression" },
     while_statement = { "else_clause", "parenthesized_expression" },
-    try_statement = { "except_clause", "else_clause", "finnaly_clause", "parenthesized_expression" },
+    try_statement = { "except_clause", "else_clause", "finally_clause", "parenthesized_expression" },
   },
   handlers = {
     on_initial = {
