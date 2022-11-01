@@ -76,10 +76,10 @@ let h = {
     { l: 1 }]
   },
   c:
-  { j: [
-    MARKER
-    { l: 1 }]
-  },
+    { j: [
+      MARKER
+      { l: 1 }]
+    },
 };
 
 const a =
@@ -329,9 +329,9 @@ const af3 = (c) =>
         MARKER
         b
       ) : bar(
-          c,
-          d
-        ),
+        c,
+        d
+      ),
     MARKER
     b
   )
@@ -376,3 +376,13 @@ function inject() {
     }
   `
 }
+
+const conf = merge(base, {
+  caaa: {
+    aaaa: bbbb
+  },
+  aaacccc: foo
+}, someCond() ? abc: {
+  fooo,
+  MARKER
+})

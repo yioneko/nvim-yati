@@ -93,13 +93,10 @@ function M.get_indent(lnum, bufnr)
 
     do
       local lang = ctx:lang()
-      if lang and ctx.node then
-        local crow, ccol = ctx.node:start()
-        if o.get(lang).lazy_mode and crow ~= lnum and ccol <= utils.get_first_nonblank_col_at_line(crow, bufnr) then
-          ctx:add(utils.cur_indent(crow, bufnr))
-          logger("main", "Exit early for lazy mode at " .. nt(ctx.node))
-          break
-        end
+      if lang and ctx.node and o.get(lang).lazy_mode and utils.is_first_node_on_line(ctx.node, ctx.bufnr) then
+        ctx:add(utils.cur_indent(ctx.node:start(), bufnr))
+        logger("main", "Exit early for lazy mode at " .. nt(ctx.node))
+        break
       end
     end
   end

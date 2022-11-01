@@ -43,6 +43,10 @@ elseif x < 3 then
     x
     MARKER
   then
+    accc()
+  elseif
+    abc > 9
+  then
     if
       x
       and x * 5

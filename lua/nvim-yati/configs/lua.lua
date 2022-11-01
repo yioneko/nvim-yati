@@ -38,6 +38,7 @@ local config = {
     function_declaration = { "parameters" },
     ["function"] = { "parameters" },
     if_statement = { "'then'", "else_statement", "elseif_statement" },
+    elseif_statement = { "'then'" },
     for_statement = { "'do'" },
     for_in_statement = { "'do'", "'in'" },
     while_statement = { "'do'" },

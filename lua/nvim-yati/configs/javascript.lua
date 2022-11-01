@@ -40,6 +40,7 @@ local config = {
     "assignment_expression",
     "arrow_function",
     "call_expression",
+    "pair",
   },
   indent_list = {
     "object",

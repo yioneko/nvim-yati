@@ -85,6 +85,11 @@ function M.get_first_nonblank_col_at_line(lnum, bufnr)
   return col or 0
 end
 
+function M.is_first_node_on_line(node, bufnr)
+  local line, col = node:start()
+  return M.get_first_nonblank_col_at_line(line, bufnr) >= col
+end
+
 -- Get the bootstrap language for the given line
 function M.get_lang_at_line(lnum, bufnr)
   local parser = M.get_parser(bufnr)
