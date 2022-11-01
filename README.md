@@ -45,7 +45,7 @@ local js_overrides = vim.tbl_deep_extend("force", get_builtin("javascript"), {
     ["if_statement"] = { "scope" }, -- set attributes by node
   },
   handlers = {
-    on_inital = {},
+    on_initial = {},
     on_travers = {
       function(ctx) return false end, -- set custom handlers
     }
@@ -69,12 +69,22 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
 
 ## Features
 
-- Fast, match node on demand by implementing completely in Lua, compared to executing scm query on the whole file on every indent calculation.
-- Even faster if `lazy_mode` enabled, see `default_lazy` option.
+- Could be faster and more context aware if `lazy_mode` enabled, see `default_lazy` option. This is specifically useful if the surrounding code doesn't obey indent rules:
+
+  ```lua
+  function fun()
+    if abc then
+                  if cbd then
+                    a() -- new indent will goes here even if the parent node indent wrongly
+                  end
+    end
+  end
+  ```
+
 - Fallback indent method support, by default `:h cindent()` is used.
 - Support indent in injection region. See [sample.html](test/fixtures/html/sample.html) for example.
-- [Tests](test/fixtures) covered and handles much more edge cases. Refer samples in that directory for what the indentation would be like. The style is slightly opinionated since there is no actual standard for it, but customization is still possible.
-- Support for custom handlers to deal with complex scenarios. This plugin relies on dedicated handlers to fix many edge cases like this:
+- [Tests](test/fixtures) covered and handles much more edge cases. Refer samples in that directory for what the indentation would be like. The style is slightly opinionated as there is no actual standard, but customization is still possible.
+- Support for custom handlers to deal with complex scenarios. This plugin relies on dedicated handlers to fix many edge cases like the following one:
 
   ```python
   if True:
@@ -85,7 +95,8 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
 
 ## Notes
 
-The calculation result heavily relies on the correct tree-sitter parsing of the code. I'd recommend using plugins like [nvim-autopairs](https://github.com/windwp/nvim-autopairs) or [luasnip](https://github.com/L3MON4D3/LuaSnip) to keep the syntax tree error-free while editing. This should avoid most of the wrong indent calculations.
+- The calculation result heavily relies on the correct tree-sitter parsing of the code. I'd recommend using plugins like [nvim-autopairs](https://github.com/windwp/nvim-autopairs) or [luasnip](https://github.com/L3MON4D3/LuaSnip) to keep the syntax tree error-free while editing. This should avoid most of the wrong indent calculations.
+- I mainly write `js/ts` so other languages may not receive better support than these two, bad cases for other languages are generally expected, and please create issues for them if possible.
 
 ## Supported languages
 

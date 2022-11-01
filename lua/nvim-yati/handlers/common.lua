@@ -51,7 +51,7 @@ function M.ternary_flatten_indent(ternary)
         -- ternary.js #L39
         if prev:start() == node:start() and utils.is_first_node_on_line(prev, ctx.bufnr) then
           ctx:add(ctx.shift * 2)
-        elseif parent:start() ~= node:start() then
+        elseif ctx.node:start() ~= node:start() then
           ctx:add(ctx.shift)
         end
       end

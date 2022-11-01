@@ -1,10 +1,10 @@
-function func(
+export function func(
   aaa: number,
   bbb: boolean
 ): {
-  ac: T; // TODO: extra indent
-  pppp: P;
-  MARKER
-} {
+    ac: T;
+    pppp: P;
+    MARKER
+  } {
   MARKER
 }
