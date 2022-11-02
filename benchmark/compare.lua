@@ -5,7 +5,7 @@ local bench = require("plenary.benchmark")
 local sample_file = "benchmark/sample.lua"
 
 local function test_indent(get_indent)
-  local lines = vim.api.nvim_buf_get_lines(0, 2000, 2500, false)
+  local lines = vim.api.nvim_buf_get_lines(0, 2000, 2200, false)
   for i, line in ipairs(lines) do
     if vim.trim(line) ~= "" then
       -- simulate editing operation to invalidate current syntax tree
