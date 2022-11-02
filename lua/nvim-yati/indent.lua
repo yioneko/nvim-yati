@@ -23,6 +23,13 @@ local function check_lazy_exit(ctx)
   end
 end
 
+local function can_reparse(lnum, bufnr)
+  local line = utils.get_buf_line(bufnr, lnum)
+  -- The line only has open delimiter
+  -- To fix new line jsx indent caused by 'indentkeys'
+  return vim.trim(line):find("^[%[({]$") == nil
+end
+
 function M.get_indent(lnum, bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local root_tree = utils.get_parser(bufnr)
@@ -32,10 +39,9 @@ function M.get_indent(lnum, bufnr)
   end
 
   -- Firstly, ensure the tree is updated
-  -- TODO: conditionally reparse tree (always parsing will conflict with 'indentkeys')
-  -- if not root_tree:is_valid() then
-  --   root_tree:parse()
-  -- end
+  if not root_tree:is_valid() and can_reparse(lnum, bufnr) then
+    root_tree:parse()
+  end
 
   local bootstrap_lang = utils.get_lang_at_line(lnum, bufnr)
   if not bootstrap_lang then
@@ -48,6 +54,7 @@ function M.get_indent(lnum, bufnr)
   end
 
   local node_filter = function(node)
+    -- TODO: handle language changes for `ignore` node
     return not bootstrap_conf.nodes[utils.node_type(node)].ignore
   end
   local ctx = Context:new(lnum, bufnr, node_filter)

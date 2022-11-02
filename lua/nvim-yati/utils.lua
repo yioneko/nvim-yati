@@ -1,13 +1,14 @@
 local M = {}
 local ts_parser = require("nvim-treesitter.parsers")
 
+---@return LanguageTree
 function M.get_parser(bufnr)
   return ts_parser.get_parser(bufnr)
 end
 
 ---@return string
 function M.get_buf_line(bufnr, lnum)
-  return vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
+  return vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1] or ""
 end
 
 function M.get_shift(bufnr)
@@ -61,17 +62,6 @@ function M.try_find_parent(node, predicate, limit)
     cur = cur:parent()
     limit = limit - 1
   end
-end
-
-function M.get_nth_parent(node, n)
-  local parent = node
-  for _ = 1, n do
-    if not parent then
-      return
-    end
-    parent = parent:parent()
-  end
-  return parent
 end
 
 function M.is_line_empty(lnum, bufnr)

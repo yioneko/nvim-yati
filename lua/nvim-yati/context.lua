@@ -17,19 +17,11 @@ local function create_cross_tree_stack(node, parser, filter)
       min_capture_node = min_capture_node:parent()
     end
     if min_capture_node and utils.node_contains(min_capture_node, node) then
-      local has_same = false
-      for _, t in ipairs(trees) do
-        if utils.range_eql(utils.node_range(t.tstree:root()), utils.node_range(root)) then
-          has_same = true
-        end
-      end
-      if not has_same then
-        table.insert(trees, {
-          lang = lang_tree:lang(),
-          tstree = tree,
-          min_capture_node = min_capture_node,
-        })
-      end
+      table.insert(trees, {
+        lang = lang_tree:lang(),
+        tstree = tree,
+        min_capture_node = min_capture_node,
+      })
     end
   end)
 
@@ -53,7 +45,7 @@ end
 ---@field shift integer
 ---@field stage "initial"|"traverse"
 ---@field tree_stack { tstree: userdata, lang: string, min_capture_node: userdata }[]
----@field parser table
+---@field parser LanguageTree
 ---@field filter fun(node: userdata):boolean
 ---@field has_fallback boolean
 local Context = {}

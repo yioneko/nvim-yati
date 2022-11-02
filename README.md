@@ -69,6 +69,7 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
 
 ## Features
 
+- Fast, match node on demand by implementing completely in Lua, compared to executing scm query on the whole tree on every indent calculation.
 - Could be faster and more context aware if `lazy_mode` enabled, see `default_lazy` option. This is specifically useful if the surrounding code doesn't obey indent rules:
 
   ```lua
@@ -82,8 +83,8 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
   ```
 
 - Fallback indent method support, by default `:h cindent()` is used.
-- Support indent in injection region. See [sample.html](test/fixtures/html/sample.html) for example.
-- [Tests](test/fixtures) covered and handles much more edge cases. Refer samples in that directory for what the indentation would be like. The style is slightly opinionated as there is no actual standard, but customization is still possible.
+- Support indent in injection region. See [sample.html](tests/fixtures/html/sample.html) for example.
+- [Tests](tests/fixtures) covered and handles much more edge cases. Refer samples in that directory for what the indentation would be like. The style is slightly opinionated as there is no actual standard, but customization is still possible.
 - Support for custom handlers to deal with complex scenarios. This plugin relies on dedicated handlers to fix many edge cases like the following one:
 
   ```python

@@ -40,7 +40,7 @@ List of type of nodes denote the direct children which should not be indented of
 ```lua
 if
   true
-then -- 'then' should be added to 'skip_child' of 'if_statement'
+then -- 'then' should be added to 'dedent_child' of 'if_statement'
   -- I'm indented
 end
 ```
@@ -125,7 +125,7 @@ function break_on_error_node(ctx)
   if ctx.node:type() == "ERROR" then
     ctx:set(-1)
     -- or return ctx:fallback() to use fallback method
-    return
+    return false
   end
 end
 ```
