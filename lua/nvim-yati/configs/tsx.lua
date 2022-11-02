@@ -1,4 +1,4 @@
 local config = require("nvim-yati.configs.typescript")
-local extend = require("nvim-yati.utils").extend_config
+local extend = require("nvim-yati.config").extend
 
 return extend(config, {})

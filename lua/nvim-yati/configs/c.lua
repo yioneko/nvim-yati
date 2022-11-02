@@ -1,9 +1,8 @@
-local Hook = require("nvim-yati.hook")
-local chains = require("nvim-yati.chains")
+local ch = require("nvim-yati.handlers.common")
 
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "compound_statement",
     "argument_list",
     "field_declaration_list",
@@ -14,7 +13,7 @@ local config = {
     "preproc_function_def",
     "preproc_arg",
   },
-  indent_last = {
+  scope_open = {
     "for_statement",
     "if_statement",
     "while_statement",
@@ -33,22 +32,30 @@ local config = {
     "init_declarator",
     "concatenated_string",
     "binary_expression",
+    "labeled_statement",
   },
-  skip_child = {
+  dedent_child = {
     compound_statement = {
       "labeled_statement",
     },
     if_statement = {
-      named = { "compound_statement", "if_statement", "parenthesized_expression" },
-      literal = { "else" },
+      "compound_statement",
+      "if_statement",
+      "parenthesized_expression",
+      "'else'",
     },
-    else_clause = { named = { "compound_statement", "parenthesized_expression" } },
-    while_statement = { named = { "compound_statement", "parenthesized_expression" } },
-    do_statement = { named = { "compound_statement", "parenthesized_expression" } },
-    for_statement = { named = { "compound_statement", "parenthesized_expression" } },
+    else_clause = { "compound_statement", "parenthesized_expression" },
+    while_statement = { "compound_statement", "parenthesized_expression" },
+    do_statement = { "compound_statement", "parenthesized_expression" },
+    for_statement = { "compound_statement", "parenthesized_expression" },
   },
-  ignore_self = { literal = { ";" } },
-  ignore_outer = { literal = { "#if", "#else", "#endif", "#ifdef", "#ifndef", "#define" } },
+  ignore = { "preproc_if", "preproc_else" },
+  indent_zero = { "'#if'", "'#else'", "'#endif'", "'#ifdef'", "'#ifndef'", "'#define'" },
+  handlers = {
+    on_initial = {
+      ch.block_comment_extra_indent("comment", {}),
+    },
+  },
 }
 
 return config

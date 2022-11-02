@@ -1,6 +1,6 @@
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "selection_set",
     "arguments",
     "fields_definition",
@@ -10,10 +10,9 @@ local config = {
     "variable_definitions",
     "enum_values_definition",
   },
-  indent_last = {
+  scope_open = {
     "union_member_types",
   },
-  ignore_within = { "description" },
 }
 
 return config

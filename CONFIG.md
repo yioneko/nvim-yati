@@ -1,12 +1,12 @@
 # Config
 
-The following sections documents fields of indent configuration.
+**NOTE**: All contents here are highly unstable.
 
-### indent
+## Node Attributes
+
+### scope
 
 Types of nodes considered as an indent scope. Direct children of them should be indented one more level than the parent, except the first and last child, usually open and close delimiters.
-
-**Example**:
 
 ```lua
 function fn(fd)
@@ -14,50 +14,40 @@ function fn(fd)
 end -- Don't indent the last 'end' delimiter
 ```
 
-### indent_last
+### scope_open
 
-Almost the same as `indent` except the last child should also be indented. This usually applies to nodes without close delimiter.
-
-**Example**:
+Almost the same as `scope` except the last child should also be indented. This usually applies to nodes with only open delimiter.
 
 ```c
 if (1)
-  // should be indented
+  some_call() // should be indented
 ```
 
-### skip_child
+### scope_open_extended
 
-List of `(indent_node_type, { literal = literal_types, named = named_types })` key-value pairs to denote the direct children which should not be indented of the indent nodes in `indent` and `indent_last`.
+Same as `scope_open` but the range of the node should be considered 'extended' to cover following empty lines.
 
-**Example**:
+```python
+if True:
+
+  # extended and should be indented
+```
+
+### dedent_child
+
+List of type of nodes denote the direct children which should not be indented of the indent nodes in `scope` and `scope_open`.
 
 ```lua
 if
   true
-then -- 'then' should be added to 'skip_child' of 'if_statement'
+then -- 'then' should be added to 'dedent_child' of 'if_statement'
   -- I'm indented
 end
 ```
 
-### ignore_within
+### indent_zero
 
-Indent of contents within these nodes should be kept as is. Usually multi-line comments and strings.
-
-**Example**:
-
-```javascript
-const str = `
-one
-       two
-  three
-`;
-```
-
-### ignore_outer
-
-Ignore indent calculated from parents of the node. Used especially to dedent macros in c to 0.
-
-**Example**:
+The node should be zero indented. Used especially to dedent macros in C to 0.
 
 ```c
 {
@@ -69,11 +59,37 @@ Ignore indent calculated from parents of the node. Used especially to dedent mac
 }
 ```
 
-### ignore_self
+### indent_align
+
+Used especially to align node to open delimiter in Python.
+
+```python
+def fun(a,
+        b): # aligned indent to open delimiter of arguments
+  pass
+```
+
+### indent_fallback
+
+Compute indent by fallback method for this type of node. By default, 'ERROR' node is always denoted as `indent_fallback` because it cannot be handled by tree-sitter.
+
+### indent_list
+
+EXPERIMENTAL. I cannot figure out an accurate description for this so just ignore this section.
+
+```javascript
+someCall({
+  a,
+}, [
+  b
+], () => {
+  foo();
+});
+```
+
+### ignore
 
 Nodes considered not exist but their children should be remained. This is similar to an unwrap operation on the node to release its children directly to its parent. Some tree-sitter syntax wraps nodes extra levels and we might want to unwrap them to make the indent calculated correctly.
-
-**Example**:
 
 ```javascript
 const jsx = (
@@ -85,18 +101,37 @@ const jsx = (
 );
 ```
 
-### hooks
+## Handlers
 
-This formally refers to two fields `hook_node` and `hook_new_line`, used to hook different situations. The hook takes a context argument, and returns new indentation value, next node to traverse from, and whether to continue the current iteration or default processing.
+The function signature is `fun(ctx: YatiContext): boolean|nil`.
 
-The fields of context:
+For the return value,
 
-| name       | type                            | description                                       |
-| ---------- | ------------------------------- | ------------------------------------------------- |
-| bufnr      | number                          | buffer handle                                     |
-| lnum       | number                          | number of line to calculate indentation for       |
-| node       | tsnode `:h lua-treesitter-node` | current in-progress node                          |
-| tree       | tstree `:h lua-treesitter-tree` | the tree which the node resides within            |
-| upper_line | number                          | the start line number of the tree after shrinking |
-| shift      | number                          | value of one shift, `:h shiftwidth`               |
-| indent     | number                          | calculated indentation value                      |
+- `true`: **Handled**, but continue traversing up
+- `false`: **Handled**, and stop traversing
+- `nil`: Not handled, try other handlers
+
+For the two types of handlers,
+
+- `on_initial`: On the very beginning when the base indent node is not decided yet.
+- `on_traverse`: On the traversal process from bottom to up.
+
+For the type of context and available field, refer to [context.lua](./lua/nvim-yati/context.lua).
+
+Example handler:
+
+```lua
+function break_on_error_node(ctx)
+  if ctx.node:type() == "ERROR" then
+    ctx:set(-1)
+    -- or return ctx:fallback() to use fallback method
+    return false
+  end
+end
+```
+
+## Fallback Method
+
+The function signature is `fun(lnum: integer, computed: integer, bufnr: integer): integer`.
+
+**NOTE**: Value of `computed` should be added to indent of `lnum` calculated by fallback method (unless you deliberately return -1 to use auto indent of vim).

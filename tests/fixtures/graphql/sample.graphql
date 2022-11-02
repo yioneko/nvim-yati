@@ -1,0 +1,84 @@
+{
+  args(
+    var: $var
+    MARKER
+  )
+  fds(
+    obj: {
+      str: "hello"
+      list: [
+        "hello"
+        MARKER
+      ]
+    }
+  )
+}
+
+fragment Visit on HighlightedVisit
+@argumentDefinitions(
+  count: {
+    type: "Int", defaultValue: 20
+    MARKER
+  }
+) {
+  name
+}
+
+# Comment
+query claimsByBookingReferenceAndLastName(
+  $lastName: String!
+  # Comment
+) {
+  claimsByBookingReferenceAndLastName(
+    bookingReference: $bookingReference
+  ) {
+    MARKER
+    ...claim
+  }
+}
+
+directive @a(
+  as: String! = 1 @deprecated
+  MARKER
+) repeatable on QUERY | MUTATION
+
+enum State {
+  PENDING
+  VISIBLE
+  MARKER
+}
+
+{
+  posts {
+    title
+    votes
+    author {
+      firstName
+      posts {
+        author {
+          firstName
+          MARKER
+        }
+      }
+    }
+  }
+}
+
+type Type1 implements A, B, C, D {
+  """
+  Description
+  """
+  MARKER
+  a: a
+}
+
+union longUnion = A
+  | B
+  MARKER
+  | C
+
+union longUnion2 =
+  | A
+  MARKER
+  | B
+  | C

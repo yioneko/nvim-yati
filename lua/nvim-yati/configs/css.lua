@@ -1,10 +1,9 @@
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "block",
     "declaration",
   },
-  ignore_self = { literal = { ";" } },
 }
 
 return config

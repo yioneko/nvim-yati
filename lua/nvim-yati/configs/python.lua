@@ -1,9 +1,8 @@
-local chains = require("nvim-yati.chains")
-local Hook = require("nvim-yati.hook")
+local ch = require("nvim-yati.handlers.common")
 
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "list",
     "tuple",
     "dictionary",
@@ -18,13 +17,15 @@ local config = {
     "argument_list",
     "parameters",
   },
-  indent_last = {
+  scope_open = {
     "assignment",
     "import_from_statement",
     "return_statement",
     "expression_list",
+    "boolean_operator",
+    "binary_operator",
   },
-  indent_last_open = {
+  scope_open_extended = {
     "if_statement",
     "elif_clause",
     "else_clause",
@@ -33,24 +34,34 @@ local config = {
     "with_statement",
     "try_statement",
     "except_clause",
-    "finnaly_clause",
+    "finally_clause",
     "class_definition",
     "function_definition",
     "lambda",
   },
-  skip_child = {
-    if_statement = { named = { "else_clause", "elif_clause", "parenthesized_expression" } },
-    elif_clause = { named = { "parenthesized_expression" } },
-    while_statement = { named = { "else_clause", "parenthesized_expression" } },
-    try_statement = { named = { "except_clause", "else_clause", "finnaly_clause", "parenthesized_expression" } },
+  indent_align = {
+    "arguments_list",
+    "parameters",
+    "list",
+    "tuple",
   },
-  ignore_self = { named = { "binary_operator" } },
-  hook_node = Hook(
-    chains.escape_indent("else", "identifier", "if_statement"),
-    chains.escape_indent("elif", "identifier", "if_statement"),
-    chains.escape_indent("except", "identifier", "try_statement"),
-    chains.escape_indent("finnally", "identifier", "try_statement")
-  ),
+  dedent_child = {
+    if_statement = { "else_clause", "elif_clause", "parenthesized_expression" },
+    elif_clause = { "parenthesized_expression" },
+    while_statement = { "else_clause", "parenthesized_expression" },
+    try_statement = { "except_clause", "else_clause", "finally_clause", "parenthesized_expression" },
+  },
+  handlers = {
+    on_initial = {
+      ch.multiline_string_literal("string"),
+    },
+    on_traverse = {
+      ch.dedent_pattern("else:", "identifier", "if_statement"),
+      ch.dedent_pattern("elif:", "identifier", "if_statement"),
+      ch.dedent_pattern("except:", "identifier", "try_statement"),
+      ch.dedent_pattern("finnally:", "identifier", "try_statement"),
+    },
+  },
 }
 
 return config

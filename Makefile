@@ -10,5 +10,16 @@ test: deps
 	@nvim \
 		--headless \
 		--noplugin \
-		-u test/install.vim \
-		-c "PlenaryBustedDirectory test/ { minimal_init = 'test/preload.vim' }"
+		-u tests/install.vim \
+		-c "PlenaryBustedDirectory tests/ { minimal_init = 'tests/preload.vim' }"
+
+BENCH_SAMPLE := bench_sample.lua
+$(BENCH_SAMPLE):
+	curl -o $(BENCH_SAMPLE) https://raw.githubusercontent.com/neovim/neovim/master/runtime/lua/vim/lsp.lua
+
+bench: deps $(BENCH_SAMPLE)
+	@nvim \
+		--headless \
+		--noplugin \
+		-u benchmark/preload.vim \
+		-c "lua require('benchmark.compare').run()"

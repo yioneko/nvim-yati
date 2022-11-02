@@ -1,6 +1,6 @@
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "array",
   },
 }

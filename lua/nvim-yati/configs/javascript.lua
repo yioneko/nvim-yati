@@ -1,9 +1,8 @@
-local Hook = require("nvim-yati.hook")
-local chains = require("nvim-yati.chains")
+local ch = require("nvim-yati.handlers.common")
 
----@type YatiConfig
+---@type YatiBuiltinConfig
 local config = {
-  indent = {
+  scope = {
     "array",
     "object",
     "object_pattern",
@@ -23,11 +22,11 @@ local config = {
     "export_clause",
     "subscript_expression",
   },
-  indent_last = {
+  scope_open = {
     "expression_statement",
     "variable_declarator",
     "lexical_declaration",
-    "ternary_expression",
+    "member_expression",
     "binary_expression",
     "return_statement",
     "if_statement",
@@ -41,22 +40,32 @@ local config = {
     "assignment_expression",
     "arrow_function",
     "call_expression",
+    "pair",
   },
-  skip_child = {
-    if_statement = { named = { "statement_block", "else_clause", "parenthesized_expression" } },
-    else_clause = { named = { "statement_block", "parenthesized_expression" } },
-    while_statement = { named = { "statement_block", "parenthesized_expression" } },
-    for_statement = { named = { "statement_block" }, literal = { "(", ")" } },
-    for_in_statement = { named = { "statement_block" }, literal = { "(", ")" } },
-    jsx_fragment = { literal = { "<" } },
+  indent_list = {
+    "object",
+    "array",
+    "arguments",
   },
-  ignore_self = { literal = { ";" }, named = { "jsx_text" } },
-  ignore_within = { "description", "template_string" },
-  hook_node = Hook(
-    chains.escape_string_end("template_string", "`"),
-    chains.chained_field_call("arguments", "member_expression"),
-    chains.ternary_extra_indent("ternary_expression")
-  ),
+  dedent_child = {
+    if_statement = { "statement_block", "else_clause", "parenthesized_expression" },
+    else_clause = { "statement_block", "parenthesized_expression" },
+    while_statement = { "statement_block", "parenthesized_expression" },
+    for_statement = { "statement_block", "'('", "')'" },
+    for_in_statement = { "statement_block", "'('", "')'" },
+    arrow_function = { "statement_block" },
+    jsx_fragment = { "'<'" },
+    jsx_self_closing_element = { "'/'" },
+  },
+  ignore = { "jsx_text" },
+  handlers = {
+    on_initial = { ch.multiline_string_literal("template_string") },
+    on_traverse = {
+      ch.ternary_flatten_indent("ternary_expression"),
+      ch.chained_field_call("arguments", "member_expression", "property"),
+      ch.multiline_string_injection("template_string", "`"),
+    },
+  },
 }
 
 return config
