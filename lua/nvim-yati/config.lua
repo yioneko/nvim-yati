@@ -1,5 +1,4 @@
 local get_module_config = require("nvim-treesitter.configs").get_module
-local fallback = require("nvim-yati.fallback")
 
 local M = {}
 
@@ -33,12 +32,13 @@ local M = {}
 ---@field nodes YatiNodesConfig
 ---@field handlers YatiHandlers
 ---@field fallback YatiFallback
----@field lazy_mode boolean
+---@field lazy boolean
 
 ---@class YatiUserConfig
 ---@field overrides table<string, YatiLangConfig>
 ---@field default_fallback nil|YatiFallback
 ---@field default_lazy nil|boolean
+---@field suppress_conflict_warning nil|boolean
 
 ---@type YatiBuiltinConfig
 local common_config = {
@@ -106,7 +106,7 @@ function M.transform_builtin(config)
   transformed.handlers.on_traverse = config.handlers.on_traverse or {}
   transformed.handlers.on_initial = config.handlers.on_initial or {}
   transformed.fallback = config.fallback
-  -- transformed.lazy_mode = true
+  -- transformed.lazy = true
 
   return transformed
 end
@@ -192,7 +192,7 @@ function M.get(lang)
   end
 
   if user_config.default_lazy ~= nil then
-    conf.lazy_mode = user_config.default_lazy
+    conf.lazy = user_config.default_lazy
   end
   if user_config.default_fallback then
     conf.fallback = user_config.default_fallback

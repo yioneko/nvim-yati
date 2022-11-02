@@ -8,22 +8,6 @@ require("nvim-treesitter.configs").setup({
   },
 })
 
-local test_langs = {
-  "c",
-  "cpp",
-  "graphql",
-  "html",
-  "javascript",
-  "json",
-  "lua",
-  "python",
-  "rust",
-  "toml",
-  "tsx",
-  "typescript",
-  "vue",
-}
-
 for _, lang in ipairs(helper.get_test_langs()) do
   describe(lang, function()
     after_each(function()

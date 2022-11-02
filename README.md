@@ -24,7 +24,7 @@ Enable this module:
 require("nvim-treesitter.configs").setup {
   yati = {
     enable = true,
-    -- Disable by languages, see `Supported Languages`
+    -- Disable by languages, see `Supported languages`
     disable = { "python" },
 
     -- Whether to enable lazy mode
@@ -43,13 +43,28 @@ require("nvim-treesitter.configs").setup {
 }
 ```
 
-Or a more customized setup:
+If you want to use the indent module simultaneously, disable the indent module for languages to be handled by this plugin.
+
+```lua
+require("nvim-treesitter.configs").setup {
+  indent = {
+    enable = true,
+    disable = { "html", "javascript" }
+  },
+  -- And optionally, disable the conflict warning emitted by plugin
+  yati = {
+    suppress_conflict_warning = true,
+  },
+}
+```
+
+Example for a more customized setup:
 
 ```lua
 local get_builtin = require("nvim-yati.config").get_builtin
 -- This is just an example, not recommend to do this since the result is unpredictable
 local js_overrides = vim.tbl_deep_extend("force", get_builtin("javascript"), {
-  lazy_mode =  false,
+  lazy = false,
   fallback = function() return -1 end,
   nodes = {
     ["if_statement"] = { "scope" }, -- set attributes by node

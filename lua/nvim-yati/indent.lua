@@ -15,7 +15,7 @@ local function check_lazy_exit(ctx)
     lang
     and ctx.node
     and ctx.node:start() ~= ctx.lnum
-    and o.get(lang).lazy_mode
+    and o.get(lang).lazy
     and utils.is_first_node_on_line(ctx.node, ctx.bufnr)
   then
     ctx:add(utils.cur_indent(ctx.node:start(), ctx.bufnr))
@@ -134,12 +134,13 @@ function M.indentexpr(vlnum)
     vlnum = vim.v.lnum
   end
 
+  logger("START", "Line " .. vlnum)
   local ok, indent = pcall(M.get_indent, vlnum - 1)
   if ok then
-    logger("main", "Total computed: " .. indent)
+    logger("END", "Total computed: " .. indent)
     return indent
   else
-    logger("main", "Error: " .. indent)
+    logger("END", "Error: " .. indent)
     vim.schedule(function()
       vim.notify_once(
         string.format("[nvim-yati]: indent computation for line %s failed, please submit an issue", vlnum),
