@@ -24,6 +24,15 @@ local function check_lazy_exit(ctx)
   end
 end
 
+---@param conf YatiLangConfig
+---@param lnum integer
+---@param computed integer
+---@param bufnr integer
+---@return integer
+local function exec_fallback(conf, lnum, computed, bufnr)
+  return get_fallback(conf.fallback)(lnum, computed, bufnr)
+end
+
 local function can_reparse(lnum, bufnr)
   local line = utils.get_buf_line(bufnr, lnum)
   -- The line only has open delimiter
@@ -68,9 +77,9 @@ function M.get_indent(lnum, bufnr)
   local should_cont = handlers.handle_initial(ctx)
   if ctx.has_fallback then
     if ctx:lang() then
-      return get_fallback(o.get(ctx:lang()).fallback)(lnum, 0, bufnr)
+      return exec_fallback(o.get(ctx:lang()), lnum, 0, bufnr)
     else
-      return get_fallback(bootstrap_conf.fallback)(lnum, 0, bufnr)
+      return exec_fallback(bootstrap_conf, lnum, 0, bufnr)
     end
   elseif not should_cont then
     return ctx.computed_indent
@@ -94,9 +103,9 @@ function M.get_indent(lnum, bufnr)
       local lang = ctx:lang()
       local node = ctx.node
       if lang and node then
-        return get_fallback(o.get(lang).fallback)(node:start(), ctx.computed_indent, bufnr)
+        return exec_fallback(o.get(lang), node:start(), ctx.computed_indent, bufnr)
       else
-        return get_fallback(bootstrap_conf.fallback)(lnum, 0, bufnr)
+        return exec_fallback(bootstrap_conf, lnum, 0, bufnr)
       end
     elseif not should_cont then
       break
@@ -143,7 +152,7 @@ function M.indentexpr(vlnum)
     logger("END", "Error: " .. indent)
     vim.schedule(function()
       vim.notify_once(
-        string.format("[nvim-yati]: indent computation for line %s failed, please submit an issue", vlnum),
+        string.format("[nvim-yati]: indent computation for line %s failed, consider submitting an issue for it", vlnum),
         vim.log.levels.WARN
       )
     end)

@@ -26,15 +26,30 @@ If you are still frustrated with the 'official' indent module or interested in t
 
 More languages could be supported by [setup](#setup) or adding config files to [configs/](lua/nvim-yati/configs) directory.
 
-## Setup
+## Compatibility
 
-Install with [packer.nvim](https://github.com/wbthomason/packer.nvim):
+This plugin is always developed based on latest neovim and nvim-treesitter. Please consider upgrading them if there is any compatibility issue.
+
+The plugin has been completely rewritten since `legacy` tag. Use that if you prefer not migrating to the current version for some reason.
+
+## Installation
+
+[packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
-use({ "yioneko/nvim-yati", tag = "legacy", requires = "nvim-treesitter/nvim-treesitter" })
+use({ "yioneko/nvim-yati", tag = "*", requires = "nvim-treesitter/nvim-treesitter" })
 ```
 
-Enable this module:
+[vim-plug](https://github.com/junegunn/vim-plug):
+
+```vim
+Plug "nvim-treesitter/nvim-treesitter"
+Plug "yioneko/nvim-yati", { 'tag': '*' }
+```
+
+## Setup
+
+The module is **required** to be enabled to work:
 
 ```lua
 require("nvim-treesitter.configs").setup {
@@ -43,8 +58,8 @@ require("nvim-treesitter.configs").setup {
     -- Disable by languages, see `Supported languages`
     disable = { "python" },
 
-    -- Whether to enable lazy mode
-    default_lazy = false,
+    -- Whether to enable lazy mode (recommend to enable this if bad indent happens frequently)
+    default_lazy = true,
 
     -- Determine the fallback method used when we cannot calculate indent by tree-sitter
     --   "auto": fallback to vim auto indent
@@ -138,7 +153,7 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
 ## Notes
 
 - The calculation result heavily relies on the correct tree-sitter parsing of the code. I'd recommend using plugins like [nvim-autopairs](https://github.com/windwp/nvim-autopairs) or [luasnip](https://github.com/L3MON4D3/LuaSnip) to keep the syntax tree error-free while editing. This should avoid most of the wrong indent calculations.
-- I mainly write `js/ts` so other languages may not receive better support than these two, bad cases for other languages are generally expected, and please create issues for them if possible.
+- I mainly write javascript so other languages may not receive better support than it, and bad cases for other languages are generally expected. Please create issues for them if possible.
 
 ## Credits
 
