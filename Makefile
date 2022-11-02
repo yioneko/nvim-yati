@@ -17,7 +17,7 @@ BENCH_SAMPLE := bench_sample.lua
 $(BENCH_SAMPLE):
 	curl -o $(BENCH_SAMPLE) https://raw.githubusercontent.com/neovim/neovim/master/runtime/lua/vim/lsp.lua
 
-bench: $(BENCH_SAMPLE)
+bench: deps $(BENCH_SAMPLE)
 	@nvim \
 		--headless \
 		--noplugin \

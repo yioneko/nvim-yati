@@ -89,10 +89,6 @@ local function check_indent_range(ctx)
   end
 
   local attrs = ctx:config()[nt(parent)]
-  local delimeters = 2
-  if attrs.scope_open then
-    delimeters = 1
-  end
 
   -- special case: not direct parent
   if node:parent() ~= parent then
@@ -100,7 +96,8 @@ local function check_indent_range(ctx)
   end
 
   -- only expand range if more than one child
-  if attrs.indent_list and parent:child_count() > delimeters + 1 then
+  -- see arrow_func_in_args.js
+  if attrs.indent_list and parent:named_child_count() > 1 then
     local srow = node:start()
     local erow = node:end_()
 
