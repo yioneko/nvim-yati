@@ -8,12 +8,16 @@ Currently I'm very confident that this plugin is nearly perfect and should cover
 
 The details of configuration are described at [CONFIG.md](CONFIG.md). Take a glance at it if you are interested in internal working principles or helping development.
 
+## Warning
+
+This plugin is under rewrite. The new version should fix more common cases, but it is a **breaking change**. I have no time to write a detailed migration guide, if you want to stick with old version, just pin the plugin to the `legacy` tag.
+
 ## Setup
 
 Install with [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
-use({ "yioneko/nvim-yati", requires = "nvim-treesitter/nvim-treesitter" })
+use({ "yioneko/nvim-yati", tag = "legacy", requires = "nvim-treesitter/nvim-treesitter" })
 ```
 
 Enable this module:
