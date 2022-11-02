@@ -14,7 +14,7 @@ local M = {}
 ---@field ignore string[]
 ---@field dedent_child table<string, string[]>
 ---@field handlers YatiHandlers
----@field fallback fun(lnum: integer, computed: integer, bufnr: integer):integer
+---@field fallback YatiFallback
 
 ---@class YatiNodeConfig
 ---@field scope boolean
@@ -32,12 +32,12 @@ local M = {}
 ---@class YatiLangConfig
 ---@field nodes YatiNodesConfig
 ---@field handlers YatiHandlers
----@field fallback fun(lnum: integer, computed: integer, bufnr: integer):integer
+---@field fallback YatiFallback
 ---@field lazy_mode boolean
 
 ---@class YatiUserConfig
 ---@field overrides table<string, YatiLangConfig>
----@field default_fallback nil|fun(lnum: integer, computed: integer, bufnr: integer):integer
+---@field default_fallback nil|YatiFallback
 ---@field default_lazy nil|boolean
 
 ---@type YatiBuiltinConfig
@@ -51,7 +51,7 @@ local common_config = {
   dedent_child = {},
   -- ignore these outermost nodes to work around cross tree issue
   ignore = { "source", "document", "chunk", "script_file", "source_file", "program" },
-  fallback = fallback.default_fallback,
+  fallback = "asis",
   indent_fallback = { "ERROR" },
   handlers = {
     on_initial = {},

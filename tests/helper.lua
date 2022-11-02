@@ -5,6 +5,22 @@ local scandir = require("plenary.scandir").scan_dir
 local utils = require("nvim-yati.utils")
 
 local test_file_dir = "tests/fixtures/"
+local ignore_pattern = ".*%.fail%..*"
+local test_langs = {
+  "c",
+  "cpp",
+  "graphql",
+  "html",
+  "javascript",
+  "json",
+  "lua",
+  "python",
+  "rust",
+  "toml",
+  "tsx",
+  "typescript",
+  "vue",
+}
 
 local M = {}
 
@@ -52,8 +68,15 @@ function M.expected_indents_iter(marker_str, bufnr)
   end
 end
 
+function M.get_test_langs()
+  return test_langs
+end
+
 function M.get_test_files(lang)
-  return scandir(test_file_dir .. lang)
+  local files = scandir(test_file_dir .. lang)
+  return vim.tbl_filter(function(file)
+    return vim.fs.basename(file):find(ignore_pattern) == nil
+  end, files)
 end
 
 function M.basename(path)

@@ -24,8 +24,18 @@ Enable this module:
 require("nvim-treesitter.configs").setup {
   yati = {
     enable = true,
-    disable = { "python" }, -- disable by languages
-    default_lazy = false, -- enable lazy mode
+    -- Disable by languages, see `Supported Languages`
+    disable = { "python" },
+
+    -- Whether to enable lazy mode
+    default_lazy = false,
+
+    -- Determine the fallback method used when we cannot calculate indent by tree-sitter
+    --   "auto": fallback to vim auto indent
+    --   "asis": use current indent as-is
+    --   "cindent": see `:h cindent()`
+    -- Or a custom function return the final indent result.
+    default_fallback = "auto"
   },
   indent = {
     enable = false -- disable builtin indent module
@@ -33,7 +43,7 @@ require("nvim-treesitter.configs").setup {
 }
 ```
 
-Available config options:
+Or a more customized setup:
 
 ```lua
 local get_builtin = require("nvim-yati.config").get_builtin
@@ -82,7 +92,7 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
   end
   ```
 
-- Fallback indent method support, by default `:h cindent()` is used.
+- Fallback indent method support, and I'm planning to create an accompanying regex-based indent plugin to support saner fallback indent calculation.
 - Support indent in injection region. See [sample.html](tests/fixtures/html/sample.html) for example.
 - [Tests](tests/fixtures) covered and handles much more edge cases. Refer samples in that directory for what the indentation would be like. The style is slightly opinionated as there is no actual standard, but customization is still possible.
 - Support for custom handlers to deal with complex scenarios. This plugin relies on dedicated handlers to fix many edge cases like the following one:
@@ -112,7 +122,7 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
 - Rust
 - TOML
 
-More languages could be supported by adding config files to [configs/](lua/nvim-yati/configs) directory.
+More languages could be supported by [setup](#setup) or adding config files to [configs/](lua/nvim-yati/configs) directory.
 
 ## Credits
 

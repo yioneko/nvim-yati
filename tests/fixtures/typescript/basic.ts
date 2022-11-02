@@ -50,3 +50,19 @@ enum e {
   MARKER
   b,
 }
+
+type RequestType =
+  | "GET"
+  | "HEAD"
+  | "POST"
+  MARKER
+  | "PUT"
+  | "OPTIONS"
+  | "CONNECT"
+  | "DELETE"
+  | "TRACE";
+
+type Union2 = "GET"
+  MARKER
+  | "HEAD"
+  | "POST";

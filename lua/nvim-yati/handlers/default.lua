@@ -57,7 +57,7 @@ function M.on_initial(ctx)
 
     local attrs = ctx:config()[nt(node)]
 
-    if attrs.indent_fallback then
+    if attrs.indent_fallback and node:start() ~= node:end_() then
       return ctx:fallback()
     end
 
@@ -137,7 +137,7 @@ function M.on_traverse(ctx)
   end
 
   local attrs = conf[nt(node)]
-  if attrs.indent_fallback then
+  if attrs.indent_fallback and node:start() ~= node:end_() then
     return ctx:fallback()
   end
 

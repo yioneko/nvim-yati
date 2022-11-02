@@ -3,6 +3,7 @@ local o = require("nvim-yati.config")
 local handlers = require("nvim-yati.handlers")
 local Context = require("nvim-yati.context")
 local logger = require("nvim-yati.logger")
+local get_fallback = require("nvim-yati.fallback").get_fallback
 local nt = utils.node_type
 
 local M = {}
@@ -67,9 +68,9 @@ function M.get_indent(lnum, bufnr)
   local should_cont = handlers.handle_initial(ctx)
   if ctx.has_fallback then
     if ctx:lang() then
-      return o.get(ctx:lang()).fallback(lnum, 0, bufnr)
+      return get_fallback(o.get(ctx:lang()).fallback)(lnum, 0, bufnr)
     else
-      return bootstrap_conf.fallback(lnum, 0, bufnr)
+      return get_fallback(bootstrap_conf.fallback)(lnum, 0, bufnr)
     end
   elseif not should_cont then
     return ctx.computed_indent
@@ -93,9 +94,9 @@ function M.get_indent(lnum, bufnr)
       local lang = ctx:lang()
       local node = ctx.node
       if lang and node then
-        return o.get(lang).fallback(node:start(), ctx.computed_indent, bufnr)
+        return get_fallback(o.get(lang).fallback)(node:start(), ctx.computed_indent, bufnr)
       else
-        return bootstrap_conf.fallback(lnum, 0, bufnr)
+        return get_fallback(bootstrap_conf.fallback)(lnum, 0, bufnr)
       end
     elseif not should_cont then
       break

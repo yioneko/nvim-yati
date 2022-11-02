@@ -2,24 +2,7 @@ local helper = require("tests.helper")
 
 helper.setup()
 
-local test_langs = {
-  { "c", "c" },
-  { "cpp", "cpp" },
-  { "graphql", "graphql" },
-  { "html", "html" },
-  { "javascript", "js" },
-  { "json", "json" },
-  { "lua", "lua" },
-  { "python", "py" },
-  { "rust", "rs" },
-  { "toml", "toml" },
-  { "tsx", "tsx" },
-  { "typescript", "ts" },
-  { "vue", "vue" },
-}
-
-for _, l in ipairs(test_langs) do
-  local lang = l[1]
+for _, lang in ipairs(helper.get_test_langs()) do
   describe(lang, function()
     after_each(function()
       vim.cmd("bdelete!")

@@ -2,7 +2,7 @@ local yati = require("nvim-yati.indent").indentexpr
 local nvim_ts = require("nvim-treesitter.indent").get_indent
 local bench = require("plenary.benchmark")
 
-local sample_file = "benchmark/sample.lua"
+local sample_file = "bench_sample.lua"
 
 local function test_indent(get_indent)
   local lines = vim.api.nvim_buf_get_lines(0, 2000, 2200, false)

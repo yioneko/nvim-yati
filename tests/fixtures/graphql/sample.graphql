@@ -76,3 +76,9 @@ union longUnion = A
   | B
   MARKER
   | C
+
+union longUnion2 =
+  | A
+  MARKER
+  | B
+  | C

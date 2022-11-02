@@ -13,7 +13,11 @@ test: deps
 		-u tests/install.vim \
 		-c "PlenaryBustedDirectory tests/ { minimal_init = 'tests/preload.vim' }"
 
-bench:
+BENCH_SAMPLE := bench_sample.lua
+$(BENCH_SAMPLE):
+	curl -o $(BENCH_SAMPLE) https://raw.githubusercontent.com/neovim/neovim/master/runtime/lua/vim/lsp.lua
+
+bench: $(BENCH_SAMPLE)
 	@nvim \
 		--headless \
 		--noplugin \
