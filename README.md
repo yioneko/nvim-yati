@@ -6,9 +6,25 @@ This plugin was originally created when the experience of builtin indent module 
 
 If you are still frustrated with the 'official' indent module or interested in this plugin, welcome to provide feedback or submit any issues. Take a glance at [features](#features) to learn about the differences.
 
-## Warning
+<details>
+  <summary>
+    <b>Supported languages</b>
+  </summary>
 
-This plugin is under rewrite. The new version should fix more common cases, but it is a **breaking change**. I have no time to write a detailed migration guide, if you want to stick with old version, just pin the plugin to the `legacy` tag.
+- C/C++
+- CSS
+- GraphQL
+- HTML
+- Javascript/Typescript (jsx and tsx are also supported)
+- JSON
+- Lua
+- Python
+- Rust
+- TOML
+
+</details>
+
+More languages could be supported by [setup](#setup) or adding config files to [configs/](lua/nvim-yati/configs) directory.
 
 ## Setup
 
@@ -95,7 +111,7 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
 ## Features
 
 - Fast, match node on demand by implementing completely in Lua, compared to executing scm query on the whole tree on every indent calculation.
-- Could be faster and more context aware if `lazy_mode` enabled, see `default_lazy` option. This is specifically useful if the surrounding code doesn't obey indent rules:
+- Could be faster and more context aware if `lazy` enabled, see `default_lazy` option. This is specifically useful if the surrounding code doesn't obey indent rules:
 
   ```lua
   function fun()
@@ -123,21 +139,6 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
 
 - The calculation result heavily relies on the correct tree-sitter parsing of the code. I'd recommend using plugins like [nvim-autopairs](https://github.com/windwp/nvim-autopairs) or [luasnip](https://github.com/L3MON4D3/LuaSnip) to keep the syntax tree error-free while editing. This should avoid most of the wrong indent calculations.
 - I mainly write `js/ts` so other languages may not receive better support than these two, bad cases for other languages are generally expected, and please create issues for them if possible.
-
-## Supported languages
-
-- C/C++
-- CSS
-- GraphQL
-- HTML
-- Javascript/Typescript (jsx and tsx are also supported)
-- JSON
-- Lua
-- Python
-- Rust
-- TOML
-
-More languages could be supported by [setup](#setup) or adding config files to [configs/](lua/nvim-yati/configs) directory.
 
 ## Credits
 

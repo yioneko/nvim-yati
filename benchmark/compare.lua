@@ -4,6 +4,8 @@ local bench = require("plenary.benchmark")
 
 local sample_file = "bench_sample.lua"
 
+local M = {}
+
 local function test_indent(get_indent)
   local lines = vim.api.nvim_buf_get_lines(0, 2000, 2200, false)
   for i, line in ipairs(lines) do
@@ -21,7 +23,7 @@ local function run_test()
   vim.bo.shiftwidth = 2
 
   bench("nvim_ts", {
-    runs = 1,
+    runs = 10,
     fun = {
       {
         "nvim_ts",
@@ -32,7 +34,7 @@ local function run_test()
     },
   })
   bench("yati", {
-    runs = 1,
+    runs = 10,
     fun = {
       {
         "yati",
@@ -44,7 +46,9 @@ local function run_test()
   })
 end
 
-vim.schedule(function()
+function M.run()
   run_test()
   vim.cmd("qall!")
-end)
+end
+
+return M

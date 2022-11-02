@@ -21,4 +21,5 @@ bench: $(BENCH_SAMPLE)
 	@nvim \
 		--headless \
 		--noplugin \
-		-u benchmark/bench.vim
+		-u benchmark/preload.vim \
+		-c "lua require('benchmark.compare').run()"
