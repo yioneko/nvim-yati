@@ -35,7 +35,10 @@ type Foo2<A,
   MARKER
   C extends {
     a: A;
-    b: B;
+    b:
+      | FOO
+      MARKER
+      | BAR
   }
 > = {
   bar: string;

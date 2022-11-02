@@ -12,6 +12,9 @@ return extend(config, {
   scope_open = {
     "property_signature",
     "conditional_type",
+    "required_parameter",
+    "property_signature",
+    "type_annotation",
     "type_alias_declaration",
   },
   ignore = { "union_type" },
