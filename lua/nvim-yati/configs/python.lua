@@ -45,6 +45,12 @@ local config = {
     "list",
     "tuple",
   },
+  indent_list = {
+    "arguments_list",
+    "parameters",
+    "list",
+    "tuple",
+  },
   dedent_child = {
     if_statement = { "else_clause", "elif_clause", "parenthesized_expression" },
     elif_clause = { "parenthesized_expression" },

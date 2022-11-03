@@ -9,14 +9,6 @@ a = [
     ]
 ]
 
-b = [
-    1, [[
-        3
-        MARKER
-    ],
-    ]
-]
-
 c = [[[
     3
 ]]]
@@ -81,7 +73,7 @@ def fooaaaaaaaa(a,
              3, 4,
              MARKER
              5, 6
-        )
+             )
         MARKER
 
     baz = 'aaa' + \
@@ -170,7 +162,11 @@ from os import (
     name as OsName
 )
 
-def foo(x):
+def foo(x,
+        y,
+        aligned_close
+        MARKER
+        ):
     pass
 
 class Foo:

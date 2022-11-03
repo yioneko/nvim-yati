@@ -4,14 +4,26 @@ local M = {}
 
 local nt = utils.node_type
 
+---@param ctx YatiContext
 ---@param parent userdata
----@param bufnr integer
-local function check_indent_align(parent, bufnr)
+local function handle_indent_align(ctx, parent)
   local first_no_delim_sib = parent:child(1)
-  if first_no_delim_sib and first_no_delim_sib:start() == parent:start() then
-    local col_s = utils.get_first_nonblank_col_at_line(parent:start(), bufnr)
-    local _, col_e = first_no_delim_sib:start()
-    return col_e - col_s
+  if
+    first_no_delim_sib
+    and first_no_delim_sib:start() == first_no_delim_sib:end_()
+    and first_no_delim_sib:start() == parent:start()
+  then
+    local scol = utils.get_first_nonblank_col_at_line(parent:start(), ctx.bufnr)
+    local _, ecol = first_no_delim_sib:start()
+    ctx:add(ecol - scol)
+
+    -- navigate up to skip same line node
+    while parent:parent() and parent:parent():start() == parent:start() do
+      parent = parent:parent()
+    end
+    ctx:relocate(parent, true)
+
+    return parent
   end
 end
 
@@ -63,15 +75,8 @@ function M.on_initial(ctx)
 
     -- If the node is not at the same line and it's an indent node, we should indent
     if node:start() ~= ctx.lnum and attrs.scope and (attrs.scope_open_extended or node:end_() >= ctx.lnum) then
-      local aligned_indent
-      if attrs.indent_align then
-        aligned_indent = check_indent_align(node, ctx.bufnr)
-        if aligned_indent ~= nil then
-          ctx:add(aligned_indent)
-        end
-      end
-
-      if aligned_indent == nil then
+      local aligned = attrs.indent_align and handle_indent_align(ctx, node)
+      if not aligned then
         ctx:add(ctx.shift)
       end
     end
@@ -97,7 +102,9 @@ local function check_indent_range(ctx)
 
   -- only expand range if more than one child
   -- see arrow_func_in_args.js
-  if attrs.indent_list and parent:named_child_count() > 1 then
+  -- but if the node is aligned indent, we still need to check it
+  -- see
+  if attrs.indent_list and (parent:named_child_count() > 1 or attrs.indent_align) then
     local srow = node:start()
     local erow = node:end_()
 
@@ -142,26 +149,21 @@ function M.on_traverse(ctx)
     local p_attrs = conf[nt(parent)]
     local prev = ctx:prev_sibling()
     local should_indent = p_attrs.scope and check_indent_range(ctx)
+    local should_indent_align = should_indent and p_attrs.indent_align
+
     -- TODO: deal with no direct parent
     if parent == node:parent() then
-      should_indent = should_indent
-        and prev ~= nil
-        and not vim.tbl_contains(p_attrs.dedent_child, nt(node))
-        and (ctx:next_sibling() ~= nil or p_attrs.scope_open)
+      should_indent = should_indent and prev ~= nil and (not vim.tbl_contains(p_attrs.dedent_child, nt(node)))
+      should_indent_align = should_indent and p_attrs.indent_align
+
+      -- Do not consider close delimiter for aligned indent
+      should_indent = should_indent and (ctx:next_sibling() ~= nil or p_attrs.scope_open)
     end
 
-    if should_indent then
-      local aligned_indent
-      if p_attrs.indent_align then
-        aligned_indent = check_indent_align(parent, ctx.bufnr)
-        if aligned_indent ~= nil then
-          ctx:add(aligned_indent)
-        end
-      end
+    local aligned = should_indent_align and handle_indent_align(ctx, parent)
 
-      if aligned_indent == nil then
-        ctx:add(ctx.shift)
-      end
+    if should_indent and not aligned then
+      ctx:add(ctx.shift)
     end
   end
 
