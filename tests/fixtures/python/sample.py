@@ -68,7 +68,10 @@ def fooaaaaaaaa(a,
         MARKER
         also_works = True
     else:
-        more()
+        more(a,
+             MARKER
+             b,
+             )
         e = (1, 2,
              3, 4,
              MARKER

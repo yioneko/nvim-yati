@@ -40,13 +40,13 @@ local config = {
     "lambda",
   },
   indent_align = {
-    "arguments_list",
+    "argument_list",
     "parameters",
     "list",
     "tuple",
   },
   indent_list = {
-    "arguments_list",
+    "argument_list",
     "parameters",
     "list",
     "tuple",

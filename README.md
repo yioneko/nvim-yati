@@ -21,6 +21,7 @@ If you are still frustrated with the 'official' indent module or interested in t
 - Python
 - Rust
 - TOML
+- Vue
 
 </details>
 
