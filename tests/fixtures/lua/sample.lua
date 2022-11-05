@@ -98,7 +98,7 @@ local function ffa(
     -- comment
     -- comment
     MARKER
-    fdsf
+    fdsf()
   end
 
   -- vim.cmd([[

@@ -69,7 +69,7 @@ function M.on_initial(ctx)
 
     local attrs = ctx:config()[nt(node)]
 
-    if attrs.indent_fallback and node:start() ~= node:end_() then
+    if attrs.indent_fallback or node:has_error() then
       return ctx:fallback()
     end
 
@@ -141,12 +141,16 @@ function M.on_traverse(ctx)
   end
 
   local attrs = conf[nt(node)]
-  if attrs.indent_fallback and node:start() ~= node:end_() then
+  if attrs.indent_fallback then
     return ctx:fallback()
   end
 
   if parent then
     local p_attrs = conf[nt(parent)]
+    if p_attrs.indent_fallback then
+      return ctx:fallback()
+    end
+
     local prev = ctx:prev_sibling()
     local should_indent = p_attrs.scope and check_indent_range(ctx)
     local should_indent_align = should_indent and p_attrs.indent_align
