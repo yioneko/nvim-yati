@@ -75,6 +75,8 @@ require("nvim-treesitter.configs").setup {
 }
 ```
 
+I also created an accompanying regex-based indent plugin ([vim-tmindent](https://github.com/yioneko/vim-tmindent)) to support saner fallback indent calculation, which could be a drop-in replacement of builtin indent method of vim. See [integration](https://github.com/yioneko/vim-tmindent#nvim-yati) for its fallback setup.
+
 If you want to use the indent module simultaneously, disable the indent module for languages to be handled by this plugin.
 
 ```lua
@@ -139,7 +141,7 @@ More technical details goes there (**highly unstable**): [CONFIG.md](./CONFIG.md
   end
   ```
 
-- Fallback indent method support, and I'm planning to create an accompanying regex-based indent plugin to support saner fallback indent calculation.
+- Fallback indent method support to reuse calculated indent from tree.
 - Support indent in injection region. See [sample.html](tests/fixtures/html/sample.html) for example.
 - [Tests](tests/fixtures) covered and handles much more edge cases. Refer samples in that directory for what the indentation would be like. The style is slightly opinionated as there is no actual standard, but customization is still possible.
 - Support for custom handlers to deal with complex scenarios. This plugin relies on dedicated handlers to fix many edge cases like the following one:
