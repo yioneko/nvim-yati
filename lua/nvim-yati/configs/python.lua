@@ -62,10 +62,10 @@ local config = {
       ch.multiline_string_literal("string"),
     },
     on_traverse = {
-      ch.dedent_pattern("else:", "identifier", "if_statement"),
-      ch.dedent_pattern("elif:", "identifier", "if_statement"),
-      ch.dedent_pattern("except:", "identifier", "try_statement"),
-      ch.dedent_pattern("finnally:", "identifier", "try_statement"),
+      ch.dedent_pattern("else", "identifier", "if_statement"),
+      ch.dedent_pattern("elif", "identifier", "if_statement"),
+      ch.dedent_pattern("except", "identifier", "try_statement"),
+      ch.dedent_pattern("finnally", "identifier", "try_statement"),
     },
   },
 }

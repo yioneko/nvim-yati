@@ -123,7 +123,7 @@ end
 function Context:config()
   local lang = self:lang()
   if lang then
-    return o.get(lang).nodes
+    return o.get(lang) and o.get(lang).nodes
   end
 end
 
@@ -131,14 +131,14 @@ end
 function Context:parent_config()
   local lang = self:parent_lang()
   if lang then
-    return o.get(lang).nodes
+    return o.get(lang) and o.get(lang).nodes
   end
 end
 
 ---@return YatiHandler[]
 function Context:handlers()
   local lang = self:lang()
-  if lang then
+  if lang and o.get(lang) then
     local handlers = o.get(lang).handlers
     if self.stage == "initial" then
       return handlers.on_initial
@@ -152,7 +152,7 @@ end
 ---@return YatiHandler[]
 function Context:parent_handlers()
   local lang = self:parent_lang()
-  if lang then
+  if lang and o.get(lang) then
     local handlers = o.get(lang).handlers
     if self.stage == "initial" then
       return handlers.on_initial

@@ -59,18 +59,21 @@ local common_config = {
   },
 }
 
----@param config YatiBuiltinConfig
----@return YatiLangConfig
-function M.transform_builtin(config)
-  ---@type YatiLangConfig
-  local transformed = { nodes = {}, handlers = { on_initial = {}, on_traverse = {} } }
-
-  setmetatable(transformed.nodes, {
+local function set_nodes_default_meta(nodes)
+  setmetatable(nodes, {
     __index = function(tbl, key)
       rawset(tbl, key, { dedent_child = {} })
       return rawget(tbl, key)
     end,
   })
+end
+
+---@param config YatiBuiltinConfig
+---@return YatiLangConfig
+function M.transform_builtin(config)
+  ---@type YatiLangConfig
+  local transformed = { nodes = {}, handlers = { on_initial = {}, on_traverse = {} } }
+  set_nodes_default_meta(transformed.nodes)
 
   for _, node in ipairs(config.scope) do
     transformed.nodes[node].scope = true
@@ -173,7 +176,7 @@ local lang_config_cache = {}
 local memo_user_config -- use user config as memoize key
 
 ---@param lang string
----@return YatiLangConfig
+---@return YatiLangConfig|nil
 function M.get(lang)
   local user_config = M.get_user_config()
   local conf = M.get_builtin(lang)
@@ -188,7 +191,17 @@ function M.get(lang)
   memo_user_config = user_config
   local overrides = user_config.overrides
   if overrides and overrides[lang] then
-    conf = overrides[lang]
+    conf = vim.tbl_extend("keep", overrides[lang], {
+      nodes = {},
+      handlers = {},
+    })
+    set_nodes_default_meta(conf.nodes)
+    conf.handlers.on_initial = conf.handlers.on_initial or {}
+    conf.handlers.on_traverse = conf.handlers.on_traverse or {}
+  end
+
+  if not conf then
+    return
   end
 
   if user_config.default_lazy ~= nil then

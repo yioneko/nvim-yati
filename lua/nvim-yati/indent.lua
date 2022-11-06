@@ -15,6 +15,7 @@ local function check_lazy_exit(ctx)
     lang
     and ctx.node
     and ctx.node:start() ~= ctx.lnum
+    and o.get(lang)
     and o.get(lang).lazy
     and utils.is_first_node_on_line(ctx.node, ctx.bufnr)
   then
@@ -76,7 +77,7 @@ function M.get_indent(lnum, bufnr)
 
   local should_cont = handlers.handle_initial(ctx)
   if ctx.has_fallback then
-    if ctx:lang() then
+    if ctx:lang() and o.get(ctx:lang()) then
       return exec_fallback(o.get(ctx:lang()), lnum, 0, bufnr)
     else
       return exec_fallback(bootstrap_conf, lnum, 0, bufnr)
@@ -102,7 +103,7 @@ function M.get_indent(lnum, bufnr)
     if ctx.has_fallback then
       local lang = ctx:lang()
       local node = ctx.node
-      if lang and node then
+      if lang and node and o.get(lang) then
         return exec_fallback(o.get(lang), node:start(), ctx.computed_indent, bufnr)
       else
         return exec_fallback(bootstrap_conf, lnum, 0, bufnr)
