@@ -7,7 +7,7 @@ local config = {
     "end_tag",
     "self_closing_tag",
   },
-  ignore = { "text" },
+  ignore = { "text", "raw_text" },
 }
 
 return config
