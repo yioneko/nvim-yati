@@ -282,7 +282,7 @@ function Context:set(indent)
   self.computed_indent = indent
 end
 
----@param new_node userdata
+---@param new_node userdata|nil
 function Context:relocate(new_node, follow_parent)
   if new_node ~= self.node then
     if follow_parent then
