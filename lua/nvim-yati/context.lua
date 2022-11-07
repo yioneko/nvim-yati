@@ -256,7 +256,7 @@ end
 function Context:relocate(new_node, follow_parent)
   if new_node ~= self.node then
     if follow_parent then
-      while not utils.node_contains(self.node, new_node) do
+      while self.node and not utils.node_contains(self.node, new_node) do
         self:to_parent()
       end
     else

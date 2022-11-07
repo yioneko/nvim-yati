@@ -82,7 +82,7 @@ function M.get_indent(lnum, bufnr)
     else
       return exec_fallback(bootstrap_conf, lnum, 0, bufnr)
     end
-  elseif not should_cont then
+  elseif not ctx.node or not should_cont then
     return ctx.computed_indent
   end
 
