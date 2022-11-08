@@ -88,8 +88,9 @@ function M.get_lang_at_line(lnum, bufnr)
   return lang_tree:lang()
 end
 
-function M.get_node_at_pos(lnum, col, named, bufnr, filter)
+function M.get_node_at_line(lnum, named, bufnr, filter)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
+  local col = M.get_first_nonblank_col_at_line(lnum, bufnr)
 
   local parser = M.get_parser(bufnr)
 
@@ -109,7 +110,8 @@ function M.get_node_at_pos(lnum, col, named, bufnr, filter)
     end
 
     -- make sure the returned node contains the range
-    if not M.range_contains(M.node_range(node), { { lnum, col }, { lnum, col + 1 } }) then
+    local sr, sc, er, ec = node:range()
+    if not M.range_contains(sr, sc, er, ec, lnum, col, lnum, col + 1) then
       return
     end
 
@@ -127,38 +129,21 @@ function M.get_node_at_pos(lnum, col, named, bufnr, filter)
   return res_node
 end
 
-function M.get_node_at_line(lnum, named, bufnr, filter)
-  bufnr = bufnr or vim.api.nvim_get_current_buf()
-  return M.get_node_at_pos(lnum, M.get_first_nonblank_col_at_line(lnum, bufnr), named, bufnr, filter)
-end
-
-function M.pos_cmp(pos1, pos2)
-  if pos1[1] == pos2[1] then
-    return pos1[2] - pos2[2]
-  else
-    return pos1[1] - pos2[1]
+-- Do not use table here to drastically improve performance
+function M.range_contains(sr1, sc1, er1, ec1, sr2, sc2, er2, ec2)
+  if sr1 > sr2 or (sr1 == sr2 and sc1 > sc2) then
+    return false
   end
-end
-
-function M.range_eql(range1, range2)
-  return M.pos_cmp(range1[1], range2[1]) == 0 and M.pos_cmp(range1[2], range2[2]) == 0
-end
-
-function M.range_contains(range1, range2)
-  return M.pos_cmp(range1[1], range2[1]) <= 0 and M.pos_cmp(range1[2], range2[2]) >= 0
-end
-
-function M.node_range(node, inclusive)
-  local ecol_diff = 0
-  if inclusive then
-    ecol_diff = -1
+  if er1 < er2 or (er1 == er2 and ec1 < ec2) then
+    return false
   end
-  local srow, scol, erow, ecol = node:range()
-  return { { srow, scol }, { erow, ecol + ecol_diff } }
+  return true
 end
 
 function M.node_contains(node1, node2)
-  return M.range_contains(M.node_range(node1), M.node_range(node2))
+  local srow1, scol1, erow1, ecol1 = node1:range()
+  local srow2, scol2, erow2, ecol2 = node2:range()
+  return M.range_contains(srow1, scol1, erow1, ecol1, srow2, scol2, erow2, ecol2)
 end
 
 return M

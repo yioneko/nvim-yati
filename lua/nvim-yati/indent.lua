@@ -10,13 +10,12 @@ local M = {}
 
 ---@param ctx YatiContext
 local function check_lazy_exit(ctx)
-  local lang = ctx:lang()
+  local conf = ctx:conf()
   if
-    lang
+    conf
+    and conf.lazy
     and ctx.node
     and ctx.node:start() ~= ctx.lnum
-    and o.get(lang)
-    and o.get(lang).lazy
     and utils.is_first_node_on_line(ctx.node, ctx.bufnr)
   then
     ctx:add(utils.cur_indent(ctx.node:start(), ctx.bufnr))
@@ -41,8 +40,12 @@ local function can_reparse(lnum, bufnr)
   return vim.trim(line):find("^[%[({]$") == nil
 end
 
-function M.get_indent(lnum, bufnr)
+function M.get_indent(lnum, bufnr, user_conf)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
+
+  user_conf = user_conf or o.get_user_config()
+  local cget = o.with_user_config_get(user_conf)
+
   local root_tree = utils.get_parser(bufnr)
 
   if not root_tree then
@@ -59,18 +62,16 @@ function M.get_indent(lnum, bufnr)
     return -1
   end
 
-  local bootstrap_conf = o.get(bootstrap_lang)
+  local bootstrap_conf = cget(bootstrap_lang)
   if not bootstrap_conf then
     return -1
   end
 
-  ---@type YatiContext|nil
-  local ctx
   local node_filter = function(node, lang)
-    local conf = (lang and o.get(lang) and o.get(lang).nodes) or bootstrap_conf.nodes
-    return not conf[utils.node_type(node)].ignore
+    local c = (lang and cget(lang)) or bootstrap_conf
+    return not c.nodes[utils.node_type(node)].ignore
   end
-  ctx = Context:new(lnum, bufnr, node_filter)
+  local ctx = Context:new(lnum, bufnr, node_filter, cget)
   if not ctx then
     return -1
   end
@@ -79,11 +80,8 @@ function M.get_indent(lnum, bufnr)
 
   local should_cont = handlers.handle_initial(ctx)
   if ctx.has_fallback then
-    if ctx:lang() and o.get(ctx:lang()) then
-      return exec_fallback(o.get(ctx:lang()), lnum, 0, bufnr)
-    else
-      return exec_fallback(bootstrap_conf, lnum, 0, bufnr)
-    end
+    local conf = ctx:conf() or bootstrap_conf
+    return exec_fallback(conf, lnum, 0, bufnr)
   elseif not ctx.node or not should_cont then
     return ctx.computed_indent
   end
@@ -105,8 +103,8 @@ function M.get_indent(lnum, bufnr)
     if ctx.has_fallback then
       local lang = ctx:lang()
       local node = ctx.node
-      if lang and node and o.get(lang) then
-        return exec_fallback(o.get(lang), node:start(), ctx.computed_indent, bufnr)
+      if lang and node and ctx:conf() then
+        return exec_fallback(ctx:conf(), node:start(), ctx.computed_indent, bufnr)
       else
         return exec_fallback(bootstrap_conf, lnum, 0, bufnr)
       end

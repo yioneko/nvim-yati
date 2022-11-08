@@ -1,4 +1,3 @@
-local o = require("nvim-yati.config")
 local utils = require("nvim-yati.utils")
 
 local function always_true()
@@ -6,12 +5,12 @@ local function always_true()
 end
 
 local function create_cross_tree_stack(node, parser, filter)
-  local nrange = utils.node_range(node, false)
+  local sr, sc, er, ec = node:range()
 
   local trees = {}
   parser:for_each_tree(function(tree, lang_tree)
     local root = tree:root()
-    local min_capture_node = root:descendant_for_range(nrange[1][1], nrange[1][2], nrange[2][1], nrange[2][2])
+    local min_capture_node = root:descendant_for_range(sr, sc, er, ec)
 
     while min_capture_node and not filter(min_capture_node, lang_tree:lang()) do
       min_capture_node = min_capture_node:parent()
@@ -47,20 +46,23 @@ end
 ---@field tree_stack { tstree: userdata, lang: string, min_capture_node: userdata }[]
 ---@field parser LanguageTree
 ---@field filter fun(node: userdata, lang: string|nil):boolean
+---@field cget fun(lang: string):YatiLangConfig|nil
 ---@field has_fallback boolean
 local Context = {}
 
 ---@param lnum integer
 ---@param bufnr integer
 ---@param filter fun(node: userdata):boolean
+---@param cget fun(lang: string):YatiLangConfig|nil
 ---@return YatiContext|nil
-function Context:new(lnum, bufnr, filter)
+function Context:new(lnum, bufnr, filter, cget)
   local obj = {
     lnum = lnum,
     stage = "initial",
     bufnr = bufnr,
     shift = utils.get_shift(bufnr),
     filter = filter or always_true,
+    cget = cget,
     computed_indent = 0,
     tree_stack = {},
   }
@@ -123,27 +125,43 @@ function Context:parent_lang()
   end
 end
 
----@return YatiNodesConfig|nil
-function Context:config()
+---@return YatiLangConfig|nil
+function Context:conf()
   local lang = self:lang()
   if lang then
-    return o.get(lang) and o.get(lang).nodes
+    return self.cget(lang)
+  end
+end
+
+---@return YatiLangConfig|nil
+function Context:p_conf()
+  local lang = self:parent_lang()
+  if lang then
+    return self.cget(lang)
   end
 end
 
 ---@return YatiNodesConfig|nil
-function Context:parent_config()
-  local lang = self:parent_lang()
-  if lang then
-    return o.get(lang) and o.get(lang).nodes
+function Context:nodes_conf()
+  local conf = self:conf()
+  if conf then
+    return conf.nodes
+  end
+end
+
+---@return YatiNodesConfig|nil
+function Context:p_nodes_conf()
+  local conf = self:p_conf()
+  if conf then
+    return conf.nodes
   end
 end
 
 ---@return YatiHandler[]
 function Context:handlers()
-  local lang = self:lang()
-  if lang and o.get(lang) then
-    local handlers = o.get(lang).handlers
+  local conf = self:conf()
+  if conf then
+    local handlers = conf.handlers
     if self.stage == "initial" then
       return handlers.on_initial
     else
@@ -154,10 +172,10 @@ function Context:handlers()
 end
 
 ---@return YatiHandler[]
-function Context:parent_handlers()
-  local lang = self:parent_lang()
-  if lang and o.get(lang) then
-    local handlers = o.get(lang).handlers
+function Context:p_handlers()
+  local conf = self:p_conf()
+  if conf then
+    local handlers = conf.handlers
     if self.stage == "initial" then
       return handlers.on_initial
     else
@@ -215,7 +233,7 @@ function Context:last_sibling()
   if parent then
     local res
     for node in parent:iter_children() do
-      if self.filter(node) then
+      if self.filter(node, self:lang()) then
         res = node
       end
     end

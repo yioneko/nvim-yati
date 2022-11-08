@@ -45,7 +45,7 @@ function M.on_initial(ctx)
     --
     --     |
     --]]
-    while prev_node and ctx:config()[nt(prev_node)].indent_zero do
+    while prev_node and ctx:nodes_conf()[nt(prev_node)].indent_zero do
       cur_line = utils.prev_nonblank_lnum(cur_line, ctx.bufnr)
       if cur_line < node:start() then
         prev_node = nil
@@ -54,7 +54,7 @@ function M.on_initial(ctx)
       prev_node = utils.get_node_at_line(cur_line, false, ctx.bufnr, ctx.filter)
     end
     prev_node = utils.try_find_parent(prev_node, function(parent)
-      return ctx:config()[nt(parent)].scope_open_extended
+      return ctx:nodes_conf()[nt(parent)].scope_open_extended
     end)
 
     -- If prev_node is contained inside, then we use prev_node as indent base
@@ -63,7 +63,7 @@ function M.on_initial(ctx)
       ctx:relocate(node)
     end
 
-    while node and ctx:config()[nt(node)].ignore do
+    while node and ctx:nodes_conf()[nt(node)].ignore do
       node = ctx:to_parent()
     end
 
@@ -71,7 +71,7 @@ function M.on_initial(ctx)
       return ctx:fallback()
     end
 
-    local attrs = ctx:config()[nt(node)]
+    local attrs = ctx:nodes_conf()[nt(node)]
     if attrs.indent_fallback or node:has_error() then
       return ctx:fallback()
     end
@@ -96,7 +96,7 @@ local function check_indent_range(ctx)
     return false
   end
 
-  local attrs = ctx:config()[nt(parent)]
+  local attrs = ctx:nodes_conf()[nt(parent)]
 
   -- special case: not direct parent
   if node:parent() ~= parent then
@@ -133,7 +133,7 @@ end
 function M.on_traverse(ctx)
   local node = ctx.node
   local parent = ctx:parent()
-  local conf = ctx:config()
+  local conf = ctx:nodes_conf()
   if not conf then
     return ctx:fallback()
   end
@@ -149,7 +149,7 @@ function M.on_traverse(ctx)
   end
 
   if parent then
-    local p_attrs = ctx:parent_config()[nt(parent)]
+    local p_attrs = ctx:p_nodes_conf()[nt(parent)]
     if p_attrs.indent_fallback then
       return ctx:fallback()
     end

@@ -20,7 +20,7 @@ function M.attach(bufnr, lang)
     return
   end
   stored_expr[bufnr] = vim.bo[bufnr].indentexpr
-  vim.bo[bufnr].indentexpr = 'v:lua.require("nvim-yati.indent").indentexpr()'
+  vim.bo[bufnr].indentexpr = "v:lua.require'nvim-yati.indent'.indentexpr()"
 end
 
 function M.detach(bufnr)

@@ -23,7 +23,7 @@ end
 function M.handle_traverse(ctx)
   local handlers = {}
   vim.list_extend(handlers, ctx:handlers() or {})
-  vim.list_extend(handlers, ctx:parent_handlers() or {})
+  vim.list_extend(handlers, ctx:p_handlers() or {})
   for _, handler in ipairs(handlers) do
     local should_cont = handler(ctx)
     if should_cont ~= nil then

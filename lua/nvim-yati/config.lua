@@ -171,24 +171,14 @@ function M.get_builtin(lang)
   return builtin_lang_config_cache[lang]
 end
 
----@type table<string, YatiLangConfig>
-local lang_config_cache = {}
-local memo_user_config -- use user config as memoize key
-
 ---@param lang string
+---@param user_config YatiUserConfig|nil
 ---@return YatiLangConfig|nil
-function M.get(lang)
-  local user_config = M.get_user_config()
+function M.get(lang, user_config)
   local conf = M.get_builtin(lang)
   if not user_config then
     return conf
   end
-
-  if user_config == memo_user_config and lang_config_cache[lang] then
-    return lang_config_cache[lang]
-  end
-
-  memo_user_config = user_config
   local overrides = user_config.overrides
   if overrides and overrides[lang] then
     conf = vim.tbl_extend("keep", overrides[lang], {
@@ -211,8 +201,23 @@ function M.get(lang)
     conf.fallback = user_config.default_fallback
   end
 
-  lang_config_cache[lang] = conf
   return conf
+end
+
+---@param user_config YatiUserConfig|nil
+function M.with_user_config_get(user_config)
+  ---@type table<string, YatiLangConfig>
+  local lang_config_cache = {}
+
+  ---@param lang string
+  ---@return YatiLangConfig|nil
+  return function(lang)
+    if lang_config_cache[lang] then
+      return lang_config_cache[lang]
+    end
+    lang_config_cache[lang] = M.get(lang, user_config)
+    return lang_config_cache[lang]
+  end
 end
 
 return M
