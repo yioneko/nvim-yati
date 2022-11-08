@@ -32,6 +32,11 @@ export default {
     foo
     <br />
   </footer>
+  <div>{{
+    MARKER
+    some interpolation
+    MARKER
+  }}</div>
 </template>
 
 <style lang="css">

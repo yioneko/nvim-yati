@@ -13,7 +13,7 @@ local function create_cross_tree_stack(node, parser, filter)
     local root = tree:root()
     local min_capture_node = root:descendant_for_range(nrange[1][1], nrange[1][2], nrange[2][1], nrange[2][2])
 
-    while min_capture_node and not filter(min_capture_node) do
+    while min_capture_node and not filter(min_capture_node, lang_tree:lang()) do
       min_capture_node = min_capture_node:parent()
     end
     if min_capture_node and utils.node_contains(min_capture_node, node) then
@@ -26,12 +26,12 @@ local function create_cross_tree_stack(node, parser, filter)
   end)
 
   table.sort(trees, function(a, b)
-    local is_same = utils.node_contains(a.min_capture_node, b.min_capture_node)
-      and utils.node_contains(b.min_capture_node, a.min_capture_node)
+    local is_same = utils.node_contains(a.tstree:root(), b.tstree:root())
+      and utils.node_contains(b.tstree:root(), a.tstree:root())
     if is_same then
-      return utils.node_contains(a.tstree:root(), b.tstree:root())
+      return utils.node_contains(a.min_capture_node, b.min_capture_node)
     end
-    return utils.node_contains(a.min_capture_node, b.min_capture_node)
+    return utils.node_contains(a.tstree:root(), b.tstree:root())
   end)
 
   return trees
@@ -46,7 +46,7 @@ end
 ---@field stage "initial"|"traverse"
 ---@field tree_stack { tstree: userdata, lang: string, min_capture_node: userdata }[]
 ---@field parser LanguageTree
----@field filter fun(node: userdata):boolean
+---@field filter fun(node: userdata, lang: string|nil):boolean
 ---@field has_fallback boolean
 local Context = {}
 
@@ -90,7 +90,11 @@ local function _peek_parent(self)
   -- we need to check whether the new parent contains old node
   -- because `min_capture_node` is not always correct (multiple
   -- trees span same range)
-  while not cur or not self.filter(cur) or not utils.node_contains(cur, self.node) do
+  while
+    not cur
+    or not self.filter(cur, self.tree_stack[stack_pos + 1].lang)
+    or not utils.node_contains(cur, self.node)
+  do
     if cur then
       cur = cur:parent()
     elseif stack_pos >= 1 then
@@ -175,7 +179,7 @@ function Context:prev_sibling()
     return
   end
   local cur = self.node:prev_sibling()
-  while cur and not self.filter(cur) do
+  while cur and not self.filter(cur, self:lang()) do
     cur = cur:prev_sibling()
   end
   return cur
@@ -187,7 +191,7 @@ function Context:next_sibling()
     return
   end
   local cur = self.node:next_sibling()
-  while cur and not self.filter(cur) do
+  while cur and not self.filter(cur, self:lang()) do
     cur = cur:next_sibling()
   end
   return cur
@@ -227,7 +231,11 @@ function Context:to_parent()
     return
   end
   local cur = self.node:parent()
-  while not cur or not self.filter(cur) or not utils.node_contains(cur, self.node) do
+  while
+    not cur
+    or not self.filter(cur, self.tree_stack[#self.tree_stack].lang)
+    or not utils.node_contains(cur, self.node)
+  do
     if cur then
       cur = cur:parent()
     elseif #self.tree_stack > 1 then

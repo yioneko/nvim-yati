@@ -5,6 +5,7 @@ local config = {
     "element",
     "start_tag",
     "end_tag",
+    "interpolation",
     "self_closing_tag",
   },
   ignore = { "text", "raw_text" },

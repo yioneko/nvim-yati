@@ -64,11 +64,13 @@ function M.get_indent(lnum, bufnr)
     return -1
   end
 
-  local node_filter = function(node)
-    -- TODO: handle language changes for `ignore` node
-    return not bootstrap_conf.nodes[utils.node_type(node)].ignore
+  ---@type YatiContext|nil
+  local ctx
+  local node_filter = function(node, lang)
+    local conf = (lang and o.get(lang) and o.get(lang).nodes) or bootstrap_conf.nodes
+    return not conf[utils.node_type(node)].ignore
   end
-  local ctx = Context:new(lnum, bufnr, node_filter)
+  ctx = Context:new(lnum, bufnr, node_filter)
   if not ctx then
     return -1
   end

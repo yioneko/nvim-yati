@@ -88,37 +88,48 @@ function M.get_lang_at_line(lnum, bufnr)
   return lang_tree:lang()
 end
 
-function M.get_node_at_line(lnum, named, bufnr, filter)
+function M.get_node_at_pos(lnum, col, named, bufnr, filter)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
-  local col = M.get_first_nonblank_col_at_line(lnum, bufnr)
 
   local parser = M.get_parser(bufnr)
 
-  local min_node
-  parser.for_each_tree(parser, function(tstree)
+  local res_node
+  local cur_root
+  parser.for_each_tree(parser, function(tstree, lang_tree)
     local root = tstree:root()
-    local node
-    if named then
-      node = root:named_descendant_for_range(lnum, col, lnum, col)
-    else
-      node = root:descendant_for_range(lnum, col, lnum, col)
-    end
-
-    -- OK, this is weird, but there are cases where this will be true...
-    -- sample.lua#L138
-    if node:start() > lnum or node:end_() < lnum then
+    if cur_root and M.node_contains(root, cur_root) then
       return
     end
 
-    while node and filter and not filter(node) do
+    local node
+    if named then
+      node = root:named_descendant_for_range(lnum, col, lnum, col + 1)
+    else
+      node = root:descendant_for_range(lnum, col, lnum, col + 1)
+    end
+
+    -- make sure the returned node contains the range
+    if not M.range_contains(M.node_range(node), { { lnum, col }, { lnum, col + 1 } }) then
+      return
+    end
+
+    while node and filter and not filter(node, lang_tree:lang()) do
       node = node:parent()
     end
-    if node and (not min_node or M.node_contains(min_node, node)) then
-      min_node = node
+    if
+      node --[[ (not res_node or M.node_contains(res_node, node)) ]]
+    then
+      res_node = node
+      cur_root = root
     end
   end)
 
-  return min_node
+  return res_node
+end
+
+function M.get_node_at_line(lnum, named, bufnr, filter)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  return M.get_node_at_pos(lnum, M.get_first_nonblank_col_at_line(lnum, bufnr), named, bufnr, filter)
 end
 
 function M.pos_cmp(pos1, pos2)
@@ -138,9 +149,6 @@ function M.range_contains(range1, range2)
 end
 
 function M.node_range(node, inclusive)
-  if inclusive == nil then
-    inclusive = true
-  end
   local ecol_diff = 0
   if inclusive then
     ecol_diff = -1

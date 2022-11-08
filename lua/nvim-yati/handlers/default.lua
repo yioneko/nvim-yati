@@ -63,12 +63,15 @@ function M.on_initial(ctx)
       ctx:relocate(node)
     end
 
+    while node and ctx:config()[nt(node)].ignore do
+      node = ctx:to_parent()
+    end
+
     if not node then
       return ctx:fallback()
     end
 
     local attrs = ctx:config()[nt(node)]
-
     if attrs.indent_fallback or node:has_error() then
       return ctx:fallback()
     end
@@ -146,7 +149,7 @@ function M.on_traverse(ctx)
   end
 
   if parent then
-    local p_attrs = conf[nt(parent)]
+    local p_attrs = ctx:parent_config()[nt(parent)]
     if p_attrs.indent_fallback then
       return ctx:fallback()
     end
