@@ -154,13 +154,14 @@ function M.on_traverse(ctx)
       return ctx:fallback()
     end
 
-    local prev = ctx:prev_sibling()
     local should_indent = p_attrs.scope and check_indent_range(ctx)
     local should_indent_align = should_indent and p_attrs.indent_align
 
     -- TODO: deal with no direct parent
     if parent == node:parent() then
-      should_indent = should_indent and prev ~= nil and (not vim.tbl_contains(p_attrs.dedent_child, nt(node)))
+      should_indent = should_indent
+        and ctx:prev_sibling() ~= nil
+        and (not vim.tbl_contains(p_attrs.dedent_child, nt(node)))
       should_indent_align = should_indent and p_attrs.indent_align
 
       -- Do not consider close delimiter for aligned indent

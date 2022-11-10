@@ -98,7 +98,11 @@ function M.get_node_at_line(lnum, named, bufnr, filter)
   local cur_root
   parser.for_each_tree(parser, function(tstree, lang_tree)
     local root = tstree:root()
-    if cur_root and M.node_contains(root, cur_root) then
+    local rsr, rsc, rer, rec = root:range()
+    if
+      not M.range_contains(rsr, rsc, rer, rec, lnum, col, lnum, col + 1)
+      or (cur_root and M.node_contains(root, cur_root))
+    then
       return
     end
 

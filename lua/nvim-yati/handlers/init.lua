@@ -21,13 +21,12 @@ end
 
 ---@param ctx YatiContext
 function M.handle_traverse(ctx)
-  local handlers = {}
-  vim.list_extend(handlers, ctx:handlers() or {})
-  vim.list_extend(handlers, ctx:p_handlers() or {})
-  for _, handler in ipairs(handlers) do
-    local should_cont = handler(ctx)
-    if should_cont ~= nil then
-      return should_cont
+  for _, handlers in ipairs({ ctx:handlers(), ctx:p_handlers() }) do
+    for _, handler in ipairs(handlers or {}) do
+      local should_cont = handler(ctx)
+      if should_cont ~= nil then
+        return should_cont
+      end
     end
   end
   return default_handlers.on_traverse(ctx)

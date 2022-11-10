@@ -10,17 +10,21 @@ local function create_cross_tree_stack(node, parser, filter)
   local trees = {}
   parser:for_each_tree(function(tree, lang_tree)
     local root = tree:root()
+    local rsr, rsc, rer, rec = root:range()
+    if not utils.range_contains(rsr, rsc, rer, rec, sr, sc, er, ec) then
+      return
+    end
     local min_capture_node = root:descendant_for_range(sr, sc, er, ec)
 
     while min_capture_node and not filter(min_capture_node, lang_tree:lang()) do
       min_capture_node = min_capture_node:parent()
     end
     if min_capture_node and utils.node_contains(min_capture_node, node) then
-      table.insert(trees, {
+      trees[#trees + 1] = {
         lang = lang_tree:lang(),
         tstree = tree,
         min_capture_node = min_capture_node,
-      })
+      }
     end
   end)
 
@@ -87,6 +91,10 @@ local function _peek_parent(self)
   if not self.node then
     return
   end
+  if self._p_key == self.node then
+    return unpack(self._p)
+  end
+  self._p_key = self.node
   local cur = self.node:parent()
   local stack_pos = #self.tree_stack - 1
   -- we need to check whether the new parent contains old node
@@ -106,6 +114,7 @@ local function _peek_parent(self)
       return
     end
   end
+  self._p = { cur, stack_pos + 1 }
   return cur, stack_pos + 1
 end
 

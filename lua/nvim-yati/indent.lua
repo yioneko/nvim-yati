@@ -69,7 +69,7 @@ function M.get_indent(lnum, bufnr, user_conf)
 
   local node_filter = function(node, lang)
     local c = (lang and cget(lang)) or bootstrap_conf
-    return not c.nodes[utils.node_type(node)].ignore
+    return not c.nodes[nt(node)].ignore
   end
   local ctx = Context:new(lnum, bufnr, node_filter, cget)
   if not ctx then
