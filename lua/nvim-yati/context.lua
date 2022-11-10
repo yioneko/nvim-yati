@@ -91,10 +91,6 @@ local function _peek_parent(self)
   if not self.node then
     return
   end
-  if self._p_key == self.node then
-    return unpack(self._p)
-  end
-  self._p_key = self.node
   local cur = self.node:parent()
   local stack_pos = #self.tree_stack - 1
   -- we need to check whether the new parent contains old node
@@ -114,7 +110,6 @@ local function _peek_parent(self)
       return
     end
   end
-  self._p = { cur, stack_pos + 1 }
   return cur, stack_pos + 1
 end
 
