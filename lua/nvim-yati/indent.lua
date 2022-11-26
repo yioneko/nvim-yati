@@ -33,13 +33,6 @@ local function exec_fallback(conf, lnum, computed, bufnr)
   return get_fallback(conf.fallback)(lnum, computed, bufnr)
 end
 
-local function can_reparse(lnum, bufnr)
-  local line = utils.get_buf_line(bufnr, lnum)
-  -- The line only has open delimiter
-  -- To fix new line jsx indent caused by 'indentkeys'
-  return vim.trim(line):find("^[%[({]$") == nil
-end
-
 function M.get_indent(lnum, bufnr, user_conf)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
 
@@ -53,7 +46,7 @@ function M.get_indent(lnum, bufnr, user_conf)
   end
 
   -- Firstly, ensure the tree is updated
-  if not root_tree:is_valid() and can_reparse(lnum, bufnr) then
+  if not root_tree:is_valid() then
     root_tree:parse()
   end
 

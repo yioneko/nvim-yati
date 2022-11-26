@@ -8,6 +8,7 @@ return extend(config, {
     "enum_body",
     "type_arguments",
     "type_parameters",
+    "implements_clause",
   },
   scope_open = {
     "property_signature",

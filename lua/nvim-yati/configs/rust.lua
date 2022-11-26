@@ -59,6 +59,7 @@ local config = {
     on_initial = {
       ch.multiline_string_literal("string_literal"),
       ch.multiline_string_literal("raw_string_literal"),
+      ch.block_comment_extra_indent("block_comment", {}),
       handlers.dedent_field_on_close_initial("field_expression"),
       handlers.dedent_field_on_close_initial("await_expression"),
     },
