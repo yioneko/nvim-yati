@@ -30,6 +30,8 @@ local config = {
     "elif_clause",
     "else_clause",
     "for_statement",
+    "match_statement",
+    "case_clause",
     "while_statement",
     "with_statement",
     "try_statement",

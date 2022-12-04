@@ -86,6 +86,16 @@ def fooaaaaaaaa(a,
     c = lambda x: \
         x + 3
 
+    match x:
+        MARKER
+        case {0: [1, 2, {}]}:
+            y = 0
+        case {0: [1, 2, {}] | True} | {1: [[]]} | {0: [1, 2, {}]} | [] | "X" | {}:
+            MARKER
+            y = 1
+        case []:
+            y = 2
+
     return (
         a,
         b
