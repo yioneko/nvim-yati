@@ -34,13 +34,15 @@ local config = {
     "for_statement",
     "for_in_statement",
     "while_statement",
-    "switch_case",
-    "switch_default",
     "jsx_self_closing_element",
     "assignment_expression",
     "arrow_function",
     "call_expression",
     "pair",
+  },
+  scope_open_extended = {
+    "switch_case",
+    "switch_default",
   },
   indent_list = {
     "object",

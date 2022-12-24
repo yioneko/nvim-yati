@@ -45,6 +45,8 @@ while (mycondition)
   }
 
 switch (e) {
+  case 4:
+    MARKER
   case 5:
     something();
     more();
@@ -52,7 +54,7 @@ switch (e) {
     somethingElse();
   case 7:
   default:
-    done();
+    MARKER
 }
 
 for (
