@@ -3,7 +3,7 @@ console.log("hello");
 console.log("hello");
 </script>
 
-<script lang="jsx">
+<script lang="js">
 import {
   VNode
 } from "vue"
