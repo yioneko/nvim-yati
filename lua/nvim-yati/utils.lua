@@ -1,9 +1,10 @@
 local M = {}
-local ts_parser = require("nvim-treesitter.parsers")
 
 ---@return LanguageTree
 function M.get_parser(bufnr)
-  return ts_parser.get_parser(bufnr)
+  local ft = vim.bo[bufnr].filetype
+  local lang = vim.treesitter.language.get_lang(ft)
+  return vim.treesitter.get_parser(bufnr, lang)
 end
 
 ---@return string

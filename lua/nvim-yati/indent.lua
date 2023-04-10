@@ -138,7 +138,7 @@ function M.indentexpr(vlnum)
   end
 
   logger("START", "Line " .. vlnum)
-  local ok, indent = pcall(M.get_indent, vlnum - 1)
+  local ok, indent = xpcall(M.get_indent, debug.traceback, vlnum - 1)
   if ok then
     logger("END", "Total computed: " .. indent)
     return indent
@@ -146,7 +146,11 @@ function M.indentexpr(vlnum)
     logger("END", "Error: " .. indent)
     vim.schedule(function()
       vim.notify_once(
-        string.format("[nvim-yati]: indent computation for line %s failed, consider submitting an issue for it", vlnum),
+        string.format(
+          "[nvim-yati]: indent computation for line %s failed, consider submitting an issue for it\n%s",
+          vlnum,
+          indent
+        ),
         vim.log.levels.WARN
       )
     end)

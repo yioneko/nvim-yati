@@ -62,6 +62,7 @@ local config = {
   handlers = {
     on_initial = {
       ch.multiline_string_literal("string"),
+      ch.multiline_string_literal("string_content"),
     },
     on_traverse = {
       ch.dedent_pattern("else", "identifier", "if_statement"),

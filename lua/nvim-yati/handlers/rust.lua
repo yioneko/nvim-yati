@@ -4,7 +4,7 @@ local nt = utils.node_type
 local M = {}
 
 local function check_prev_field_closed(field_node, bufnr)
-  local lines = vim.treesitter.get_node_text(field_node, bufnr, { concat = false })
+  local lines = vim.split(vim.treesitter.get_node_text(field_node, bufnr, {}), "\n")
   for i = #lines, 1, -1 do
     local first_char = vim.trim(lines[i]):sub(1, 1)
     -- skip previous chained field or empty line
