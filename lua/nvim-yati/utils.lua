@@ -7,6 +7,11 @@ function M.get_parser(bufnr)
   return vim.treesitter.get_parser(bufnr, lang)
 end
 
+-- `get_lang` is only available in Neovim v0.9 and above
+if vim.treesitter.language.get_lang == nil then
+  M.get_parser = require("nvim-treesitter.parser").get_parser
+end
+
 ---@return string
 function M.get_buf_line(bufnr, lnum)
   return vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1] or ""
