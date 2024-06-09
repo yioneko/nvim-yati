@@ -3,6 +3,7 @@ local say = require("say")
 local get_indent = require("nvim-yati.indent").get_indent
 local scandir = require("plenary.scandir").scan_dir
 local utils = require("nvim-yati.utils")
+local logger = require("nvim-yati.logger")
 
 local test_file_dir = "tests/fixtures/"
 local ignore_pattern = ".*%.fail%..*"
@@ -28,7 +29,9 @@ local function same_indent(state, arguments)
   local lnum = arguments[1]
   local expected = arguments[2]
 
+  logger("TEST_START", "Line " .. lnum)
   local indent = get_indent(lnum - 1)
+  logger("TEST_END", "Indent " .. indent)
   return indent == expected
 end
 
@@ -54,6 +57,11 @@ end
 function M.expected_indents_iter(marker_str, bufnr)
   local line_cnt = vim.api.nvim_buf_line_count(bufnr)
   local empty_indents = extract_marker(bufnr, marker_str)
+
+  -- full parse before testing (for injection)
+  local parser = vim.treesitter.get_parser(bufnr)
+  parser:parse(true)
+
   local lnum = 0
   return function()
     while lnum < line_cnt do

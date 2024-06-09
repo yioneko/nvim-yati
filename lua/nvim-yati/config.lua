@@ -3,17 +3,17 @@ local get_module_config = require("nvim-treesitter.configs").get_module
 local M = {}
 
 ---@class YatiBuiltinConfig
----@field scope string[]
----@field scope_open string[]
----@field scope_open_extended string[]
----@field indent_zero string[]
----@field indent_align string[]
----@field indent_list string[]
----@field indent_fallback string[]
----@field ignore string[]
----@field dedent_child table<string, string[]>
----@field handlers YatiHandlers
----@field fallback YatiFallback
+---@field scope? string[]
+---@field scope_open? string[]
+---@field scope_open_extended? string[]
+---@field indent_zero? string[]
+---@field indent_align? string[]
+---@field indent_list? string[]
+---@field indent_fallback? string[]
+---@field ignore? string[]
+---@field dedent_child? table<string, string[]>
+---@field handlers? YatiHandlers
+---@field fallback? YatiFallback
 
 ---@class YatiNodeConfig
 ---@field scope boolean

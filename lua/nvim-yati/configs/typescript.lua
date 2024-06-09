@@ -9,6 +9,7 @@ return extend(config, {
     "type_arguments",
     "type_parameters",
     "implements_clause",
+    "interface_body",
   },
   scope_open = {
     "property_signature",

@@ -1,5 +1,5 @@
 local M = {
-  enable = false,
+  enable = vim.env.DEBUG_YATI,
   disabled_context = {},
 }
 

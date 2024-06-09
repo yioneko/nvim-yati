@@ -18,10 +18,9 @@ local function handle_indent_align(ctx, parent)
     ctx:add(ecol - scol)
 
     -- navigate up to skip same line node
-    while parent:parent() and parent:parent():start() == parent:start() do
-      parent = parent:parent()
+    while ctx:parent() and ctx:parent():start() == parent:start() do
+      ctx:to_parent()
     end
-    ctx:relocate(parent, true)
 
     return parent
   end

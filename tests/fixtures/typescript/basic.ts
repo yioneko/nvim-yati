@@ -26,8 +26,8 @@ interface Bar
   aaa: a extends object
     ? a
     : c extends AAA
-    ? foo
-    : bar;
+      ? foo
+      : bar;
 }
 
 type Foo2<A,

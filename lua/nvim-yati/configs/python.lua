@@ -59,6 +59,9 @@ local config = {
     while_statement = { "else_clause", "parenthesized_expression" },
     try_statement = { "except_clause", "else_clause", "finally_clause", "parenthesized_expression" },
   },
+  ignore = {
+    "block",
+  },
   handlers = {
     on_initial = {
       ch.multiline_string_literal("string"),

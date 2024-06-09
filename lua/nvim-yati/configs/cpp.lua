@@ -30,6 +30,7 @@ return extend(config, {
       "if_statement",
       "condition_clause",
       "'else'",
+      "else_clause",
     },
     else_clause = { "compound_statement" },
     while_statement = { "compound_statement", "condition_clause" },

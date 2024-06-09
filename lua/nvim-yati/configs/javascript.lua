@@ -57,7 +57,7 @@ local config = {
     for_in_statement = { "statement_block", "'('", "')'" },
     arrow_function = { "statement_block" },
     jsx_fragment = { "'<'" },
-    jsx_self_closing_element = { "'/'" },
+    jsx_self_closing_element = { "'/>'" },
   },
   ignore = { "jsx_text" },
   handlers = {

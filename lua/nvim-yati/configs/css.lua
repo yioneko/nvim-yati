@@ -4,6 +4,10 @@ local config = {
     "block",
     "declaration",
   },
+  ignore = {
+    "raw_text",
+    "stylesheet",
+  },
 }
 
 return config

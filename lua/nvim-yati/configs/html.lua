@@ -8,6 +8,9 @@ local config = {
     "end_tag",
     "self_closing_tag",
   },
+  ignore = {
+    "raw_text",
+  },
 }
 
 return config

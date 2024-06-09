@@ -16,6 +16,7 @@ local config = {
   scope_open = {
     "for_statement",
     "if_statement",
+    "else_clause",
     "while_statement",
     "do_statement",
     "case_statement",
@@ -43,6 +44,7 @@ local config = {
       "if_statement",
       "parenthesized_expression",
       "'else'",
+      "else_clause",
     },
     else_clause = { "compound_statement", "parenthesized_expression" },
     while_statement = { "compound_statement", "parenthesized_expression" },

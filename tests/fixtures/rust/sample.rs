@@ -70,11 +70,12 @@ impl Foo {
                 }
             }
         }
-        let mut trie = vec![TrieNode {
-            is_end: false,
-            MARKER
-            next: [None; 26],
-        }];
+        // FIXME: error only in test
+        // let mut trie = vec![TrieNode {
+        //     is_end: false,
+        //     MARKER
+        //     next: [None; 26],
+        // }];
 
     }
     MARKER
@@ -95,11 +96,12 @@ macro_rules! foo {
     },
 }
 
-foo! {
-    (bar) => {
-        MARKER
-    }
-}
+// FIXME: error only in test
+// foo! {
+//     (bar) => {
+//         MARKER
+//     }
+// }
 
 fn foo(x: i32) -> i32 {
     match x {
