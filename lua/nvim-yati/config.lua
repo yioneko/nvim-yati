@@ -39,6 +39,7 @@ local M = {}
 ---@field default_fallback nil|YatiFallback
 ---@field default_lazy nil|boolean
 ---@field suppress_conflict_warning nil|boolean
+---@field suppress_indent_err nil|boolean
 
 ---@type YatiBuiltinConfig
 local common_config = {

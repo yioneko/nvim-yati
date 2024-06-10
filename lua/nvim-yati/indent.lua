@@ -144,16 +144,19 @@ function M.indentexpr(vlnum)
     return indent
   else
     logger("END", "Error: " .. indent)
-    vim.schedule(function()
-      vim.notify_once(
-        string.format(
-          "[nvim-yati]: indent computation for line %s failed, consider submitting an issue for it\n%s",
-          vlnum,
-          indent
-        ),
-        vim.log.levels.WARN
-      )
-    end)
+    -- only show err if option explicitly set to false
+    if o.get_user_config().suppress_indent_err == false then
+      vim.schedule(function()
+        vim.notify_once(
+          string.format(
+            "[nvim-yati]: indent computation for line %s failed, consider submitting an issue for it\n%s",
+            vlnum,
+            indent
+          ),
+          vim.log.levels.WARN
+        )
+      end)
+    end
     return -1
   end
 end
