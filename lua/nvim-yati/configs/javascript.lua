@@ -63,12 +63,14 @@ local config = {
   handlers = {
     on_initial = {
       ch.multiline_string_literal("template_string"),
+      ch.multiline_string_literal("string_fragment"),
       ch.block_comment_extra_indent("comment", {}),
     },
     on_traverse = {
       ch.ternary_flatten_indent("ternary_expression"),
       ch.chained_field_call("arguments", "member_expression", "property"),
       ch.multiline_string_injection("template_string", "`"),
+      ch.multiline_string_injection("string_fragment", "`"),
     },
   },
 }

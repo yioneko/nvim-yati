@@ -70,12 +70,12 @@ impl Foo {
                 }
             }
         }
-        // FIXME: error only in test
-        // let mut trie = vec![TrieNode {
-        //     is_end: false,
-        //     MARKER
-        //     next: [None; 26],
-        // }];
+
+        let mut trie = vec![TrieNode {
+            is_end: false,
+            MARKER
+            next: [None; 26],
+        }];
 
     }
     MARKER
@@ -86,22 +86,11 @@ trait Bar {
     MARKER
 }
 
-macro_rules! foo {
-    ($a:ident, $b:ident, $c:ident) => {
-        struct $a;
-        struct $b;
-    },
-    ($a:ident) => {
-        struct $a;
-    },
+foo! {
+    (bar) => {
+        MARKER
+    }
 }
-
-// FIXME: error only in test
-// foo! {
-//     (bar) => {
-//         MARKER
-//     }
-// }
 
 fn foo(x: i32) -> i32 {
     match x {

@@ -5,7 +5,7 @@ function inject() {
       color: red;
     }
   `
-  const query = graphql`
+  const query = gql`
     {
       args(
         var: $var
