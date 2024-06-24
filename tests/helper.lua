@@ -16,6 +16,7 @@ local test_langs = {
   "json",
   "lua",
   "python",
+  "ruby",
   "rust",
   "toml",
   "tsx",

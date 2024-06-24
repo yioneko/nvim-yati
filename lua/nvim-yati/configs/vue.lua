@@ -7,6 +7,7 @@ local config = {
     "end_tag",
     "interpolation",
     "self_closing_tag",
+    "interpolation",
   },
   ignore = { "text", "raw_text" },
 }
